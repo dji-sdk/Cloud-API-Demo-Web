@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "types": ["vite/client"],
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "paths": {
+      "/@/*": [
+        "src/*"
+      ],
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+, "src/vendors/coordtransform.js"  ]
+}

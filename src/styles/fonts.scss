@@ -1,0 +1,72 @@
+$font-family-sans-serif: 'Open Sans', BlinkMacSystemFont, 'Segoe UI', Roboto,
+  'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+  'Microsoft YaHei', SimSun, sans-serif;
+
+$line-heights: (
+  12: 20px,
+  14: 22px,
+  16: 24px,
+  18: 26px
+);
+
+// 用法: @include text(12)
+@mixin text($size) {
+  font-size: #{$size}px;
+  line-height: map-get($line-heights, $size);
+}
+
+// 常规体
+@mixin text-regular {
+  font-weight: 400;
+}
+
+// 中粗体
+@mixin text-semibold {
+  font-weight: 600;
+}
+
+@mixin ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fz10 {
+  font-size: 10;
+}
+.fz12 {
+  font-size: 12px;
+}
+.fz14 {
+  font-size: 14px;
+}
+.fz16 {
+  font-size: 16px;
+}
+.fz18 {
+  font-size: 18px;
+}
+.fz20 {
+  font-size: 20px;
+}
+.fz22 {
+  font-size: 22px;
+}
+.fz24 {
+  font-size: 24px;
+}
+.fz26 {
+  font-size: 26px;
+}
+.fz28 {
+  font-size: 28px;
+}
+.fz30 {
+  font-size: 30px;
+}
+.fz32 {
+  font-size: 32px;
+}
+.fz35 {
+  font-size: 35px;
+}

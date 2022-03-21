@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs><path d="m14.042 0 14.043 8.055-5.128 2.941 5.128 2.941-5.127 2.94 5.127 2.942-14.043 8.055L0 19.82l5.126-2.942L0 13.937l5.127-2.941L0 8.056 14.042 0zM7.638 18.318l-2.614 1.5 9.018 5.175 9.017-5.174-2.614-1.5-6.403 3.674-6.404-3.675zm0-5.882-2.615 1.5 9.02 5.175 9.017-5.173-2.615-1.501-6.403 3.674-6.404-3.675zm6.404-9.554L5.024 8.056l9.018 5.174 9.017-5.174-9.017-5.174z" id="layer_a"></path></defs><g transform="translate(2 2)" fill-rule="evenodd"><mask id="layer_b"><use xlink:href="#layer_a"></use></mask><use fill-rule="nonzero" xlink:href="#layer_a"></use><g mask="url(#layer_b)"><path d="M-19-20h68v68h-68z"></path></g></g>
+</svg>

@@ -1,0 +1,19 @@
+
+html, body, #app, #my-app {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: #f7f9fa;
+  -webkit-font-smoothing: antialiased;
+  // Prevent font enlargement in horizontal screen
+  text-size-adjust: 100%;
+
+  font-family: Roboto, sans-serif-medium, Arial, sans-serif;
+  color: $main-text-color;
+  font-size: 14px;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 61.2 (89653) - https://sketch.com -->
+    <title>2图标/24px/pin</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M6.56239716,0 L13.1247943,9.89949494 L6.56239716,19.7989899 L0,9.89949494 L6.56239716,0 Z M6.56239716,3.61897251 L2.39965953,9.89878783 L6.56239716,16.1786032 L10.7251348,9.89878783 L6.56239716,3.61897251 Z" id="path-1"></path>
+    </defs>
+    <g id="2图标//24px/pin" stroke="none" stroke-width="1" fill="#FFBB00" fill-rule="evenodd">
+        <g id="编组" transform="translate(5.000000, 2.000000)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <use id="形状" fill="#FFBB00" fill-rule="nonzero" xlink:href="#path-1"></use>
+            <g id="1颜色/ic色/nor" mask="url(#mask-2)" fill="#FFBB00">
+                <g transform="translate(-26.000000, -26.000000)">
+                    <rect x="0" y="0" width="68" height="68"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

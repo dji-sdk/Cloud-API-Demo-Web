@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   <defs><path d="M29.5 4v21.5h-4v2H3V8h3V4h23.5zM10.553 18.859 5.5 22.399V25H23v-6.088l-7.011 5.108-5.436-5.161zM27 6.5H8.499L8.5 8h17v15H27V6.5zm-4 4H5.5v8.847l5.293-3.707 5.406 5.133L23 15.819V10.5zm-6.362 1.956a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" id="media_a"></path></defs><g fill-rule="evenodd"><mask id="media_b"><use xlink:href="#media_a"></use></mask><use fill-rule="nonzero" xlink:href="#media_a"></use><g mask="url(#media_b)"><path d="M-17-18h68v68h-68z"></path></g></g>
+</svg>
