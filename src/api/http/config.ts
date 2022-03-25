@@ -1,6 +1,6 @@
 export const CURRENT_CONFIG = {
 
-  baseURL: 'Please enter the backend access address prefix.', // This url must end with "/". Example: 'http://192.168.1.1:6789/cloud/'
+  baseURL: 'Please enter the backend access address prefix.', // This url must end with "/". Example: 'http://192.168.1.1:6789/'
   websocketURL: 'Please enter the WebSocket access address.',  // Example: 'ws://192.168.1.1:6789/api/v1/ws'
 
   rtmpURL: 'Please enter the rtmp access address.',  // Example: 'rtmp://192.168.1.1/live/'
