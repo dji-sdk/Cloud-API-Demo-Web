@@ -117,20 +117,6 @@ const agoraParam = {
 const rtmpParam = {
   url: config.rtmpURL + '12345'
 }
-const rtspParam = {
-  userName: 'dji-live-share',
-  password: '12345678',
-  port: '8554'
-}
-const gb28181Param = {
-  serverIp: '114.55.103.238',
-  serverPort: '5060',
-  serverId: '34020000002000000001',
-  agentId: '34020000001310000004',
-  password: '12345678',
-  agentPort: '7060',
-  agentChannel: '34020000001310000004'
-}
 const liveState = ref<string>('STOP')
 const livetypeSelected = ref<number>(1)
 const publishModeSelected = ref<string>('video-demand-aux-manual')
@@ -174,14 +160,14 @@ const onPlay = () => {
       break
     }
     case 3: {
-      message.info('rtspParam:' + JSON.stringify(rtspParam))
-      apiPilot.setLiveshareConfig(3, JSON.stringify(rtspParam))
+      message.info('rtspParam:' + config.rtspPara)
+      apiPilot.setLiveshareConfig(3, config.rtspPara)
       apiPilot.startLiveshare()
       break
     }
     case 4: {
-      message.info('gb28181Param:' + JSON.stringify(gb28181Param))
-      apiPilot.setLiveshareConfig(4, JSON.stringify(gb28181Param))
+      message.info('gb28181Param:' + config.gb28181Para)
+      apiPilot.setLiveshareConfig(4, config.gb28181Para)
       apiPilot.startLiveshare()
       break
     }
