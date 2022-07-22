@@ -1,7 +1,11 @@
 import { InjectionKey } from 'vue'
 import { ActionTree, createStore, GetterTree, MutationTree, Store, StoreOptions, useStore } from 'vuex'
+import { EDeviceTypeName } from '../types'
+import { Device, DeviceHms, DeviceOsd, DeviceStatus, DockOsd, GatewayOsd, OSDVisible } from '../types/device'
 import { getLayers } from '/@/api/layer'
 import { LayerType } from '/@/types/mapLayer'
+import { ETaskStatus, TaskInfo, WaylineFile } from '/@/types/wayline'
+
 const initStateFunc = () => ({
   Layers: [
     {
@@ -23,12 +27,6 @@ const initStateFunc = () => ({
       type: 2
     }
   ],
-  GatewayInfo: { // remote controller, dock
-
-  },
-  DeviceInfo: { // drone
-
-  },
   layerBaseInfo: {} as {
     [key:string]:string
   },
@@ -40,6 +38,55 @@ const initStateFunc = () => ({
     mapElementCreat: {},
     mapElementUpdate: {},
     mapElementDelete: {}
+  },
+  deviceStatusEvent: {
+    deviceOnline: {} as DeviceStatus,
+    deviceOffline: {}
+  },
+  markerInfo: {
+    coverMap: {} as {
+      [sn: string]: any
+    },
+    pathMap: {} as {
+      [sn: string]: any[]
+    }
+  },
+  deviceState: {
+    // remote controller, dock
+    gatewayInfo: {} as {
+      [sn: string]: GatewayOsd
+    },
+    // drone
+    deviceInfo: {} as {
+      [sn: string]: DeviceOsd
+    },
+    dockInfo: {} as {
+      [sn: string]: DockOsd
+    },
+    currentSn: '',
+    currentType: ''
+  },
+  osdVisible: {
+    sn: '',
+    callsign: '',
+    model: '',
+    visible: false,
+    gateway_sn: '',
+    is_dock: false,
+  } as OSDVisible,
+  waylineInfo: {
+
+  } as WaylineFile,
+  dockInfo: {
+
+  } as Device,
+  taskProgressInfo: {
+
+  } as {
+    [bid: string]: TaskInfo
+  },
+  hmsInfo: {} as {
+    [sn: string]: DeviceHms[]
   }
 })
 
@@ -52,12 +99,29 @@ const mutations: MutationTree<RootStateType> = {
     state.Layers = info
   },
   SET_DEVICE_INFO (state, info) {
-    state.DeviceInfo = info
-    // console.log(state.DeviceInfo)
+    state.deviceState.deviceInfo[info.sn] = info.host
+    state.deviceState.currentSn = info.sn
+    state.deviceState.currentType = EDeviceTypeName.Aircraft
   },
   SET_GATEWAY_INFO (state, info) {
-    state.GatewayInfo = info
-    // console.log(state.GatewayInfo)
+    state.deviceState.gatewayInfo[info.sn] = info.host
+    state.deviceState.currentSn = info.sn
+    state.deviceState.currentType = EDeviceTypeName.Gateway
+  },
+  SET_DOCK_INFO (state, info) {
+    state.deviceState.currentSn = info.sn
+    state.deviceState.currentType = EDeviceTypeName.Dock
+    const dock = state.deviceState.dockInfo[info.sn]
+    if (info.host.sdr && state.deviceState.dockInfo[info.sn]) {
+      dock.sdr = info.host.sdr
+      dock.media_file_detail = info.host.media_file_detail
+      return
+    }
+    const sdr = dock?.sdr
+    const mediaFileDetail = dock?.media_file_detail
+    state.deviceState.dockInfo[info.sn] = info.host
+    state.deviceState.dockInfo[info.sn].sdr = sdr
+    state.deviceState.dockInfo[info.sn].media_file_detail = mediaFileDetail
   },
   SET_DRAW_VISIBLE_INFO (state, bool) {
     state.drawVisible = bool
@@ -71,6 +135,43 @@ const mutations: MutationTree<RootStateType> = {
   SET_MAP_ELEMENT_DELETE (state, info) {
     state.wsEvent.mapElementDelete = info
   },
+  SET_DEVICE_ONLINE (state, info) {
+    state.deviceStatusEvent.deviceOnline = info
+  },
+  SET_DEVICE_OFFLINE (state, info) {
+    state.deviceStatusEvent.deviceOffline = info
+    delete state.deviceState.gatewayInfo[info.sn]
+    delete state.deviceState.deviceInfo[info.sn]
+    delete state.deviceState.dockInfo[info.sn]
+    delete state.hmsInfo[info.sn]
+    
+    // delete state.markerInfo.coverMap[info.sn]
+    // delete state.markerInfo.pathMap[info.sn]
+  },
+  SET_OSD_VISIBLE_INFO (state, info) {
+    state.osdVisible = info
+  },
+  SET_SELECT_WAYLINE_INFO (state, info) {
+    state.waylineInfo = info
+  },
+  SET_SELECT_DOCK_INFO (state, info) {
+    state.dockInfo = info
+  },
+  SET_FLIGHT_TASK_PROGRESS (state, info) {
+    const taskInfo: TaskInfo = info.output
+
+    if (taskInfo.status === ETaskStatus.OK || taskInfo.status === ETaskStatus.FAILED) {
+      taskInfo.status = taskInfo.status.concat('(Code:').concat(info.result).concat(')')
+      setTimeout(() => {
+        delete state.taskProgressInfo[info.bid]
+      }, 60000)
+    }
+    state.taskProgressInfo[info.bid] = info.output
+  },
+  SET_DEVICE_HMS_INFO (state, info) {
+    const hmsList: Array<DeviceHms> = state.hmsInfo[info.sn]
+    state.hmsInfo[info.sn] = info.host.concat(hmsList ?? [])
+  }
 }
 
 const actions: ActionTree<RootStateType, RootStateType> = {

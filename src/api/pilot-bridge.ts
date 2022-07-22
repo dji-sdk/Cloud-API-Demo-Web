@@ -1,95 +1,151 @@
+import { message } from 'ant-design-vue'
+import { EComponentName, EPhotoType, ERouterName } from '../types'
+import { CURRENT_CONFIG } from './http/config'
+import { EVideoPublishType, LiveStreamStatus } from '../types/live-stream'
 import { getRoot } from '/@/root'
 
 const root = getRoot()
-const components = new Map()
-
+export const components = new Map()
 declare let window:any
-
 interface JsResponse{
   code:number,
   message:string,
-  data:{}
+  data:any
+}
+
+export interface ThingParam {
+  host: string,
+  username: string,
+  password: string,
+  connectCallback: string
+}
+
+export interface LiveshareParam {
+  videoPublishType: string, // video-on-demand、video-by-manual、video-demand-aux-manual
+  statusCallback: string
+}
+
+export interface MapParam {
+  userName: string,
+  elementPreName: string
+}
+
+export interface WsParam {
+  host: string,
+  token: string,
+  connectCallback: string
+}
+
+export interface ApiParam {
+  host: string,
+  token: string
+}
+
+export interface MediaParam {
+  autoUploadPhoto: boolean, // 是否自动上传图片, 非必需
+  autoUploadPhotoType: number, // 自动上传的照片类型，0：原图， 1：缩略图， 非必需
+  autoUploadVideo: boolean // 是否自动上传视频， 非必需
+}
+
+function returnBool (response: string): boolean {
+  const res: JsResponse = JSON.parse(response)
+  const isError = errorHint(res)
+  if (JSON.stringify(res.data) !== '{}') {
+    return isError && res.data
+  }
+  return isError
+}
+
+function returnString (response: string): string {
+  const res: JsResponse = JSON.parse(response)
+  return errorHint(res) ? res.data : ''
+}
+
+function returnNumber (response: string): number {
+  const res: JsResponse = JSON.parse(response)
+  return errorHint(res) ? res.data : -1
+}
+
+function errorHint (response: JsResponse): boolean {
+  if (response.code !== 0) {
+    message.error(response.message)
+    console.error(response.message)
+    return false
+  }
+  return true
 }
 
 export default {
-  init () {
-    components.set('thing', {
+  init (): Map<EComponentName, any> {
+    const thingParam: ThingParam = {
       host: '',
       connectCallback: '',
       username: '',
       password: ''
-    })
-    components.set('liveshare', {
-      videoPublishType: 'video-demand-aux-manual', // video-on-demand、video-by-manual、video-demand-aux-manual
-      statusCallback: ''
-    })
-    components.set('map', {
+    }
+    components.set(EComponentName.Thing, thingParam)
+    const liveshareParam: LiveshareParam = {
+      videoPublishType: EVideoPublishType.VideoDemandAuxManual,
+      statusCallback: 'liveStatusCallback'
+    }
+    components.set(EComponentName.Liveshare, liveshareParam)
+    const mapParam: MapParam = {
       userName: '',
-      elementPreName: ''
-    })
-    components.set('ws', {
-      host: '',
+      elementPreName: 'PILOT'
+    }
+    components.set(EComponentName.Map, mapParam)
+    const wsParam: WsParam = {
+      host: CURRENT_CONFIG.websocketURL,
       token: '',
-      connectCallback: ''
-    })
-    components.set('api', {
+      connectCallback: 'wsConnectCallback'
+    }
+    components.set(EComponentName.Ws, wsParam)
+    const apiParam: ApiParam = {
       host: '',
       token: ''
-    })
-    components.set('tsa', {
-    })
-    components.set('media', {
-      autoUploadPhoto: true, // 是否自动上传图片, 非必需
-      autoUploadPhotoType: 1, // 自动上传的照片类型，0：原图， 1：缩略图， 非必需
-      autoUploadVideo: true // 是否自动上传视频， 非必需
-    })
-    components.set('mission', {
-    })
+    }
+    components.set(EComponentName.Api, apiParam)
+    components.set(EComponentName.Tsa, {})
+    const mediaParam: MediaParam = {
+      autoUploadPhoto: true,
+      autoUploadPhotoType: EPhotoType.Preview,
+      autoUploadVideo: true
+    }
+    components.set(EComponentName.Media, mediaParam)
+    components.set(EComponentName.Mission, {})
+
+    return components
   },
-  getComponentParam (key:string) {
+
+  getComponentParam (key:EComponentName): any {
     return components.get(key)
   },
-  setComponentParam (key:string, value:any) {
+  setComponentParam (key:EComponentName, value:any) {
     components.set(key, value)
   },
   loadComponent (name:string, param:any):string {
-    return window.djiBridge.platformLoadComponent(name, JSON.stringify(param))
+    return returnString(window.djiBridge.platformLoadComponent(name, JSON.stringify(param)))
   },
   unloadComponent (name:string) :string {
-    return window.djiBridge.platformUnloadComponent(name)
+    return returnString(window.djiBridge.platformUnloadComponent(name))
   },
-  isComponentLoaded (module:string):string {
-    return window.djiBridge.platformIsComponentLoaded(module)
+  isComponentLoaded (module:string): boolean {
+    return returnBool(window.djiBridge.platformIsComponentLoaded(module))
   },
   setWorkspaceId (uuid:string):string {
-    return window.djiBridge.platformSetWorkspaceId(uuid)
+    return returnString(window.djiBridge.platformSetWorkspaceId(uuid))
   },
-  setPlatformMessage (platformName:string, title:string, desc:string):string {
-    return window.djiBridge.platformSetInformation(platformName, title, desc)
+  setPlatformMessage (platformName:string, title:string, desc:string): boolean {
+    return returnBool(window.djiBridge.platformSetInformation(platformName, title, desc))
   },
   getRemoteControllerSN () :string {
-    return window.djiBridge.platformGetRemoteControllerSN()
+    return returnString(window.djiBridge.platformGetRemoteControllerSN())
   },
   getAircraftSN ():string {
-    return window.djiBridge.platformGetAircraftSN()
+    return returnString(window.djiBridge.platformGetAircraftSN())
   },
   stopwebview ():string {
-    return window.djiBridge.platformStopSelf()
-  },
-  getToken () :string {
-    const res:string = this.isComponentLoaded('api')
-    const resObj = JSON.parse(res)
-    console.log('api load status:', resObj)
-    if (resObj.data === true) {
-      const tokenRes = JSON.parse(window.djiBridge.apiGetToken())
-      return tokenRes.data
-    } else {
-      console.warn('warning: not api component loaded!!')
-      return ''
-    }
-  },
-  setToken (token:string):string {
-    return window.djiBridge.apiSetToken(token)
+    return returnString(window.djiBridge.platformStopSelf())
   },
   setLogEncryptKey (key:string):string {
     return window.djiBridge.platformSetLogEncryptKey(key)
@@ -98,14 +154,42 @@ export default {
     return window.djiBridge.platformClearLogEncryptKey()
   },
   getLogPath ():string {
-    return window.djiBridge.platformGetLogPath()
+    return returnString(window.djiBridge.platformGetLogPath())
   },
-  platformVerifyLicense (appId:string, appKey:string, appLicense:string):string {
-    return window.djiBridge.platformVerifyLicense(appId, appKey, appLicense)
+  platformVerifyLicense (appId:string, appKey:string, appLicense:string): boolean {
+    return returnBool(window.djiBridge.platformVerifyLicense(appId, appKey, appLicense))
   },
-  isPlatformVerifySuccess ():string {
-    return window.djiBridge.platformIsVerified()
+  isPlatformVerifySuccess (): boolean {
+    return returnBool(window.djiBridge.platformIsVerified())
   },
+  isAppInstalled (pkgName: string): boolean {
+    return returnBool(window.djiBridge.platformIsAppInstalled(pkgName))
+  },
+  getVersion (): string {
+    return window.djiBridge.platformGetVersion()
+  },
+
+  // thing
+  thingGetConnectState (): boolean {
+    return returnBool(window.djiBridge.thingGetConnectState())
+  },
+
+  thingGetConfigs (): ThingParam {
+    const thingParam = JSON.parse(window.djiBridge.thingGetConfigs())
+    return thingParam.code === 0 ? JSON.parse(thingParam.data) : {}
+  },
+
+  // api
+  getToken () : string {
+    return returnString(window.djiBridge.apiGetToken())
+  },
+  setToken (token:string):string {
+    return returnString(window.djiBridge.apiSetToken(token))
+  },
+  getHost (): string {
+    return returnString(window.djiBridge.apiGetHost())
+  },
+
   // liveshare
   /**
    *
@@ -114,8 +198,8 @@ export default {
    * video-by-manual：手动点播，配置好直播类型参数之后，在图传页面可修改直播参数，停止直播
    * video-demand-aux-manual: 混合模式，支持服务器点播，以及图传页面修改直播参数，停止直播
    */
-  setVideoPublishType (type:string):string {
-    return window.djiBridge.liveshareSetVideoPublishType(type)
+  setVideoPublishType (type:string): boolean {
+    return returnBool(window.djiBridge.liveshareSetVideoPublishType(type))
   },
 
   /**
@@ -123,8 +207,8 @@ export default {
    * @returns
    * type: liveshare type， 0：unknown, 1:agora, 2:rtmp, 3:rtsp, 4:gb28181
    */
-  getLiveshareConfig () {
-    return window.djiBridge.liveshareGetConfig()
+  getLiveshareConfig (): string {
+    return returnString(window.djiBridge.liveshareGetConfig())
   },
 
   setLiveshareConfig (type:number, params:string):string {
@@ -134,50 +218,66 @@ export default {
   setLiveshareStatusCallback (callbackFunc:string) :string {
     return window.djiBridge.liveshareSetStatusCallback(callbackFunc)
   },
-  getLiveshareStatus () {
-    return window.djiBridge.liveshareGetStatus()
+  getLiveshareStatus (): LiveStreamStatus {
+    return JSON.parse(JSON.parse(window.djiBridge.liveshareGetStatus()).data)
   },
-  startLiveshare ():string {
-    return window.djiBridge.liveshareStartLive()
+  startLiveshare (): boolean {
+    return returnBool(window.djiBridge.liveshareStartLive())
   },
-  stopLiveshare ():string {
-    return window.djiBridge.liveshareStopLive()
+  stopLiveshare (): boolean {
+    return returnBool(window.djiBridge.liveshareStopLive())
+  },
+  // WebSocket
+  wsGetConnectState (): boolean {
+    return returnBool(window.djiBridge.wsGetConnectState())
+  },
+  wsConnect (host: string, token: string, callback: string): string {
+    return window.djiBridge.wsConnect(host, token, callback)
+  },
+  wsDisconnect (): string {
+    return window.djiBridge.wsConnect()
+  },
+  wsSend (message: string): string {
+    return window.djiBridge.wsSend(message)
   },
   // media
   setAutoUploadPhoto (auto:boolean):string {
     return window.djiBridge.mediaSetAutoUploadPhoto(auto)
   },
-  getAutoUploadPhoto () {
-    return window.djiBridge.mediaGetAutoUploadPhoto()
+  getAutoUploadPhoto (): boolean {
+    return returnBool(window.djiBridge.mediaGetAutoUploadPhoto())
   },
   setUploadPhotoType (type:number):string {
     return window.djiBridge.mediaSetUploadPhotoType(type)
   },
-  getUploadPhotoType () {
-    return window.djiBridge.mediaGetUploadPhotoType()
+  getUploadPhotoType (): number {
+    return returnNumber(window.djiBridge.mediaGetUploadPhotoType())
   },
   setAutoUploadVideo (auto:boolean):string {
     return window.djiBridge.mediaSetAutoUploadVideo(auto)
   },
-  getAutoUploadVideo () {
-    return window.djiBridge.mediaGetAutoUploadVideo()
+  getAutoUploadVideo (): boolean {
+    return returnBool(window.djiBridge.mediaGetAutoUploadVideo())
   },
   setDownloadOwner (rcIndex:number):string {
     return window.djiBridge.mediaSetDownloadOwner(rcIndex)
   },
-  getDownloadOwner () {
-    return window.djiBridge.mediaGetDownloadOwner()
+  getDownloadOwner (): number {
+    return returnNumber(window.djiBridge.mediaGetDownloadOwner())
   },
   onBackClickReg () {
     window.djiBridge.onBackClick = () => {
-      if (root.$router.currentRoute.value.path === '/pilot-home') {
-        console.log(root.$router.currentRoute.value.path)
+      if (root.$router.currentRoute.value.path === '/' + ERouterName.PILOT_HOME) {
         return false
       } else {
-        console.log(root.$router.currentRoute.value.path)
         history.go(-1)
         return true
       }
+    }
+  },
+  onStopPlatform () {
+    window.djiBridge.onStopPlatform = () => {
+      localStorage.clear()
     }
   }
 }

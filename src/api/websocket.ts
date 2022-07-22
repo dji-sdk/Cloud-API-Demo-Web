@@ -1,14 +1,14 @@
 import ReconnectingWebSocket from 'reconnecting-websocket'
+import { ELocalStorageKey } from '../types/enums'
 import { CURRENT_CONFIG as config } from '/@/api/http/config'
 
-let socket = {}
+let socket: ReconnectingWebSocket
 
 export default {
-  init (getMsgFunc) {
-    const token = localStorage.getItem('x-auth-token')
-    const wspath =
-      config.websocketURL + '?x-auth-token=' + escape(token)
-    socket = new ReconnectingWebSocket(wspath)
+  init (getMsgFunc: any) {
+    const token: string = localStorage.getItem(ELocalStorageKey.Token)!
+    const wspath = config.websocketURL + '?x-auth-token=' + encodeURI(token)
+    socket = new ReconnectingWebSocket(wspath, '', { maxRetries: 5 })
     socket.onopen = this.onOpen
     socket.onerror = this.onError
     socket.onmessage = getMsgFunc
@@ -18,13 +18,16 @@ export default {
   onOpen () {
     console.log('ws opened')
   },
-  onError (err) {
+  onError (err: any) {
     console.error(err)
   },
   onClose () {
     console.log('ws closed')
   },
-  sendMsg (data) {
-    this.socket.send(data)
+  sendMsg (data: any) {
+    socket.send(data)
+  },
+  close () {
+    socket.close()
   }
 }

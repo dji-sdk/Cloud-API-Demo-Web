@@ -1,8 +1,9 @@
+import { ELocalStorageKey } from '../types/enums'
 import request, { IWorkspaceResponse } from '/@/api/http/request'
 import { mapLayers } from '/@/constants/mock-layers'
 import { elementGroupsReq, PostElementsBody, PutElementsBody } from '/@/types/mapLayer'
 const PREFIX = '/map/api/v1'
-const workspace_id = localStorage.getItem('workspace-id')
+const workspace_id = localStorage.getItem(ELocalStorageKey.WorkspaceId)
 type UnknownResponse = Promise<IWorkspaceResponse<unknown>>
 // get elements group
 // export const getLayers = async (reqParams: elementGroupsReq): UnknownResponse => {

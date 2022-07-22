@@ -28,7 +28,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => defineConfig(
     }),
     viteVConsole({
       entry: path.resolve(__dirname, './src/main.ts'), // 入口文件
-      // localEnabled: command === 'serve', // serve开发环境下
+      localEnabled: command === 'serve', // serve开发环境下
       // enabled: command !== 'serve' || mode === 'test', // 打包环境下/发布测试包,
       config: { // vconsole 配置项
         maxLogNumber: 1000,

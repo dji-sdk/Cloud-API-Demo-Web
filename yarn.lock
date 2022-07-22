@@ -613,10 +613,17 @@
   "resolved" "https://registry.npmmirror.com/acorn/download/acorn-7.4.1.tgz"
   "version" "7.4.1"
 
-"agora-rtc-sdk-ng@latest":
-  "integrity" "sha512-Jogn3TQC7VdA7uZjGYmaAs0XzgYBgGs6nGA67/dQVjqC7kiwAfkQsAuvbevE/qxrVJmLfqtDTNxP40IFvnTlgQ=="
-  "resolved" "https://registry.npmmirror.com/agora-rtc-sdk-ng/-/agora-rtc-sdk-ng-4.9.1.tgz"
-  "version" "4.9.1"
+"agora-rtc-sdk-ng@^4.12.1":
+  "integrity" "sha512-kmc+ZyKDdnY/BN3iAwBs+MSgTX8Zkc6THFSIAXN9WebjZ/F+N/JXItoNEcgQe3MdTABUli6w3pZ+iObnDqVkBw=="
+  "resolved" "https://registry.npmmirror.com/agora-rtc-sdk-ng/-/agora-rtc-sdk-ng-4.12.1.tgz"
+  "version" "4.12.1"
+  dependencies:
+    "agora-rte-extension" "^1.0.22"
+
+"agora-rte-extension@^1.0.22":
+  "integrity" "sha512-X2cGBg+L5ZJIFU91qvMASvRsBfg1HXTktVG3YROw9wxHsILSI7jgF9R9XraLc3fNX/UjovaYAlUW+hiJe0v6Xw=="
+  "resolved" "https://registry.npmmirror.com/agora-rte-extension/-/agora-rte-extension-1.0.23.tgz"
+  "version" "1.0.23"
 
 "ajv@^6.10.0", "ajv@^6.12.4":
   "integrity" "sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g=="

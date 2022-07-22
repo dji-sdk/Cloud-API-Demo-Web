@@ -1,10 +1,14 @@
 import axios from 'axios'
 import { uuidv4 } from '/@/utils/uuid'
 import { CURRENT_CONFIG } from './config'
+import { message } from 'ant-design-vue'
+import router from '/@/router'
+import { ELocalStorageKey, ERouterName, EUserType } from '/@/types/enums'
 export * from './type'
+
 const REQUEST_ID = 'X-Request-Id'
 function getAuthToken () {
-  return localStorage.getItem('x-auth-token')
+  return localStorage.getItem(ELocalStorageKey.Token)
 }
 
 const instance = axios.create({
@@ -17,7 +21,7 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   config => {
-    config.headers['X-Auth-Token'] = getAuthToken()
+    config.headers[ELocalStorageKey.Token] = getAuthToken()
     // config.headers[REQUEST_ID] = uuidv4()
     config.baseURL = CURRENT_CONFIG.baseURL
     return config
@@ -28,10 +32,15 @@ instance.interceptors.request.use(
 )
 
 instance.interceptors.response.use(
-  response => response,
+  response => {
+    console.info('URL: ' + response.config.baseURL + response.config.url, '\nData: ', response.data, '\nResponse:', response)
+    if (response.data.code && response.data.code !== 0) {
+      message.error(response.data.message)
+    }
+    return response
+  },
   err => {
     const requestId = err?.config?.headers && err?.config?.headers[REQUEST_ID]
-    console.info('')
     if (requestId) {
       console.info(REQUEST_ID, '：', requestId)
     }
@@ -46,15 +55,26 @@ instance.interceptors.response.use(
     }
     // @See: https://github.com/axios/axios/issues/383
     if (!err.response || !err.response.status) {
-      console.log('The network is abnormal, please check the network and try again')
-    } else if (err.response?.status !== 200) {
-      console.log(`ERROR_CODE: ${err.response?.status}`)
+      message.error('The network is abnormal, please check the backend service and try again')
+      return
     }
-    if (err.response?.status === 403) {
-      // window.location.href = '/'
+    if (err.response?.status !== 200) {
+      message.error(`ERROR_CODE: ${err.response?.status}`)
     }
+    // if (err.response?.status === 403) {
+    //   // window.location.href = '/'
+    // }
     if (err.response?.status === 401) {
-      console.log(err.response)
+      console.error(err.response)
+      const flag: number = Number(localStorage.getItem(ELocalStorageKey.Flag))
+      switch (flag) {
+        case EUserType.Web:
+          router.push(ERouterName.PROJECT)
+          break
+        case EUserType.Pilot:
+          router.push(ERouterName.PILOT)
+          break
+      }
     }
 
     return Promise.reject(err)

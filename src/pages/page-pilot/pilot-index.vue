@@ -2,7 +2,7 @@
   <div class="login flex-column flex-justify-center flex-align-center m0 b0">
     <a-image
       style="width: 17vw; height: 10vw; margin-bottom: 50px"
-      src="http://lofrev.net/wp-content/photos/2016/09/dji_logo_png.png"
+      :src="djiLogo"
     />
     <p class="logo fz35 pb50">Pilot Cloud API Demo</p>
     <a-form
@@ -11,7 +11,7 @@
       class="flex-row flex-justify-center flex-align-center"
     >
       <a-form-item>
-        <a-input v-model:value="formState.user" placeholder="Username">
+        <a-input v-model:value="formState.username" placeholder="Username">
           <template #prefix
             ><UserOutlined style="color: rgba(0, 0, 0, 0.25)"
           /></template>
@@ -44,92 +44,96 @@
 </template>
 
 <script lang="ts" setup>
-import { LockOutlined, UserOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import { onMounted, reactive, UnwrapRef } from 'vue'
+import { onMounted, reactive, ref, UnwrapRef } from 'vue'
 import { CURRENT_CONFIG } from '/@/api/http/config'
-import { login, refreshToken } from '/@/api/manage'
+import { login, LoginBody, refreshToken } from '/@/api/manage'
 import apiPilot from '/@/api/pilot-bridge'
 import { getRoot } from '/@/root'
+import router from '/@/router'
+import { EComponentName, ELocalStorageKey, ERouterName, EUserType } from '/@/types'
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
+import djiLogo from '/@/assets/icons/dji_logo.png'
 
-interface FormState {
-  user: string
-  password: string
-}
 const root = getRoot()
 
-const formState: UnwrapRef<FormState> = reactive({
-  user: 'pilot',
-  password: 'pilot123'
+const formState: UnwrapRef<LoginBody> = reactive({
+  username: 'pilot',
+  password: 'pilot123',
+  flag: EUserType.Pilot,
 })
-let isVerified:any
+const isVerified = ref<boolean>(false)
 onMounted(async () => {
-  const verifyLicense = JSON.parse(apiPilot.platformVerifyLicense(CURRENT_CONFIG.appId,
-    CURRENT_CONFIG.appKey, CURRENT_CONFIG.appLicense))
-  const platformVerify = JSON.parse(apiPilot.isPlatformVerifySuccess())
-  isVerified = platformVerify.data
-  if (platformVerify.data === true) {
-    message.success('The license verification is successful.')
-  } else {
-    message.error('Filed to verify the license. message is ' + verifyLicense.data)
+  verifyLicense()
+  if (!isVerified.value) {
     return
   }
-  const token = apiPilot.getToken()
-  console.log('api token:', token)
+
   apiPilot.setPlatformMessage('Cloud Api Platform', '', '')
-  if (token && token !== undefined) {
+
+  const token = localStorage.getItem(ELocalStorageKey.Token)
+  if (token) {
     await refreshToken({})
       .then(res => {
-        apiPilot.setComponentParam('api', {
+        apiPilot.setComponentParam(EComponentName.Api, {
           host: CURRENT_CONFIG.baseURL,
           token: res.data.access_token
         })
-        const jsres = JSON.parse(
-          apiPilot.loadComponent('api', apiPilot.getComponentParam('api'))
-        )
-        console.log('load api module status:', jsres)
+        const jsres = apiPilot.loadComponent(EComponentName.Api, apiPilot.getComponentParam(EComponentName.Api))
+        if (!jsres) {
+          message.error('Failed to load api module.')
+          return
+        }
         apiPilot.setToken(res.data.access_token)
-        localStorage.setItem('x-auth-token', res.data.access_token)
-        message.success('Login Success')
-        root.$router.push('/pilot-home')
+        localStorage.setItem(ELocalStorageKey.Token, res.data.access_token)
+        root.$router.push(ERouterName.PILOT_HOME)
       })
       .catch(err => {
-        console.error(err)
+        message.error(err)
       })
   }
 })
 const onSubmit = async (e: any) => {
-  await login({
-    username: formState.user,
-    password: formState.password
-  })
+  await login(formState)
     .then(res => {
-      if (!isVerified) {
+      if (!isVerified.value) {
         message.error('Please verify the license firstly.')
         return
       }
       console.log('login res:', res)
       if (res.code === 0) {
-        apiPilot.setComponentParam('api', {
+        apiPilot.setComponentParam(EComponentName.Api, {
           host: CURRENT_CONFIG.baseURL,
           token: res.data.access_token
         })
         const jsres = apiPilot.loadComponent(
-          'api',
-          apiPilot.getComponentParam('api')
+          EComponentName.Api,
+          apiPilot.getComponentParam(EComponentName.Api)
         )
         console.log('load api module res:', jsres)
         apiPilot.setToken(res.data.access_token)
-        localStorage.setItem('x-auth-token', res.data.access_token)
-        localStorage.setItem('workspace-id', res.data.workspace_id)
-        localStorage.setItem('username', res.data.username)
+        localStorage.setItem(ELocalStorageKey.Token, res.data.access_token)
+        localStorage.setItem(ELocalStorageKey.WorkspaceId, res.data.workspace_id)
+        localStorage.setItem(ELocalStorageKey.UserId, res.data.user_id)
+        localStorage.setItem(ELocalStorageKey.Username, res.data.username)
+        localStorage.setItem(ELocalStorageKey.Flag, EUserType.Pilot.toString())
         message.success('Login Success')
-        root.$router.push('/pilot-home')
+        root.$router.push(ERouterName.PILOT_HOME)
       }
     })
     .catch(err => {
-      console.error(err)
+      message.error(err)
     })
+}
+
+function verifyLicense () {
+  isVerified.value = apiPilot.platformVerifyLicense(CURRENT_CONFIG.appId, CURRENT_CONFIG.appKey, CURRENT_CONFIG.appLicense) &&
+    apiPilot.isPlatformVerifySuccess()
+  if (isVerified.value) {
+    message.success('The license verification is successful.')
+  } else {
+    message.error('Filed to verify the license. Please check license whether the license is correct, or apply again.')
+  }
 }
 </script>
 

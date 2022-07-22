@@ -1,65 +1,56 @@
 <template>
   <div class="flex-column flex-justify-start flex-align-center">
-    <a-button
-      class="mt10  "
-      style="width:90%"
-      type="primary"
-      @click="onAgoraLiveStream"
-      >Agora Live</a-button
+    <router-link
+      style="width: 90%; margin: auto;"
+      v-for="item in options"
+      :key="item.key"
+      :to="item.path"
+      :class="{
+        'menu-item': true,
+      }"
     >
     <a-button
       class="mt10"
-      style="width:90%"
+      style="width:100%;"
       type="primary"
-      @click="onOthersLive"
-      >RTMP/GB28181 Live</a-button
+      @click="selectLivestream(item.routeName)"
+      >{{ item.label }}</a-button
     >
+    </router-link>
   </div>
-  <div v-if="enableAgoraLive">
-    <a-modal
-      style="top:0"
-      v-model:visible="enableAgoraLive"
-      title="Agora Live"
-      width="100%"
-      :maskClosable="false"
-      wrapClassName="full-modal"
-      :footer="null"
-    >
-      <LiveAgora />
-    </a-modal>
-  </div>
-  <div v-if="enableOthersLive">
-    <a-modal
-      style="top:0"
-      v-model:visible="enableOthersLive"
-      title="RTMP/GB28181/RTSP Live"
-      width="100%"
-      :maskClosable="false"
-      wrapClassName="full-modal"
-      :footer="null"
-    >
-      <LiveOthers />
-    </a-modal>
+  <div class="live" v-if="showLive">
+    <a style="position: absolute; right: 10px; top: 10px; font-size: 16px; color: white;" @click="() => root.$router.push('/' + ERouterName.LIVESTREAM)"><CloseOutlined /></a>
+    <router-view :name="routeName" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import LiveAgora from './livestream-agora.vue'
-import LiveOthers from './livestream-others.vue'
+import { message } from 'ant-design-vue'
+import { onMounted, ref, watch } from 'vue'
+import { CloseOutlined } from '@ant-design/icons-vue'
 import { getRoot } from '/@/root'
+import { ERouterName } from '/@/types'
 const root = getRoot()
+const routeName = ref<string>()
+const showLive = ref<boolean>(false)
 
-const enableAgoraLive = ref(false)
-const enableOthersLive = ref(false)
-const onAgoraLiveStream = () => {
-  console.log('agora')
-  enableAgoraLive.value = true
+const options = [
+  { key: 0, label: 'Agora Live', path: '/' + ERouterName.LIVESTREAM + '/' + ERouterName.LIVING, routeName: 'LiveAgora' },
+  { key: 1, label: 'RTMP/GB28181 Live', path: '/' + ERouterName.LIVESTREAM + '/' + ERouterName.LIVING, routeName: 'LiveOthers' }
+]
+
+const selectLivestream = (route: string) => {
+  routeName.value = route
 }
-const onOthersLive = () => {
-  console.log('liveview')
-  enableOthersLive.value = true
-}
+
+onMounted(() => {
+  watch(() => root.$route.name, data => {
+    showLive.value = data === ERouterName.LIVING
+  },
+  {
+    deep: true
+  })
+})
 </script>
 
 <style lang="scss">
@@ -78,5 +69,18 @@ const onOthersLive = () => {
   .ant-modal-body {
     flex: 1;
   }
+}
+.live {
+  position: absolute;
+  z-index: 1;
+  right: 50%;
+  left: 50%;
+  top: 50%;
+  margin: auto;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 800px;
+  height: 700px;
+  background: #232323;
 }
 </style>

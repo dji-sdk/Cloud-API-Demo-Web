@@ -1,5 +1,7 @@
+import { CURRENT_CONFIG } from '/@/api/http/config'
+
 export const AMapConfig = {
-  key: '26d54da6733de88435c68d1a2e88b682',
+  key: CURRENT_CONFIG.amapKey,
   version: '2.0',
   plugins: [
     'AMap.Scale',
@@ -14,6 +16,7 @@ export const AMapConfig = {
     'AMap.PolyEditor',
     'AMap.RangingTool',
     'AMap.Weather',
-    'AMap.MouseTool'
+    'AMap.MouseTool',
+    'AMap.MoveAnimation'
   ]
 }

@@ -1,5 +1,12 @@
 <template>
   <div class="project-layer-wrapper">
+    <div style="height: 50px; line-height: 50px; border-bottom: 1px solid #4f4f4f; font-weight: 450;">
+      <a-row>
+        <a-col :span="1"></a-col>
+        <a-col :span="22">Annotations</a-col>
+        <a-col :span="1"></a-col>
+      </a-row>
+    </div>
     <LayersTree
       :layer-data="mapLayers"
       class="project-layer-content"
@@ -389,9 +396,6 @@ function updateCoordinates (transformType: string, element: LayerResource) {
 
 <style lang="scss" scoped>
 @import '/@/styles/index.scss';
-.project-layer-wrapper {
-  padding-top: 16px;
-}
 </style>
 <style lang="scss">
 .drawer-element-wrapper {

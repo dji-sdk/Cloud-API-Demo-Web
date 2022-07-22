@@ -10,10 +10,22 @@ body {
   // Prevent font enlargement in horizontal screen
   text-size-adjust: 100%;
 
-  font-family: Roboto, sans-serif-medium, Arial, sans-serif;
+  font-family: sans-serif, Roboto, sans-serif-medium, Arial;
+  font-feature-settings: normal;
   color: $main-text-color;
   font-size: 14px;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    border: none;
+    background: rgb(89, 89, 89);
+  }
 }

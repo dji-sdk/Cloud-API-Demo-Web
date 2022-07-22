@@ -1,12 +1,31 @@
-import request, { IWorkspaceResponse } from '/@/api/http/request'
+import request, { CommonListResponse, IListWorkspaceResponse, IPage, IWorkspaceResponse } from '/@/api/http/request'
 const HTTP_PREFIX = '/manage/api/v1'
 
 // login
-interface loginBody {
+export interface LoginBody {
  username: string,
- password: string
+ password: string,
+ flag: number,
 }
-export const login = async function (body: loginBody): Promise<IWorkspaceResponse<any>> {
+export interface BindBody {
+  device_sn: string,
+  user_id: string,
+  workspace_id: string,
+  domain?: string
+}
+export interface HmsQueryBody {
+  sns: string[],
+  children_sn: string,
+  device_sn: string,
+  language: string,
+  level: number | string,
+  begin_time: number,
+  end_time: number,
+  message: string,
+  domain: string,
+}
+
+export const login = async function (body: LoginBody): Promise<IWorkspaceResponse<any>> {
   const url = `${HTTP_PREFIX}/login`
   const result = await request.post(url, body)
   return result.data
@@ -20,23 +39,23 @@ export const refreshToken = async function (body: {}): Promise<IWorkspaceRespons
 }
 
 // Get Platform Info
-export const getPlatformInfo = async function (body: {}): Promise<IWorkspaceResponse<any>> {
+export const getPlatformInfo = async function (): Promise<IWorkspaceResponse<any>> {
   const url = `${HTTP_PREFIX}/workspaces/current`
-  const result = await request.get(url, body)
+  const result = await request.get(url)
   return result.data
 }
 
 // Get User Info
-export const getUserInfo = async function (body: {}): Promise<IWorkspaceResponse<any>> {
+export const getUserInfo = async function (): Promise<IWorkspaceResponse<any>> {
   const url = `${HTTP_PREFIX}/users/current`
-  const result = await request.get(url, body)
+  const result = await request.get(url)
   return result.data
 }
 
 // Get Device Topo
-export const getDeviceTopo = async function (body: {}): Promise<IWorkspaceResponse<any>> {
-  const url = `${HTTP_PREFIX}/devices/devices`
-  const result = await request.get(url, body)
+export const getDeviceTopo = async function (workspace_id: string): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/devices/${workspace_id}/devices`
+  const result = await request.get(url)
   return result.data
 }
 
@@ -58,5 +77,77 @@ export const startLivestream = async function (body: {}): Promise<IWorkspaceResp
 export const stopLivestream = async function (body: {}): Promise<IWorkspaceResponse<any>> {
   const url = `${HTTP_PREFIX}/live/streams/stop`
   const result = await request.post(url, body)
+  return result.data
+}
+// Update Quality
+export const setLivestreamQuality = async function (body: {}): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/live/streams/update`
+  const result = await request.post(url, body)
+  return result.data
+}
+
+export const getAllUsersInfo = async function (wid: string, body: IPage): Promise<CommonListResponse<any>> {
+  const url = `${HTTP_PREFIX}/users/${wid}/users?&page=${body.page}&page_size=${body.page_size}`
+  const result = await request.get(url)
+  return result.data
+}
+
+export const updateUserInfo = async function (wid: string, user_id: string, body: {}): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/users/${wid}/users/${user_id}`
+  const result = await request.put(url, body)
+  return result.data
+}
+
+export const bindDevice = async function (body: BindBody): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/devices/${body.device_sn}/binding`
+  const result = await request.post(url, body)
+  return result.data
+}
+
+export const unbindDevice = async function (device_sn: string): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/devices/${device_sn}/unbinding`
+  const result = await request.delete(url)
+  return result.data
+}
+
+export const getDeviceBySn = async function (workspace_id: string, device_sn: string): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/${device_sn}`
+  const result = await request.get(url)
+  return result.data
+}
+
+export const getBindingDevices = async function (workspace_id: string, body: IPage, domain: string): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/bound?&page=${body.page}&page_size=${body.page_size}&domain=${domain}`
+  const result = await request.get(url)
+  return result.data
+}
+
+export const updateDevice = async function (body: {}, workspace_id: string, device_sn: string): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/${device_sn}`
+  const result = await request.put(url, body)
+  return result.data
+}
+
+export const getUnreadDeviceHms = async function (workspace_id: string, device_sn: string): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/hms/${device_sn}`
+  const result = await request.get(url)
+  return result.data
+}
+
+export const updateDeviceHms = async function (workspace_id: string, device_sn: string): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/hms/${device_sn}`
+  const result = await request.put(url)
+  return result.data
+}
+
+export const getDeviceHms = async function (body: HmsQueryBody, workspace_id: string, pagination: IPage): Promise<IListWorkspaceResponse<any>> {
+  let url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/hms?page=${pagination.page}&pageSize=${pagination.page_size}` + 
+    `&level=${body.level ?? ''}&beginTime=${body.begin_time ?? ''}&endTime=${body.end_time ?? ''}&message=${body.message ?? ''}&language=${body.language}`
+  body.sns.forEach((sn: string) => {
+    if (sn !== '') {
+      url = url.concat(`&deviceSn=${sn}`)
+    }
+  })
+  const result = await request.get(url)
   return result.data
 }

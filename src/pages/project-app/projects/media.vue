@@ -1,6 +1,5 @@
 <template>
   <div class="project-media-wrapper">
-      Media
   </div>
 </template>
 

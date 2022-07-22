@@ -1,5 +1,5 @@
 <template>
-  <div class="panel-wrapper">
+  <div class="panel-wrapper" draggable="true">
     <div class="header">Wayline Library</div>
     <a-button type="primary" style="margin-top:20px" @click="onRefresh"
       >Refresh</a-button
@@ -20,6 +20,7 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity'
 import { onMounted } from 'vue'
+import { ELocalStorageKey } from '../types/enums'
 import { getWaylineFiles } from '/@/api/wayline'
 const columns = [
   {
@@ -74,7 +75,7 @@ onMounted(() => {
   onRefresh()
 })
 const onRefresh = async () => {
-  const wid: string = localStorage.getItem('workspace-id')
+  const wid: string = localStorage.getItem(ELocalStorageKey.WorkspaceId)
   data.value = []
   const index = 1
   const res = await getWaylineFiles(wid, {
