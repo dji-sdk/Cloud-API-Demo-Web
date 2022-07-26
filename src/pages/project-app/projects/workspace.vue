@@ -22,8 +22,8 @@
 <script lang="ts" setup>
 
 import Sidebar from '../sidebar.vue'
-import MediaPanel from '@/components/MediaPanel.vue'
-import TaskPanel from '@/components/TaskPanel.vue'
+import MediaPanel from '/@/components/MediaPanel.vue'
+import TaskPanel from '/@/components/TaskPanel.vue'
 import GMap from '/@/components/GMap.vue'
 import { EBizCode, ERouterName } from '/@/types'
 import { getRoot } from '/@/root'
