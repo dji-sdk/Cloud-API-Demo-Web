@@ -114,7 +114,7 @@
 import { message } from 'ant-design-vue'
 import { onMounted, reactive, ref, UnwrapRef } from 'vue'
 import { CURRENT_CONFIG as config, CURRENT_CONFIG } from '/@/api/http/config'
-import { ELiveTypeName, ELiveTypeValue, GB28181Param, LiveConfigParam, LiveStreamStatus, RTSPParam, EVideoPublishType } from '/@/api/live-stream'
+import { ELiveTypeName, ELiveTypeValue, GB28181Param, LiveConfigParam, LiveStreamStatus, RTSPParam, EVideoPublishType } from '/@/types/live-stream'
 import apiPilot from '/@/api/pilot-bridge'
 import { getRoot } from '/@/root'
 import { ELiveStatusValue, EStatusValue } from '/@/types'
