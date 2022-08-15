@@ -3,7 +3,7 @@ export const CURRENT_CONFIG = {
   // license
   appId: 'Please enter the app id.',  // You need to go to the development website to apply.
   appKey: 'Please enter the app key.',  // You need to go to the development website to apply.
-  appLicense: 'Please enter the app license.' // You need to go to the development website to apply.
+  appLicense: 'Please enter the app license.', // You need to go to the development website to apply.
   
   // http
   baseURL: 'Please enter the backend access address prefix.', // This url must end with "/". Example: 'http://192.168.1.1:6789/'
