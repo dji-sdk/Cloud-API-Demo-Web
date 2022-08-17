@@ -180,7 +180,7 @@ function updateMapElement (
       id: id,
       name: name
     })
-  } else if (MapElementEnum.LINE === type && geoType === 'Polygon') {
+  } else if (MapElementEnum.POLY === type && geoType === 'Polygon') {
     const coordinates = element.resource?.content.geometry
       .coordinates[0] as GeojsonCoordinate[]
     useGMapCoverHook.initPolygon(name, coordinates, color, {
