@@ -9,7 +9,7 @@
       <template #status="{ record }">
         <span v-if="taskProgressMap[record.bid]">
           <a-progress type="line" :percent="taskProgressMap[record.bid]?.progress?.percent"
-            :status="taskProgressMap[record.bid]?.status === ETaskStatus.FAILED ? 'exception' : taskProgressMap[record.bid]?.status === ETaskStatus.OK ? 'success' : 'normal'">
+            :status="taskProgressMap[record.bid]?.status.indexOf(ETaskStatus.FAILED) != -1 ? 'exception' : taskProgressMap[record.bid]?.status.indexOf(ETaskStatus.OK) != -1 ? 'success' : 'normal'">
             <template #format="percent">
               <a-tooltip :title="taskProgressMap[record.bid]?.status">
                 <div style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden; position: absolute; left: 5px; top: -12px;">

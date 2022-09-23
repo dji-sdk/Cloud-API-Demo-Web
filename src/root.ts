@@ -1,8 +1,8 @@
 import { createApp, ComponentCustomProperties, App as VueApp } from 'vue'
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
-    $aMap: any
-    $aMapObj: any
+    $aMap: any // Map类
+    $map: any // 地图对象
     $mouseTool: any
   }
 }

@@ -1,3 +1,4 @@
+import { message } from 'ant-design-vue'
 import request, { IPage, IWorkspaceResponse } from '/@/api/http/request'
 const HTTP_PREFIX = '/wayline/api/v1'
 
@@ -20,10 +21,18 @@ export const getWaylineFiles = async function (wid: string, body: {}): Promise<I
 export const downloadWaylineFile = async function (workspaceId: string, waylineId: string): Promise<any> {
   const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/waylines/${waylineId}/url`
   const result = await request.get(url, { responseType: 'blob' })
-  if (result.data.code) {
+  if (result.data.type === 'application/json') {
+    const reader = new FileReader()
+    reader.onload = function (e) {
+      let text = reader.result as string
+      const result = JSON.parse(text)
+      message.error(result.message)
+    }
+    reader.readAsText(result.data, 'utf-8')
+    return
+  } else {
     return result.data
   }
-  return result
 }
 
 // Delete Wayline File

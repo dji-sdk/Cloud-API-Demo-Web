@@ -32,7 +32,7 @@ import { ELocalStorageKey } from '../types/enums'
 import { downloadFile } from '../utils/common'
 import { downloadMediaFile, getMediaFiles } from '/@/api/media'
 import { DownloadOutlined } from '@ant-design/icons-vue'
-import { Pagination } from 'ant-design-vue'
+import { message, Pagination } from 'ant-design-vue'
 import { load } from '@amap/amap-jsapi-loader'
 
 const workspaceId = localStorage.getItem(ELocalStorageKey.WorkspaceId)!
@@ -101,6 +101,7 @@ interface MediaFile {
   file_name: string,
   file_path: string,
   create_time: string,
+  file_id: string,
 }
 
 const mediaData = reactive({
@@ -128,12 +129,11 @@ function refreshData (page: Pagination) {
 
 function downloadMedia (media: MediaFile) {
   loading.value = true
-  downloadMediaFile(workspaceId, media.fingerprint).then(res => {
-    if (res.code && res.code !== 0) {
+  downloadMediaFile(workspaceId, media.file_id).then(res => {
+    if (!res) {
       return
     }
-    const suffix = media.file_name.substring(media.file_name.lastIndexOf('.'))
-    const data = new Blob([res.data], { type: suffix === '.mp4' ? 'video/mp4' : 'image/jpeg' })
+    const data = new Blob([res])
     downloadFile(data, media.file_name)
   }).finally(() => {
     loading.value = false

@@ -92,6 +92,25 @@ export enum EBizCode {
     DeviceOffline = 'device_offline',
     FlightTaskProgress = 'flighttask_progress',
     DeviceHms = 'device_hms',
+
+    // 设备指令
+    DeviceReboot = 'device_reboot', // 机场重启
+    DroneOpen = 'drone_open', // 飞行器开机
+    DroneClose = 'drone_close', // 飞行器关机
+    DeviceFormat = 'device_format', // 机场数据格式化
+    DroneFormat = 'drone_format', // 飞行器数据格式化
+    CoverOpen = 'cover_open', // 打开舱盖
+    CoverClose = 'cover_close', // 关闭舱盖
+    PutterOpen = 'putter_open', // 推杆展开
+    PutterClose = 'putter_close', // 推杆闭合
+    ChargeOpen = 'charge_open', // 打开充电
+    ChargeClose = 'charge_close', // 关闭充电
+
+    // 设备升级
+    DeviceUpgrade = 'ota_progress', // 设备升级
+
+    // 设备日志
+    DeviceLogUploadProgress = 'fileupload_progress' // 设备日志上传上传
 }
 
 export enum EDeviceTypeName {

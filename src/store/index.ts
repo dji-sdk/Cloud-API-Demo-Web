@@ -5,6 +5,7 @@ import { Device, DeviceHms, DeviceOsd, DeviceStatus, DockOsd, GatewayOsd, OSDVis
 import { getLayers } from '/@/api/layer'
 import { LayerType } from '/@/types/mapLayer'
 import { ETaskStatus, TaskInfo, WaylineFile } from '/@/types/wayline'
+import { DevicesCmdExecuteInfo } from '/@/types/device-cmd'
 
 const initStateFunc = () => ({
   Layers: [
@@ -87,7 +88,10 @@ const initStateFunc = () => ({
   },
   hmsInfo: {} as {
     [sn: string]: DeviceHms[]
-  }
+  },
+  // 机场指令执行状态信息
+  devicesCmdExecuteInfo: {
+  } as DevicesCmdExecuteInfo
 })
 
 export type RootStateType = ReturnType<typeof initStateFunc>
@@ -144,7 +148,6 @@ const mutations: MutationTree<RootStateType> = {
     delete state.deviceState.deviceInfo[info.sn]
     delete state.deviceState.dockInfo[info.sn]
     delete state.hmsInfo[info.sn]
-    
     // delete state.markerInfo.coverMap[info.sn]
     // delete state.markerInfo.pathMap[info.sn]
   },
@@ -171,6 +174,25 @@ const mutations: MutationTree<RootStateType> = {
   SET_DEVICE_HMS_INFO (state, info) {
     const hmsList: Array<DeviceHms> = state.hmsInfo[info.sn]
     state.hmsInfo[info.sn] = info.host.concat(hmsList ?? [])
+  },
+  SET_DEVICES_CMD_EXECUTE_INFO (state, info) { // 保存设备指令ws消息推送
+    if (!info.sn) {
+      return
+    }
+    if (state.devicesCmdExecuteInfo[info.sn]) {
+      const index = state.devicesCmdExecuteInfo[info.sn].findIndex(cmdExecuteInfo => cmdExecuteInfo.biz_code === info.biz_code)
+      if (index >= 0) {
+        // 丢弃前面的消息
+        if (state.devicesCmdExecuteInfo[info.sn][index].timestamp > info.timestamp) {
+          return
+        }
+        state.devicesCmdExecuteInfo[info.sn][index] = info
+      } else {
+        state.devicesCmdExecuteInfo[info.sn].push(info)
+      }
+    } else {
+      state.devicesCmdExecuteInfo[info.sn] = [info]
+    }
   }
 }
 

@@ -1,16 +1,188 @@
-import { EDeviceTypeName } from ".";
+import { commonColor } from '/@/utils/color'
+
+export interface DeviceValue {
+  key: string; // 'domain-type-subtype'
+  domain: string; // 表示一个领域，作为一个命名空间，暂时分 飞机类-0, 负载类-1,RC类-2,机场类-3 4种
+  type: number; // 设备类型枚举
+  sub_type: number; // 设备类型枚举 负载一般表示镜头
+}
+
+// domain
+export enum DOMAIN {
+  DRONE = '0', // 飞行器
+  PAYLOAD = '1', // 负载
+  RC = '2', // 遥控
+  DOCK = '3', // 机场
+}
+
+// DJI飞机类型
+export enum DRONE_TYPE {
+  M30 = 67,
+  M300 = 60,
+  Phantom4 = 11,
+  Phantom4Pro = 18,
+  Phantom4RTK = 59,
+  Phantom4Advanced = 27,
+  Mavic3EnterpriseAdvanced= 77,
+}
+
+// DJI负载类型枚举值
+export enum PAYLOAD_TYPE {
+  FPV = 39,
+  H20 = 42,
+  H20T = 43,
+  H20N = 61,
+  EP600 = 50,
+  EP800 = 90742,
+  M30D = 52,
+  M30T = 53,
+  XT2 = 26,
+  XTS = 41,
+  Z30 = 20,
+  DockTopCamera = 165,
+
+  M3E = 66,
+  M3T = 67,
+  // UNKNOWN = 65535
+}
+
+// RC type
+export enum RC_TYPE {
+  RC = 56,
+  RCPlus = 119,
+  RC144 = 144,
+}
+
+// DOCK type
+export enum DOCK_TYPE {
+  Dock = 1,
+}
+
+// 设备sub_type 从0升序
+export enum DEVICE_SUB_TYPE {
+  ZERO,
+  ONE,
+  TWO,
+  THREE,
+  UNKNOWN = 65535,
+}
+
+export const DEVICE_MODEL_KEY = {
+  M30: `${DOMAIN.DRONE}-${DRONE_TYPE.M30}-${DEVICE_SUB_TYPE.ZERO}`,
+  M30T: `${DOMAIN.DRONE}-${DRONE_TYPE.M30}-${DEVICE_SUB_TYPE.ONE}`,
+
+  M3E: `${DOMAIN.DRONE}-${DRONE_TYPE.Mavic3EnterpriseAdvanced}-${DEVICE_SUB_TYPE.ZERO}`,
+  M3T: `${DOMAIN.DRONE}-${DRONE_TYPE.Mavic3EnterpriseAdvanced}-${DEVICE_SUB_TYPE.ONE}`,
+
+  M300: `${DOMAIN.DRONE}-${DRONE_TYPE.M300}-${DEVICE_SUB_TYPE.ZERO}`,
+  Phantom4: `${DOMAIN.DRONE}-${DRONE_TYPE.Phantom4}-${DEVICE_SUB_TYPE.ZERO}`,
+  Phantom4Pro: `${DOMAIN.DRONE}-${DRONE_TYPE.Phantom4Pro}-${DEVICE_SUB_TYPE.ZERO}`,
+  Phantom4RTK: `${DOMAIN.DRONE}-${DRONE_TYPE.Phantom4RTK}-${DEVICE_SUB_TYPE.ZERO}`,
+  Phantom4Advanced: `${DOMAIN.DRONE}-${DRONE_TYPE.Phantom4Advanced}-${DEVICE_SUB_TYPE.ZERO}`,
+
+  FPV: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.FPV}-${DEVICE_SUB_TYPE.ZERO}`,
+  H20: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.H20}-${DEVICE_SUB_TYPE.ZERO}`,
+  H20T: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.H20T}-${DEVICE_SUB_TYPE.ZERO}`,
+  H20N: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.H20N}-${DEVICE_SUB_TYPE.ZERO}`,
+  EP600: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.EP600}-${DEVICE_SUB_TYPE.UNKNOWN}`,
+  EP800: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.EP800}-${DEVICE_SUB_TYPE.ZERO}`,
+  M30Camera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M30D}-${DEVICE_SUB_TYPE.ZERO}`,
+  M30TCamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M30T}-${DEVICE_SUB_TYPE.ZERO}`,
+
+  M3ECamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M3E}-${DEVICE_SUB_TYPE.ZERO}`,
+  M3TCamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M3T}-${DEVICE_SUB_TYPE.ZERO}`,
+  // M3MCamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M3M}-${DEVICE_SUB_TYPE.ZERO}`,
+
+  XT2: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.XT2}-${DEVICE_SUB_TYPE.ZERO}`,
+  XTS: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.XTS}-${DEVICE_SUB_TYPE.ZERO}`,
+  Z30: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.Z30}-${DEVICE_SUB_TYPE.ZERO}`,
+  DockTopCamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.DockTopCamera}-${DEVICE_SUB_TYPE.ZERO}`,
+
+  RC: `${DOMAIN.RC}-${RC_TYPE.RC}-${DEVICE_SUB_TYPE.ZERO}`,
+  RCPlus: `${DOMAIN.RC}-${RC_TYPE.RCPlus}-${DEVICE_SUB_TYPE.ZERO}`,
+
+  Dock: `${DOMAIN.DOCK}-${DOCK_TYPE.Dock}-${DEVICE_SUB_TYPE.ZERO}`,
+}
+
+export const DEVICE_NAME = {
+  // drone
+  [DEVICE_MODEL_KEY.M30]: 'M30',
+  [DEVICE_MODEL_KEY.M30T]: 'M30T',
+  [DEVICE_MODEL_KEY.M3E]: 'Mavic 3E',
+  [DEVICE_MODEL_KEY.M3T]: 'Mavic 3T',
+  // [DEVICE_MODEL_KEY.M3M]: 'Mavic 3M',
+  [DEVICE_MODEL_KEY.M300]: 'M300 RTK',
+  [DEVICE_MODEL_KEY.Phantom4]: 'Phantom 4',
+  [DEVICE_MODEL_KEY.Phantom4Pro]: 'Phantom 4 Pro',
+  [DEVICE_MODEL_KEY.Phantom4RTK]: 'Phantom 4 RTK',
+  [DEVICE_MODEL_KEY.Phantom4Advanced]: 'Phantom 4 Advanced',
+
+  // payload
+  [DEVICE_MODEL_KEY.FPV]: 'FPV',
+  [DEVICE_MODEL_KEY.H20]: 'H20',
+  [DEVICE_MODEL_KEY.H20T]: 'H20T',
+  [DEVICE_MODEL_KEY.H20N]: 'H20N',
+  [DEVICE_MODEL_KEY.EP600]: 'P1',
+  [DEVICE_MODEL_KEY.EP800]: 'L1',
+  [DEVICE_MODEL_KEY.M30Camera]: 'M30 Camera',
+  [DEVICE_MODEL_KEY.M30TCamera]: 'M30T Camera',
+  [DEVICE_MODEL_KEY.M3ECamera]: 'Mavic 3E',
+  [DEVICE_MODEL_KEY.M3TCamera]: 'Mavic 3T',
+  // [DEVICE_MODEL_KEY.M3MCamera]: 'Mavic 3M',
+  [DEVICE_MODEL_KEY.XT2]: 'XT2',
+  [DEVICE_MODEL_KEY.XTS]: 'XTS',
+  [DEVICE_MODEL_KEY.Z30]: 'Z30',
+  [DEVICE_MODEL_KEY.DockTopCamera]: 'Dock Camera',
+
+  // rc
+  [DEVICE_MODEL_KEY.RC]: 'RC',
+  [DEVICE_MODEL_KEY.RCPlus]: 'RC Plus',
+
+  // dock
+  [DEVICE_MODEL_KEY.Dock]: 'Dock',
+}
+
+// 固件升级类型
+export enum DeviceFirmwareTypeEnum {
+  ToUpgraded = 3, // 普通升级
+  ConsistencyUpgrade =2, // 一致性升级
+}
+
+// 固件升级状态
+export enum DeviceFirmwareStatusEnum {
+  None = 1, // 无需升级
+  ToUpgraded = 2, // 待升级
+  ConsistencyUpgrade = 3, // 一致性升级
+  DuringUpgrade = 4, // 升级中
+}
+
+export const DeviceFirmwareStatus = {
+  [DeviceFirmwareStatusEnum.None]: '',
+  [DeviceFirmwareStatusEnum.ToUpgraded]: '待升级',
+  [DeviceFirmwareStatusEnum.ConsistencyUpgrade]: '一致性升级',
+  [DeviceFirmwareStatusEnum.DuringUpgrade]: '升级中',
+}
+
+export const DeviceFirmwareStatusColor = {
+  [DeviceFirmwareStatusEnum.None]: commonColor.WHITE,
+  [DeviceFirmwareStatusEnum.ToUpgraded]: commonColor.BLUE,
+  [DeviceFirmwareStatusEnum.ConsistencyUpgrade]: commonColor.WARN,
+  [DeviceFirmwareStatusEnum.DuringUpgrade]: commonColor.NORMAL,
+}
 
 export interface Device {
   device_name: string,
   device_sn: string,
   nickname: string,
   firmware_version: string,
+  firmware_status: DeviceFirmwareStatusEnum,
   status: string,
   workspace_name: string,
   bound_time: string,
   login_time: string,
-  children?: Device[]
-  domain: string
+  children?: Device[],
+  domain: string,
+  firmware_progress?: number, // 升级进度
 }
 
 export interface DeviceStatus {
@@ -78,7 +250,7 @@ export interface DockOsd {
   network_state: {
     type: number,
     quality: number,
-    rate: number, 
+    rate: number,
   },
   drone_in_dock: number,
   drone_charge_state: {
@@ -195,4 +367,12 @@ export interface DeviceHms {
   create_time: string,
   update_time: string,
   domain: string
+}
+
+// TODO: 设备拓扑管理优化
+// 设备信息
+export interface DeviceInfoType {
+  gateway: GatewayOsd, // 遥控器
+  dock: DockOsd, // 机场
+  device: DeviceOsd, // 飞机
 }

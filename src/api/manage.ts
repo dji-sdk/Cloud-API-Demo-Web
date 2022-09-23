@@ -1,4 +1,6 @@
 import request, { CommonListResponse, IListWorkspaceResponse, IPage, IWorkspaceResponse } from '/@/api/http/request'
+import { Device } from '/@/types/device'
+
 const HTTP_PREFIX = '/manage/api/v1'
 
 // login
@@ -116,7 +118,14 @@ export const getDeviceBySn = async function (workspace_id: string, device_sn: st
   return result.data
 }
 
-export const getBindingDevices = async function (workspace_id: string, body: IPage, domain: string): Promise<IWorkspaceResponse<any>> {
+/**
+ * 获取绑定设备信息
+ * @param workspace_id
+ * @param body
+ * @param domain
+ * @returns
+ */
+export const getBindingDevices = async function (workspace_id: string, body: IPage, domain: string): Promise<IListWorkspaceResponse<Device>> {
   const url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/bound?&page=${body.page}&page_size=${body.page_size}&domain=${domain}`
   const result = await request.get(url)
   return result.data
@@ -141,11 +150,11 @@ export const updateDeviceHms = async function (workspace_id: string, device_sn: 
 }
 
 export const getDeviceHms = async function (body: HmsQueryBody, workspace_id: string, pagination: IPage): Promise<IListWorkspaceResponse<any>> {
-  let url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/hms?page=${pagination.page}&pageSize=${pagination.page_size}` + 
-    `&level=${body.level ?? ''}&beginTime=${body.begin_time ?? ''}&endTime=${body.end_time ?? ''}&message=${body.message ?? ''}&language=${body.language}`
+  let url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/hms?page=${pagination.page}&page_size=${pagination.page_size}` + 
+    `&level=${body.level ?? ''}&begin_time=${body.begin_time ?? ''}&end_time=${body.end_time ?? ''}&message=${body.message ?? ''}&language=${body.language}`
   body.sns.forEach((sn: string) => {
     if (sn !== '') {
-      url = url.concat(`&deviceSn=${sn}`)
+      url = url.concat(`&device_sn=${sn}`)
     }
   })
   const result = await request.get(url)

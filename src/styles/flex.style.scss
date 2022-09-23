@@ -44,6 +44,18 @@
   justify-content: space-around;
 }
 
+.flex-1 {
+  flex: 1;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.flex-shrink-1 {
+  flex-shrink: 1;
+}
+
 //width
 .width-100vw {
   width: 100vw;

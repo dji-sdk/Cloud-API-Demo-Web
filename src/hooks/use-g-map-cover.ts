@@ -10,16 +10,18 @@ import { GeojsonCoordinate } from '/@/types/map'
 
 export function useGMapCover () {
   const root = getRoot()
-  const AMap = root.$aMapObj
+  const AMap = root.$aMap
 
   const normalColor = '#2D8CF0'
   const store = rootStore
   const coverList = store.state.coverList
+
   function AddCoverToMap (cover :any) {
-    root.$aMap.add(cover)
+    root.$map.add(cover)
     coverList.push(cover)
     // console.log('coverList:', store.state.coverList)
   }
+
   function getPinIcon (color?:string) {
     // console.log('color', color)
     const colorObj: {
@@ -31,7 +33,6 @@ export function useGMapCover () {
       'b620e0': pinb620e0,
       'e23c39': pine23c39,
       'ffbb00': pineffbb00,
-
     }
     const iconName = (color?.replaceAll('#', '') || '').toLocaleLowerCase()
     return new AMap.Icon({
@@ -41,6 +42,7 @@ export function useGMapCover () {
       // imageSize: new AMap.Size(40, 50)
     })
   }
+
   function init2DPin (name: string, coordinates:GeojsonCoordinate, color?:string, data?:{}) {
     console.log(name, coordinates[0], coordinates[1], color, data)
     const pin = new AMap.Marker({
@@ -54,8 +56,9 @@ export function useGMapCover () {
     // console.log('coordinates pin', pin)
     AddCoverToMap(pin)
   }
+
   function AddOverlayGroup (overlayGroup) {
-    root.$aMap.add(overlayGroup)
+    root.$map.add(overlayGroup)
     coverList.push(overlayGroup)
   }
   function initPolyline (name: string, coordinates:GeojsonCoordinate[], color?:string, data?:{}) {
@@ -74,6 +77,7 @@ export function useGMapCover () {
     })
     AddOverlayGroup(polyline)
   }
+
   function initPolygon (name: string, coordinates:GeojsonCoordinate[], color?:string, data?:{}) {
     const path = [] as GeojsonCoordinate[]
     coordinates.forEach(coordinate => {
@@ -92,6 +96,7 @@ export function useGMapCover () {
     })
     AddOverlayGroup(Polygon)
   }
+
   function removeCoverFromMap (id:string) {
     for (let i = 0; i < coverList.length; i++) {
       const ele = coverList[i]
@@ -99,12 +104,13 @@ export function useGMapCover () {
       const extdata = ele?.getExtData()
       if (extdata?.id === id) {
         console.log(extdata)
-        root.$aMap.remove(ele)
+        root.$map.remove(ele)
         coverList.slice(i, 1)
         break
       }
     }
   }
+
   function getElementFromMap (id:string) {
     // console.log('start', new Date().getTime())
     const ele = coverList.find(ele => ele?.getExtData().id === id)
@@ -118,6 +124,7 @@ export function useGMapCover () {
     //   }
     // })
   }
+
   function updatePinElement (id:string, name: string, coordinates:GeojsonCoordinate, color?:string) {
     const element = getElementFromMap(id) as any
     if (element) {
@@ -133,6 +140,7 @@ export function useGMapCover () {
       })
     }
   }
+
   return {
     init2DPin,
     initPolyline,

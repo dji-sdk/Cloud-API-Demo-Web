@@ -28,7 +28,6 @@ import { createVNode, defineComponent } from 'vue'
 import { getRoot } from '/@/root'
 import * as icons from '@ant-design/icons-vue'
 import { ERouterName } from '/@/types'
-import websocket from '/@/api/websocket'
 
 interface IOptions {
   key: number
@@ -58,7 +57,7 @@ export default defineComponent({
       { key: 1, label: 'Livestream', path: '/' + ERouterName.LIVESTREAM, icon: 'VideoCameraOutlined' },
       { key: 2, label: 'Annotations', path: '/' + ERouterName.LAYER, icon: 'EnvironmentOutlined' },
       { key: 3, label: 'Media Files', path: '/' + ERouterName.MEDIA, icon: 'PictureOutlined' },
-      { key: 4, label: 'Fligth Route Library', path: '/' + ERouterName.WAYLINE, icon: 'NodeIndexOutlined' },
+      { key: 4, label: 'Flight Route Library', path: '/' + ERouterName.WAYLINE, icon: 'NodeIndexOutlined' },
       { key: 5, label: 'Task Plan Library', path: '/' + ERouterName.TASK, icon: 'CalendarOutlined' }
     ]
 
@@ -66,10 +65,11 @@ export default defineComponent({
       const path = typeof item.path === 'string' ? item.path : item.path.path
       return root.$route.path?.indexOf(path) === 0
     }
+
     function goHome () {
       root.$router.push('/' + ERouterName.MEMBERS)
-      websocket.close()
     }
+
     return {
       options,
       selectedRoute,

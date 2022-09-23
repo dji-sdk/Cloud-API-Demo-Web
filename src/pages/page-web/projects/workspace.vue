@@ -21,22 +21,23 @@
 </template>
 <script lang="ts" setup>
 
-import Sidebar from '../sidebar.vue'
+import Sidebar from '/@/components/common/sidebar.vue'
 import MediaPanel from '/@/components/MediaPanel.vue'
 import TaskPanel from '/@/components/TaskPanel.vue'
 import GMap from '/@/components/GMap.vue'
 import { EBizCode, ERouterName } from '/@/types'
 import { getRoot } from '/@/root'
-import { onMounted, onUnmounted, watch } from 'vue'
-import ReconnectingWebSocket from 'reconnecting-websocket'
 import { useMyStore } from '/@/store'
-import websocket from '/@/api/websocket'
-// import { enableAgoraLive, enableOthersLive } from '/@/pages/project-app/projects/livestream.vue'
+import { useConnectWebSocket } from '/@/hooks/use-connect-websocket'
 
 const root = getRoot()
+const store = useMyStore()
 
-const wsGetMsg = async (res: any) => {
-  const payload = JSON.parse(res.data)
+const messageHandler = async (payload: any) => {
+  if (!payload) {
+    return
+  }
+
   switch (payload.biz_code) {
     case EBizCode.GatewayOsd: {
       store.commit('SET_GATEWAY_INFO', payload.data)
@@ -78,21 +79,33 @@ const wsGetMsg = async (res: any) => {
       store.commit('SET_DEVICE_HMS_INFO', payload.data)
       break
     }
+    case EBizCode.DeviceReboot:
+    case EBizCode.DroneOpen:
+    case EBizCode.DroneClose:
+    case EBizCode.CoverOpen:
+    case EBizCode.CoverClose:
+    case EBizCode.PutterOpen:
+    case EBizCode.PutterClose:
+    case EBizCode.ChargeOpen:
+    case EBizCode.ChargeClose:
+    case EBizCode.DeviceFormat:
+    case EBizCode.DroneFormat:
+    {
+      store.commit('SET_DEVICES_CMD_EXECUTE_INFO', {
+        biz_code: payload.biz_code,
+        timestamp: payload.timestamp,
+        ...payload.data,
+      })
+      break
+    }
     default:
       break
   }
 }
 
-const store = useMyStore()
+// 监听ws 消息
+useConnectWebSocket(messageHandler)
 
-let socket: ReconnectingWebSocket
-
-onMounted(() => {
-  socket = websocket.init(wsGetMsg)
-})
-onUnmounted(() => {
-  socket.close()
-})
 </script>
 <style lang="scss" scoped>
 @import '/@/styles/index.scss';

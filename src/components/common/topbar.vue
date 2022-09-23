@@ -44,8 +44,6 @@ import { getPlatformInfo } from '/@/api/manage'
 import { ELocalStorageKey, ERouterName } from '/@/types'
 import { UserOutlined, ExportOutlined } from '@ant-design/icons-vue'
 import cloudapi from '/@/assets/icons/cloudapi.png'
-import ReconnectingWebSocket from 'reconnecting-websocket'
-import websocket from '/@/api/websocket'
 
 const root = getRoot()
 

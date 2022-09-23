@@ -11,16 +11,12 @@
 </template>
 
 <script lang="ts" setup>
-import Topbar from './topbar.vue'
-import { message } from 'ant-design-vue'
+import Topbar from '/@/components/common/topbar.vue'
 import { onMounted, reactive, ref, UnwrapRef, watch } from 'vue'
-import { getPlatformInfo, getUserInfo } from '/@/api/manage'
-import websocket from '/@/api/websocket'
-import { useGMapCover } from '/@/hooks/use-g-map-cover'
 import { getRoot } from '/@/root'
-import { useMyStore } from '/@/store'
-import { ELocalStorageKey, ERouterName } from '/@/types'
-import ReconnectingWebSocket from 'reconnecting-websocket'
+import { EBizCode, ELocalStorageKey, ERouterName } from '/@/types'
+import { useConnectWebSocket } from '/@/hooks/use-connect-websocket'
+import EventBus from '/@/event-bus'
 
 interface FormState {
   user: string
@@ -28,7 +24,25 @@ interface FormState {
 }
 
 const root = getRoot()
-const showLogin = ref(true)
+
+const messageHandler = async (payload: any) => {
+  if (!payload) {
+    return
+  }
+  switch (payload.biz_code) {
+    case EBizCode.DeviceUpgrade: {
+      EventBus.emit('deviceUpgrade', payload)
+      break
+    }
+    case EBizCode.DeviceLogUploadProgress: {
+      EventBus.emit('deviceLogUploadProgress', payload)
+      break
+    }
+  }
+}
+
+// 监听ws 消息
+useConnectWebSocket(messageHandler)
 
 onMounted(() => {
   const token = localStorage.getItem(ELocalStorageKey.Token)

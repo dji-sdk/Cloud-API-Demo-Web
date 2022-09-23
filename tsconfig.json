@@ -25,6 +25,6 @@
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue", 
-    "src/vendors/coordtransform.js"  
-  ]
+    "src/vendors/coordtransform.js"
+    ]
 }

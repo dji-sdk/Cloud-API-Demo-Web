@@ -24,9 +24,9 @@
                     </a-tooltip>
                   </div>
                   <div class="mt5 flex-align-center flex-row flex-justify-between" style="background: #595959;">
-                    <div>
+                    <div class="flex-align-center flex-row">
                       <span class="ml5 mr5"><RobotOutlined /></span>
-                      <span class="font-bold" :style="dockInfo[dock.gateway.sn] && dockInfo[dock.gateway.sn].mode_code !== EDockModeCode.Disconnected ? 'color: #00ee8b' :  'color: red;'">
+                      <span class="font-bold text-hidden" style="max-width: 80px;" :style="dockInfo[dock.gateway.sn] && dockInfo[dock.gateway.sn].mode_code !== EDockModeCode.Disconnected ? 'color: #00ee8b' :  'color: red;'">
                         {{ dockInfo[dock.gateway.sn] ? EDockModeCode[dockInfo[dock.gateway.sn].mode_code] : EDockModeCode[EDockModeCode.Disconnected] }}
                       </span>
                     </div>

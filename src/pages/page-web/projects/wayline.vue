@@ -8,6 +8,7 @@
       </a-row>
     </div>
     <div class="height-100">
+    <a-spin :spinning="loading" :delay="1000" tip="downloading" size="large">
       <div class="scrollbar uranus-scrollbar" v-if="waylinesData.data.length !== 0" @scroll="onScroll">
         <div v-for="wayline in waylinesData.data" :key="wayline.id">
           <div class="wayline-panel" style="padding-top: 5px;" @click="selectRoute(wayline)">
@@ -62,6 +63,7 @@
               </div>
           </template>
       </a-modal>
+    </a-spin>
     </div>
   </div>
 </template>
@@ -79,6 +81,7 @@ import { WaylineFile } from '/@/types/wayline'
 import { downloadFile } from '/@/utils/common'
 import { IPage } from '/@/api/http/type'
 
+const loading = ref(false)
 const store = useMyStore()
 const pagination :IPage = {
   page: 1,
@@ -154,12 +157,15 @@ function deleteWayline () {
 }
 
 function downloadWayline (waylineId: string, fileName: string) {
+  loading.value = true
   downloadWaylineFile(workspaceId, waylineId).then(res => {
-    if (res.code && res.code !== 0) {
+    if (!res) {
       return
     }
-    const data = new Blob([res.data], { type: 'application/zip' })
+    const data = new Blob([res], { type: 'application/zip' })
     downloadFile(data, fileName + '.kmz')
+  }).finally(() => {
+    loading.value = false
   })
 }
 

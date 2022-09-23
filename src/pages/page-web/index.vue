@@ -34,7 +34,7 @@
           class="m0"
           type="primary"
           html-type="submit"
-          :disabled="formState.user === '' || formState.password === ''"
+          :disabled="loginBtnDisabled"
           @click="onSubmit"
         >
           Login
@@ -49,23 +49,27 @@
 import djiLogo from '/@/assets/icons/dji_logo.png'
 import { LockOutlined, UserOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import { reactive, ref, UnwrapRef } from 'vue'
+import { reactive, computed, UnwrapRef } from 'vue'
 import { login, LoginBody } from '/@/api/manage'
 import { getRoot } from '/@/root'
 import { ELocalStorageKey, ERouterName, EUserType } from '/@/types'
 import router from '/@/router'
 
 const root = getRoot()
+
 const formState: UnwrapRef<LoginBody> = reactive({
   username: 'adminPC',
   password: 'adminPC',
   flag: EUserType.Web,
 })
 
+const loginBtnDisabled = computed(() => {
+  return !formState.username || !formState.password
+})
+
 const onSubmit = async (e: any) => {
   const result = await login(formState)
   if (result.code === 0) {
-    console.log(result)
     localStorage.setItem(ELocalStorageKey.Token, result.data.access_token)
     localStorage.setItem(ELocalStorageKey.WorkspaceId, result.data.workspace_id)
     localStorage.setItem(ELocalStorageKey.Username, result.data.username)

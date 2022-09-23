@@ -19,11 +19,11 @@ export interface IListWorkspaceResponse<T> {
 }
 // Workspace
 export interface IWorkspaceResponse<T> {
-[x: string]: number;
  code: number;
  data: T;
  message: string;
 }
+
 export type IStatus = 'WAITING' | 'DOING' | 'SUCCESS' | 'FAILED';
 
 export interface CommonListResponse<T> extends IResult {

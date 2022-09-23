@@ -6,23 +6,30 @@ import { message } from 'ant-design-vue'
 
 export function deviceTsaUpdate () {
   const root = getRoot()
-  const AMap = root.$aMapObj
+  const AMap = root.$aMap
 
-  const map = root.$aMap
   const icons: {
     [key: string]: string
   } = {
-    'sub-device' : '/@/assets/icons/drone.png',
+    'sub-device': '/@/assets/icons/drone.png',
     'gateway': '/@/assets/icons/rc.png',
     'dock': '/@/assets/icons/dock.png'
   }
   const markers = store.state.markerInfo.coverMap
   const paths = store.state.markerInfo.pathMap
-  
-  const passedPolyline = new AMap.Polyline({
-    map: map,
-    strokeColor: '#939393' // 线颜色
-  })
+
+  // Fix: 航迹初始化报错
+  // TODO: 从时序上解决
+  let trackLine = null as any
+  function getTrackLineInstance () {
+    if (!trackLine) {
+      trackLine = new AMap.Polyline({
+        map: root.$map,
+        strokeColor: '#939393' // 线颜色
+      })
+    }
+    return trackLine
+  }
 
   function initIcon (type: string) {
     return new AMap.Icon({
@@ -36,13 +43,13 @@ export function deviceTsaUpdate () {
       return
     }
     markers[sn] = new AMap.Marker({
-      position: new AMap.LngLat(lng ? lng : 113.935913, lat ? lat : 22.525335),
+      position: new AMap.LngLat(lng || 113.935913, lat || 22.525335),
       icon: initIcon(type),
       title: name,
       anchor: 'top-center',
       offset: [0, -20],
     })
-    root.$aMap.add(markers[sn])
+    root.$map.add(markers[sn])
 
     // markers[sn].on('moving', function (e: any) {
     //   let path = paths[sn]
@@ -52,19 +59,21 @@ export function deviceTsaUpdate () {
     //   }
     //   path.push(e.passedPath[0])
     //   path.push(e.passedPath[1])
-    //   passedPolyline.setPath(path)
+    //   getTrackLineInstance().setPath(path)
     // })
   }
+
   function removeMarker (sn: string) {
     if (!markers[sn]) {
       return
     }
-    root.$aMap.remove(markers[sn])
-    passedPolyline.setPath([])
+    root.$map.remove(markers[sn])
+    getTrackLineInstance().setPath([])
     delete markers[sn]
     delete paths[sn]
   }
-  function addMarker(sn: string, lng?: number, lat?: number) {
+
+  function addMarker (sn: string, lng?: number, lat?: number) {
     getDeviceBySn(localStorage.getItem(ELocalStorageKey.WorkspaceId)!, sn)
       .then(data => {
         if (data.code !== 0) {
@@ -74,7 +83,8 @@ export function deviceTsaUpdate () {
         initMarker(data.data.domain, data.data.nickname, sn, lng, lat)
       })
   }
-  function moveTo(sn: string, lng: number, lat: number) {
+
+  function moveTo (sn: string, lng: number, lat: number) {
     let marker = markers[sn]
     if (!marker) {
       addMarker(sn, lng, lat)
@@ -86,7 +96,7 @@ export function deviceTsaUpdate () {
       autoRotation: true
     })
   }
-  
+
   return {
     marker: markers,
     initMarker,

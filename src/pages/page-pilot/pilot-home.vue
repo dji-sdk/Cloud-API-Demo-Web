@@ -130,9 +130,8 @@ import { EBizCode, EComponentName, EDownloadOwner, ELocalStorageKey, ERouterName
 import cloudapi from '/@/assets/icons/cloudapi.png'
 import { RightOutlined, CloudOutlined, CloudSyncOutlined, SyncOutlined } from '@ant-design/icons-vue'
 import { useMyStore } from '/@/store'
-import ReconnectingWebSocket from 'reconnecting-websocket'
-import websocket from '/@/api/websocket'
 import { DeviceStatus } from '/@/types/device'
+import { useConnectWebSocket } from '/@/hooks/use-connect-websocket'
 
 const root = getRoot()
 const gatewayState = ref<boolean>(localStorage.getItem(ELocalStorageKey.GatewayOnline) === 'true')
@@ -211,8 +210,10 @@ const modules = [{
 
 const store = useMyStore()
 
-const wsGetMsg = async (res: any) => {
-  const payload = JSON.parse(res.data)
+const messageHandler = async (payload: any) => {
+  if (!payload) {
+    return
+  }
   switch (payload.biz_code) {
     case EBizCode.DeviceOnline: {
       console.info('online: ', payload)
@@ -241,8 +242,11 @@ const wsGetMsg = async (res: any) => {
       break
   }
 }
+
+// 监听ws 消息
+useConnectWebSocket(messageHandler)
+
 let bindNum: number
-let socket: ReconnectingWebSocket
 
 onMounted(() => {
   apiPilot.onBackClickReg()
@@ -259,8 +263,6 @@ onMounted(() => {
   }
   device.data.sn = apiPilot.getAircraftSN()
   getDeviceInfo()
-
-  socket = websocket.init(wsGetMsg)
 
   const isLoaded = apiPilot.isComponentLoaded(EComponentName.Thing)
   if (isLoaded) {
@@ -300,10 +302,6 @@ onMounted(() => {
   window.wsConnectCallback = arg => {
     wsConnectCallback(arg)
   }
-})
-
-onUnmounted(() => {
-  socket.close()
 })
 
 const connectCallback = async (arg: any) => {

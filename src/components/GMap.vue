@@ -137,21 +137,23 @@
         </div>
       </div>
     </div>
-    <div v-if="osdVisible.visible && osdVisible.is_dock" class="osd-panel fz12" style="height: 280px;">
+    <!-- 机场OSD -->
+    <div v-if="osdVisible.visible && osdVisible.is_dock" class="osd-panel fz12">
       <div class="fz16 pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 10%;">
         <span>{{ osdVisible.gateway_callsign }}</span>
         <span><a style="color: white;" @click="() => osdVisible.visible = false"><CloseOutlined /></a></span>
       </div>
-      <div style="height: 45%; border-bottom: 1px solid #515151;">
-        <div class="flex-column flex-align-center flex-justify-center" style="float: left; width: 60px; height: 100%; background: #2d2d2d;">
+        <!-- 机场 -->
+      <div class ="flex-display" style="border-bottom: 1px solid #515151;">
+        <div class="flex-column flex-align-stretch flex-justify-center" style="width: 60px; background: #2d2d2d;">
           <a-tooltip :title="osdVisible.model">
-            <div class="flex-column flex-align-center flex-justify-center" style="width: 90%;">
+            <div class="flex-column  flex-align-center flex-justify-center" style="width: 90%;">
               <span><RobotFilled style="font-size: 48px;"/></span>
               <span class="mt10">Dock</span>
             </div>
           </a-tooltip>
         </div>
-        <div class="osd">
+        <div class="osd flex-1" style="flex: 1">
             <a-row>
               <a-col span="16" :style="deviceInfo.dock.mode_code === EDockModeCode.Disconnected ? 'color: red; font-weight: 700;': 'color: rgb(25,190,107)'">
                 {{ EDockModeCode[deviceInfo.dock.mode_code] }}</a-col>
@@ -260,10 +262,20 @@
                 </a-tooltip>
               </a-col>
             </a-row>
+            <a-row class="p5">
+              <a-col span="24">
+                <a-button type="primary" :disabled="controlPanelVisible" size="small" @click="dockDebugOnOff(osdVisible.gateway_sn, true)">
+                  远程调试
+                </a-button>
+              </a-col>
+            </a-row>
+            <DockControlPanel v-if="controlPanelVisible" :sn="osdVisible.gateway_sn"  :deviceInfo="deviceInfo" @close-control-panel="dockDebugOnOff">
+            </DockControlPanel>
         </div>
       </div>
-      <div style="height: 45%;">
-        <div class="flex-column flex-align-center flex-justify-center" style="float: left; width: 60px; height: 100%; background: #2d2d2d;">
+      <!--  飞机-->
+      <div class ="flex-display">
+        <div class="flex-column flex-align-stretch flex-justify-center" style="width: 60px;  background: #2d2d2d;">
           <a-tooltip :title="osdVisible.model">
             <div style="width: 90%;" class="flex-column flex-align-center flex-justify-center">
               <span><a-image :src="M30" :preview="false"/></span>
@@ -271,7 +283,7 @@
             </div>
           </a-tooltip>
         </div>
-        <div class="osd">
+        <div class="osd flex-1">
             <a-row>
               <a-col span="16" :style="!deviceInfo.device || deviceInfo.device?.mode_code === EModeCode.Disconnected ? 'color: red; font-weight: 700;': 'color: rgb(25,190,107)'">
                 {{ !deviceInfo.device ? EModeCode[EModeCode.Disconnected] : EModeCode[deviceInfo.device?.mode_code] }}</a-col>
@@ -409,6 +421,8 @@ import {
   FieldTimeOutlined, CloudOutlined, CloudFilled, FolderOpenOutlined, RobotFilled, ArrowUpOutlined
 } from '@ant-design/icons-vue'
 import { EDeviceTypeName } from '../types'
+import DockControlPanel from './g-map/DockControlPanel.vue'
+import { useDockControl } from './g-map/useDockControl'
 
 export default defineComponent({
   components: {
@@ -428,7 +442,8 @@ export default defineComponent({
     FolderOpenOutlined,
     RobotFilled,
     ArrowUpOutlined,
-    ArrowDownOutlined
+    ArrowDownOutlined,
+    DockControlPanel
   },
   name: 'GMap',
   props: {},
@@ -642,6 +657,15 @@ export default defineComponent({
       useMouseToolHook.mouseTool(type, getDrawCallback)
       mouseMode.value = bool
     }
+
+    // dock 控制指令
+    const {
+      controlPanelVisible,
+      setControlPanelVisible,
+      sendDockControlCmd,
+      dockDebugOnOff,
+    } = useDockControl()
+
     onMounted(() => {
       const app = getApp()
       useGMapManageHook.globalPropertiesConfig(app)
@@ -813,15 +837,19 @@ export default defineComponent({
       EModeCode,
       str,
       EDockModeCode,
+      controlPanelVisible,
+      dockDebugOnOff,
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
+
 .g-map-wrapper {
   height: 100%;
   width: 100%;
+
   .g-action-panle {
     position: absolute;
     top: 16px;
@@ -845,13 +873,19 @@ export default defineComponent({
     border: 1px solid $primary;
     border-radius: 2px;
   }
+
+  // antd button 光晕
+  &:deep(.ant-btn){
+    &::after {
+      display: none;
+    }
+  }
 }
 .osd-panel {
   position: absolute;
   left: 350px;
   top: 10px;
   width: 480px;
-  height: 160px;
   background: black;
   color: white;
   border-radius: 2px;

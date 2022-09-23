@@ -57,13 +57,13 @@ interface MemberData {
   member: Member[]
 }
 const columns = [
-  { title: 'Account', dataIndex: 'username', width: 250, sorter: (a: Member, b: Member) => a.username.localeCompare(b.username), className: 'titleStyle' },
-  { title: 'User Type', dataIndex: 'user_type', width: 250, className: 'titleStyle' },
-  { title: 'Workspace Name', dataIndex: 'workspace_name', width: 250, className: 'titleStyle' },
-  { title: 'Mqtt Username', dataIndex: 'mqtt_username', width: 250, className: 'titleStyle', slots: { customRender: 'mqtt_username' } },
-  { title: 'Mqtt Password', dataIndex: 'mqtt_password', width: 250, className: 'titleStyle', slots: { customRender: 'mqtt_password' } },
-  { title: 'Joined', dataIndex: 'create_time', width: 250, sorter: (a: Member, b: Member) => a.create_time.localeCompare(b.create_time), className: 'titleStyle' },
-  { title: 'Action', dataIndex: 'action', className: 'titleStyle', slots: { customRender: 'action' } },
+  { title: 'Account', dataIndex: 'username', width: 150, sorter: (a: Member, b: Member) => a.username.localeCompare(b.username), className: 'titleStyle' },
+  { title: 'User Type', dataIndex: 'user_type', width: 150, className: 'titleStyle' },
+  { title: 'Workspace Name', dataIndex: 'workspace_name', width: 150, className: 'titleStyle' },
+  { title: 'Mqtt Username', dataIndex: 'mqtt_username', width: 150, className: 'titleStyle', slots: { customRender: 'mqtt_username' } },
+  { title: 'Mqtt Password', dataIndex: 'mqtt_password', width: 150, className: 'titleStyle', slots: { customRender: 'mqtt_password' } },
+  { title: 'Joined', dataIndex: 'create_time', width: 150, sorter: (a: Member, b: Member) => a.create_time.localeCompare(b.create_time), className: 'titleStyle' },
+  { title: 'Action', dataIndex: 'action', width: 100, className: 'titleStyle', slots: { customRender: 'action' } },
 ]
 
 const data = reactive<MemberData>({
@@ -117,7 +117,6 @@ function getAllUsers (workspaceId: string, page: IPage) {
     data.member = userList
     paginationProp.total = res.data.pagination.total
     paginationProp.current = res.data.pagination.page
-
   })
 }
 
