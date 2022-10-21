@@ -589,6 +589,7 @@ export default defineComponent({
         }
       }
       if (data.currentType === EDeviceTypeName.Dock && data.dockInfo[data.currentSn]) {
+        deviceTsaUpdateHook.value.initMarker(EDeviceTypeName.Dock, EDeviceTypeName.Dock, data.currentSn, data.dockInfo[data.currentSn].longitude, data.dockInfo[data.currentSn].latitude)
         if (osdVisible.value.visible && osdVisible.value.is_dock && osdVisible.value.gateway_sn !== '') {
           deviceInfo.dock = data.dockInfo[osdVisible.value.gateway_sn]
           deviceInfo.device = data.deviceInfo[deviceInfo.dock.sub_device?.device_sn]

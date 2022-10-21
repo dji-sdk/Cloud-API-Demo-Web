@@ -3,18 +3,19 @@ import { getRoot } from '/@/root'
 import { ELocalStorageKey } from '/@/types'
 import { getDeviceBySn } from '/@/api/manage'
 import { message } from 'ant-design-vue'
+import dockIcon from '/@/assets/icons/dock.png'
+import rcIcon from '/@/assets/icons/rc.png'
+import droneIcon from '/@/assets/icons/drone.png'
 
 export function deviceTsaUpdate () {
   const root = getRoot()
   const AMap = root.$aMap
 
-  const icons: {
-    [key: string]: string
-  } = {
-    'sub-device': '/@/assets/icons/drone.png',
-    'gateway': '/@/assets/icons/rc.png',
-    'dock': '/@/assets/icons/dock.png'
-  }
+  const icons = new Map([
+    ['sub-device', droneIcon],
+    ['gateway', rcIcon],
+    ['dock', dockIcon]
+  ])
   const markers = store.state.markerInfo.coverMap
   const paths = store.state.markerInfo.pathMap
 
@@ -33,13 +34,14 @@ export function deviceTsaUpdate () {
 
   function initIcon (type: string) {
     return new AMap.Icon({
-      image: icons[type],
-      imageSize: new AMap.Size(40, 40)
+      image: icons.get(type),
+      imageSize: new AMap.Size(40, 40),
+      size: new AMap.Size(40, 40)
     })
   }
 
   function initMarker (type: string, name: string, sn: string, lng?: number, lat?: number) {
-    if (markers[sn]) {
+    if (markers[sn] || AMap === undefined) {
       return
     }
     markers[sn] = new AMap.Marker({
@@ -50,7 +52,6 @@ export function deviceTsaUpdate () {
       offset: [0, -20],
     })
     root.$map.add(markers[sn])
-
     // markers[sn].on('moving', function (e: any) {
     //   let path = paths[sn]
     //   if (!path) {

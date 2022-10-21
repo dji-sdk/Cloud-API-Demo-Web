@@ -4,7 +4,7 @@ import { EDeviceTypeName } from '../types'
 import { Device, DeviceHms, DeviceOsd, DeviceStatus, DockOsd, GatewayOsd, OSDVisible } from '../types/device'
 import { getLayers } from '/@/api/layer'
 import { LayerType } from '/@/types/mapLayer'
-import { ETaskStatus, TaskInfo, WaylineFile } from '/@/types/wayline'
+import { WaylineFile } from '/@/types/wayline'
 import { DevicesCmdExecuteInfo } from '/@/types/device-cmd'
 
 const initStateFunc = () => ({
@@ -81,11 +81,6 @@ const initStateFunc = () => ({
   dockInfo: {
 
   } as Device,
-  taskProgressInfo: {
-
-  } as {
-    [bid: string]: TaskInfo
-  },
   hmsInfo: {} as {
     [sn: string]: DeviceHms[]
   },
@@ -159,17 +154,6 @@ const mutations: MutationTree<RootStateType> = {
   },
   SET_SELECT_DOCK_INFO (state, info) {
     state.dockInfo = info
-  },
-  SET_FLIGHT_TASK_PROGRESS (state, info) {
-    const taskInfo: TaskInfo = info.output
-
-    if (taskInfo.status === ETaskStatus.OK || taskInfo.status === ETaskStatus.FAILED) {
-      taskInfo.status = taskInfo.status.concat('(Code:').concat(info.result).concat(')')
-      setTimeout(() => {
-        delete state.taskProgressInfo[info.bid]
-      }, 60000)
-    }
-    state.taskProgressInfo[info.bid] = info.output
   },
   SET_DEVICE_HMS_INFO (state, info) {
     const hmsList: Array<DeviceHms> = state.hmsInfo[info.sn]

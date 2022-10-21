@@ -90,7 +90,7 @@ export enum EBizCode {
     MapElementDelete = 'map_element_delete',
     DeviceOnline = 'device_online',
     DeviceOffline = 'device_offline',
-    FlightTaskProgress = 'flighttask_progress',
+    FlightTaskProgress = 'flighttask_progress', // 机场任务执行进度
     DeviceHms = 'device_hms',
 
     // 设备指令

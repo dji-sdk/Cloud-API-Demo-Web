@@ -1,5 +1,5 @@
 <template>
-  <div class="plan">
+  <div class="create-plan-wrapper">
     <div class="header">
       Create Plan
     </div>
@@ -8,6 +8,7 @@
         <a-form-item label="Plan Name" name="name" :labelCol="{span: 24}">
           <a-input style="background: black;"  placeholder="Please enter plan name" v-model:value="planBody.name"/>
         </a-form-item>
+        <!-- 航线 -->
         <a-form-item label="Flight Route" :wrapperCol="{offset: 7}" name="file_id">
           <router-link
             :to="{name: 'select-plan'}"
@@ -40,6 +41,7 @@
             </div>
           </div>
         </a-form-item>
+        <!-- 设备 -->
         <a-form-item label="Device" :wrapperCol="{offset: 10}" v-model:value="planBody.dock_sn" name="dock_sn">
           <router-link
             :to="{name: 'select-plan'}"
@@ -59,12 +61,24 @@
             </div>
           </div>
         </a-form-item>
-        <a-form-item label="Immediate">
-          <a-switch v-model:checked="planBody.immediate">
-            <template #checkedChildren><CheckOutlined /></template>
-            <template #unCheckedChildren><CloseOutlined /></template>
-          </a-switch>
+        <!-- 任务类型 -->
+        <a-form-item label="Plan Timer" class="plan-timer-form-item">
+          <div style="white-space: nowrap;">
+            <a-radio-group v-model:value="planBody.task_type" button-style="solid">
+              <a-radio-button :value="TaskType.Immediate">Immediate</a-radio-button>
+              <a-radio-button :value="TaskType.Single">Timed&One-Time</a-radio-button>
+            </a-radio-group>
+          </div>
         </a-form-item>
+        <!-- 执行时间 -->
+        <a-form-item label="Start Time" v-if="planBody.task_type === TaskType.Single" name="select_execute_time">
+          <a-date-picker v-model:value="planBody.select_execute_time"
+          format="YYYY-MM-DD HH:mm:ss"
+          show-time
+          placeholder="Select Time"
+        />
+        </a-form-item>
+        <!-- 操作 -->
         <a-form-item style="position: absolute; bottom: 0px; margin-bottom: 0; margin-left: -10px; width: 280px;">
           <div class="footer">
             <a-button class="mr10" style="background: #3c3c3c;" @click="closePlan">Cancel
@@ -88,14 +102,16 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, reactive, ref, toRaw, UnwrapRef } from 'vue'
-import { CheckOutlined, CloseOutlined, RocketOutlined, CameraFilled, UserOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { CloseOutlined, RocketOutlined, CameraFilled, UserOutlined } from '@ant-design/icons-vue'
 import { ELocalStorageKey, ERouterName } from '/@/types'
 import { useMyStore } from '/@/store'
-import { WaylineFile } from '/@/types/wayline'
+import { WaylineType, WaylineFile } from '/@/types/wayline'
 import { Device, EDeviceType } from '/@/types/device'
 import { createPlan, CreatePlan } from '/@/api/wayline'
 import { getRoot } from '/@/root'
+import { TaskType } from '/@/types/task'
+import moment, { Moment } from 'moment'
+import { message } from 'ant-design-vue'
 
 const root = getRoot()
 const store = useMyStore()
@@ -113,13 +129,14 @@ const dock = computed<Device>(() => {
 const disabled = ref(false)
 
 const routeName = ref('')
-const planBody: UnwrapRef<CreatePlan> = reactive({
+const planBody = reactive({
   name: '',
   file_id: computed(() => store.state.waylineInfo.id),
   dock_sn: computed(() => store.state.dockInfo.device_sn),
-  immediate: false,
-  type: 'wayline'
+  task_type: TaskType.Immediate,
+  select_execute_time: undefined as Moment| undefined
 })
+
 const drawerVisible = ref(false)
 const valueRef = ref()
 const rules = {
@@ -128,21 +145,31 @@ const rules = {
     { max: 20, message: 'Length should be 1 to 20', trigger: 'blur' }
   ],
   file_id: [{ required: true, message: 'Select Route' }],
-  dock_sn: [{ required: true, message: 'Select Device' }]
+  dock_sn: [{ required: true, message: 'Select Device' }],
+  select_execute_time: [{ required: true, message: 'Select start time' }]
 }
 
 function onSubmit () {
   valueRef.value.validate().then(() => {
     disabled.value = true
-    createPlan(workspaceId, planBody)
+    const createPlanBody = { ...planBody } as unknown as CreatePlan
+    if (planBody.select_execute_time) {
+      createPlanBody.execute_time = moment(planBody.select_execute_time).valueOf()
+    }
+    if (wayline.value && wayline.value.template_types && wayline.value.template_types.length > 0) {
+      createPlanBody.wayline_type = wayline.value.template_types[0]
+    }
+    // console.log('planBody', createPlanBody)
+    createPlan(workspaceId, createPlanBody)
       .then(res => {
-        message.success('Saved Successfully')
         setTimeout(() => {
           disabled.value = false
         }, 1500)
       }).finally(() => {
         closePlan()
       })
+  }).catch((e: any) => {
+    console.log('validate err', e)
   })
 }
 
@@ -167,14 +194,14 @@ function selectDevice () {
 </script>
 
 <style lang="scss">
-
-.plan {
+.create-plan-wrapper {
   background-color: #232323;
   color: white;
   padding-bottom: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
+
   .header {
     height: 53px;
     border-bottom: 1px solid #4f4f4f;
@@ -184,15 +211,31 @@ function selectDevice () {
     display: flex;
     align-items: center;
   }
+
   .content {
     height: 100%;
     form {
       margin: 10px;
     }
     form label, input {
-      color: white;
+      background-color: #232323;
+      color: #fff;
+    }
+
+    .plan-timer-form-item {
+      // flex-direction: column;
+
+      .ant-radio-button-wrapper{
+        background-color: #232323;
+        color: #fff;
+
+        &.ant-radio-button-wrapper-checked{
+          background-color: #1890ff;
+        }
+      }
     }
   }
+
   .footer {
     display: flex;
     align-items: center;
@@ -208,6 +251,7 @@ function selectDevice () {
     }
   }
 }
+
 .wayline-panel {
   background: #3c3c3c;
   margin-left: auto;
@@ -228,6 +272,7 @@ function selectDevice () {
     margin: 0px 10px 0 10px;
   }
 }
+
 .panel {
   background: #3c3c3c;
   margin-left: auto;

@@ -160,3 +160,9 @@ export const getDeviceHms = async function (body: HmsQueryBody, workspace_id: st
   const result = await request.get(url)
   return result.data
 }
+
+export const changeLivestreamLens = async function (body: {}): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/live/streams/switch`
+  const result = await request.post(url, body)
+  return result.data
+}

@@ -3,15 +3,23 @@
     <div id="player" style="width: 720px; height: 420px; border: 1px solid"></div>
     <p class="fz24">Live streaming source selection</p>
     <div class="flex-row flex-justify-center flex-align-center mt10">
+      <template v-if="livePara.liveState && dronePara.isDockLive">
+        <span class="mr10">Lens:</span>
+        <a-radio-group v-model:value="dronePara.lensSelected" button-style="solid">
+          <a-radio-button v-for="lens in dronePara.lensList" :key="lens" :value="lens">{{lens}}</a-radio-button>
+        </a-radio-group>
+      </template>
+      <template v-else>
       <a-select
         style="width:150px"
         placeholder="Select Drone"
-        @select="onDroneSelect"
+        v-model:value="dronePara.droneSelected"
       >
         <a-select-option
           v-for="item in dronePara.droneList"
           :key="item.value"
           :value="item.value"
+          @click="onDroneSelect(item)"
           >{{ item.label }}</a-select-option
         >
       </a-select>
@@ -19,12 +27,13 @@
         class="ml10"
         style="width:150px"
         placeholder="Select Camera"
-        @select="onCameraSelect"
+        v-model:value="dronePara.cameraSelected"
       >
         <a-select-option
           v-for="item in dronePara.cameraList"
           :key="item.value"
           :value="item.value"
+          @click="onCameraSelect(item)"
           >{{ item.label }}</a-select-option
         >
       </a-select>
@@ -35,13 +44,13 @@
         @select="onVideoSelect"
       >
         <a-select-option
-          class="ml10"
           v-for="item in dronePara.videoList"
           :key="item.value"
           :value="item.value"
           >{{ item.label }}</a-select-option
         >
       </a-select> -->
+      </template>
       <a-select
         class="ml10"
         style="width:150px"
@@ -60,12 +69,16 @@
       Note: Obtain The Following Parameters From https://console.agora.io
     </p>
     <div class="flex-row flex-justify-center flex-align-center">
+      <span class="mr10">AppId:</span>
       <a-input v-model:value="agoraPara.appid" placeholder="APP ID"></a-input>
+      <span class="ml10">Token:</span>
       <a-input
         class="ml10"
         v-model:value="agoraPara.token"
         placeholder="Token"
+        @change="encodeToken"
       ></a-input>
+      <span class="ml10">Channel:</span>
       <a-input
         class="ml10"
         v-model:value="agoraPara.channel"
@@ -73,14 +86,15 @@
       ></a-input>
     </div>
     <div class="mt20 flex-row flex-justify-center flex-align-center">
-      <a-button type="primary" large @click="onStart">Play</a-button>
+      <a-button v-if="livePara.liveState && dronePara.isDockLive" type="primary" large @click="onSwitch">Switch Lens</a-button>
+      <a-button v-else type="primary" large @click="onStart">Play</a-button>
       <a-button class="ml20" type="primary" large @click="onStop"
         >Stop</a-button
       >
       <a-button class="ml20" type="primary" large @click="onUpdateQuality"
         >Update Clarity</a-button
       >
-      <a-button class="ml20" type="primary" large @click="onRefresh"
+      <a-button v-if="!livePara.liveState || !dronePara.isDockLive" class="ml20" type="primary" large @click="onRefresh"
         >Refresh Live Capacity</a-button
       >
     </div>
@@ -91,8 +105,9 @@
 import AgoraRTC, { IAgoraRTCClient, IAgoraRTCRemoteUser } from 'agora-rtc-sdk-ng'
 import { message } from 'ant-design-vue'
 import { onMounted, reactive } from 'vue'
+import { uuidv4 } from '../utils/uuid'
 import { CURRENT_CONFIG as config } from '/@/api/http/config'
-import { getLiveCapacity, setLivestreamQuality, startLivestream, stopLivestream } from '/@/api/manage'
+import { changeLivestreamLens, getLiveCapacity, setLivestreamQuality, startLivestream, stopLivestream } from '/@/api/manage'
 import { getRoot } from '/@/root'
 
 const root = getRoot()
@@ -120,6 +135,12 @@ const clarityList = [
   }
 ]
 
+interface SelectOption {
+  value: any,
+  label: string,
+  more?: any
+}
+
 let agoraClient = {} as IAgoraRTCClient
 const agoraPara = reactive({
   appid: config.agoraAPPID,
@@ -130,13 +151,16 @@ const agoraPara = reactive({
 })
 const dronePara = reactive({
   livestreamSource: [],
-  droneList: [] as any[],
-  cameraList: [] as any[],
-  videoList: [] as any[],
-  droneSelected: '',
-  cameraSelected: '',
-  videoSelected: '',
-  claritySelected: 0
+  droneList: [] as SelectOption[],
+  cameraList: [] as SelectOption[],
+  videoList: [] as SelectOption[],
+  droneSelected: undefined as string | undefined,
+  cameraSelected: undefined as string | undefined,
+  videoSelected: undefined as string | undefined,
+  claritySelected: 0,
+  lensList: [] as string[],
+  lensSelected: undefined as string | undefined,
+  isDockLive: false
 })
 const livePara = reactive({
   url: '',
@@ -144,14 +168,15 @@ const livePara = reactive({
   videoId: '',
   liveState: false
 })
+const nonSwitchable = 'normal'
 
 const onRefresh = async () => {
   dronePara.droneList = []
   dronePara.cameraList = []
   dronePara.videoList = []
-  dronePara.droneSelected = ''
-  dronePara.cameraSelected = ''
-  dronePara.videoSelected = ''
+  dronePara.droneSelected = undefined
+  dronePara.cameraSelected = undefined
+  dronePara.videoSelected = undefined
   await getLiveCapacity({})
     .then(res => {
       if (res.code === 0) {
@@ -166,18 +191,20 @@ const onRefresh = async () => {
 
         if (dronePara.livestreamSource) {
           dronePara.livestreamSource.forEach((ele: any) => {
-            dronePara.droneList.push({ label: ele.name + '-' + ele.sn, value: ele.sn })
+            dronePara.droneList.push({ label: ele.name + '-' + ele.sn, value: ele.sn, more: ele.cameras_list })
           })
         }
       }
     })
     .catch(error => {
+      message.error(error)
       console.error(error)
     })
 }
 
 onMounted(() => {
   onRefresh()
+  agoraPara.token = encodeURIComponent(agoraPara.token)
   agoraClient = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' })
   // Subscribe when a remote user publishes a stream
   agoraClient.on('user-joined', async (user: IAgoraRTCRemoteUser) => {
@@ -191,13 +218,17 @@ onMounted(() => {
       const remoteVideoTrack = user.videoTrack!
       // Dynamically create a container in the form of a DIV element for playing the remote video track.
       const remotePlayerContainer: any = document.getElementById('player')
-      // remotePlayerContainer.id = agoraPara.uid
+      remotePlayerContainer.id = user.uid.toString()
       remoteVideoTrack.play(remotePlayerContainer)
     }
   })
   agoraClient.on('user-unpublished', async (user: any) => {
     console.log('unpublish live:', user)
     message.info('unpublish live')
+  })
+  agoraClient.on('exception', async (e: any) => {
+    console.error(e)
+    message.error(e.msg)
   })
 })
 
@@ -207,7 +238,9 @@ const handleError = (err: any) => {
 const handleJoinChannel = (uid: any) => {
   agoraPara.uid = uid
 }
-
+const encodeToken = (e: any) => {
+  agoraPara.token = encodeURIComponent(agoraPara.token)
+}
 const onStart = async () => {
   const that = this
   console.log(
@@ -222,13 +255,12 @@ const onStart = async () => {
   if (
     dronePara.droneSelected == null ||
     dronePara.cameraSelected == null ||
-    dronePara.videoSelected == null ||
     dronePara.claritySelected == null
   ) {
     message.warn('waring: not select live para!!!')
     return
   }
-  agoraClient.setClientRole('audience', { level: 1 })
+  agoraClient.setClientRole('audience', { level: 2 })
   if (agoraClient.connectionState === 'DISCONNECTED') {
     agoraClient
       .join(agoraPara.appid, agoraPara.channel, agoraPara.token)
@@ -236,11 +268,8 @@ const onStart = async () => {
   livePara.videoId =
     dronePara.droneSelected +
     '/' +
-    dronePara.cameraSelected +
-    '/' +
-    dronePara.videoSelected
+    dronePara.cameraSelected + '/' + (dronePara.videoSelected || nonSwitchable + '-0')
   console.log(agoraPara)
-  agoraPara.token = encodeURIComponent(agoraPara.token)
 
   livePara.url =
     'channel=' +
@@ -259,6 +288,9 @@ const onStart = async () => {
     video_quality: dronePara.claritySelected
   })
     .then(res => {
+      if (res.code !== 0) {
+        return
+      }
       livePara.liveState = true
     })
     .catch(err => {
@@ -266,12 +298,6 @@ const onStart = async () => {
     })
 }
 const onStop = async () => {
-  livePara.videoId =
-    dronePara.droneSelected +
-    '/' +
-    dronePara.cameraSelected +
-    '/' +
-    dronePara.videoSelected
   stopLivestream({
     video_id: livePara.videoId
   }).then(res => {
@@ -279,52 +305,52 @@ const onStop = async () => {
       message.success(res.message)
     }
     livePara.liveState = false
+    dronePara.lensSelected = ''
     console.log('stop play livestream')
   })
 }
-const onDroneSelect = (val: any) => {
-  dronePara.droneSelected = val
-  if (dronePara.droneSelected) {
-    const droneTemp = dronePara.livestreamSource
-    dronePara.cameraList = []
+const onDroneSelect = (val: SelectOption) => {
+  dronePara.cameraList = []
+  dronePara.videoList = []
+  dronePara.lensList = []
 
-    droneTemp.forEach((ele: any) => {
-      const drone = ele
-      if (drone.cameras_list && drone.sn === dronePara.droneSelected) {
-        const cameraListTemp = drone.cameras_list
-        cameraListTemp.forEach((ele: any) => {
-          dronePara.cameraList.push({ label: ele.name, value: ele.index })
-        })
-      }
-    })
+  dronePara.cameraSelected = undefined
+  dronePara.videoSelected = undefined
+  dronePara.lensSelected = undefined
+  dronePara.droneSelected = val.value
+  if (!val.more) {
+    return
   }
+  val.more.forEach((ele: any) => {
+    dronePara.cameraList.push({ label: ele.name, value: ele.index, more: ele.videos_list })
+  })
 }
-const onCameraSelect = (val: any) => {
-  dronePara.cameraSelected = val
+const onCameraSelect = (val: SelectOption) => {
+  dronePara.cameraSelected = val.value
+  dronePara.videoSelected = undefined
+  dronePara.lensSelected = undefined
+  dronePara.videoList = []
+  dronePara.lensList = []
+  if (!val.more) {
+    return
+  }
 
-  if (dronePara.cameraSelected) {
-    const droneTemp = dronePara.livestreamSource
-    droneTemp.forEach((ele: any) => {
-      const drone = ele
-      if (drone.sn === dronePara.droneSelected) {
-        const cameraListTemp = drone.cameras_list
-        cameraListTemp.forEach((ele: any) => {
-          const camera = ele
-          if (camera.index === dronePara.cameraSelected) {
-            const videoListTemp = camera.videos_list
-            dronePara.videoList = []
-            videoListTemp.forEach((ele: any) => {
-              dronePara.videoList.push({ label: ele.type, value: ele.index })
-            })
-            dronePara.videoSelected = dronePara.videoList[0]?.value
-          }
-        })
-      }
-    })
+  val.more.forEach((ele: any) => {
+    dronePara.videoList.push({ label: ele.type, value: ele.index, more: ele.switch_video_types })
+  })
+  if (dronePara.videoList.length === 0) {
+    return
   }
+  const firstVideo: SelectOption = dronePara.videoList[0]
+  dronePara.videoSelected = firstVideo.value
+  dronePara.lensList = firstVideo.more
+  dronePara.lensSelected = firstVideo.label
+  dronePara.isDockLive = dronePara.lensList.length > 0
 }
-const onVideoSelect = (val: any) => {
-  dronePara.videoSelected = val
+const onVideoSelect = (val: SelectOption) => {
+  dronePara.videoSelected = val.value
+  dronePara.lensList = val.more
+  dronePara.lensSelected = val.label
 }
 const onClaritySelect = (val: any) => {
   dronePara.claritySelected = val
@@ -340,6 +366,21 @@ const onUpdateQuality = () => {
   }).then(res => {
     if (res.code === 0) {
       message.success('Set the clarity to ' + clarityList[dronePara.claritySelected].label)
+    }
+  })
+}
+
+const onSwitch = () => {
+  if (dronePara.lensSelected === undefined || dronePara.lensSelected === nonSwitchable) {
+    message.info('The ' + nonSwitchable + ' lens cannot be switched, please select the lens to be switched.', 8)
+    return
+  }
+  changeLivestreamLens({
+    video_id: livePara.videoId,
+    video_type: dronePara.lensSelected
+  }).then(res => {
+    if (res.code === 0) {
+      message.success('Switching live camera successfully.')
     }
   })
 }

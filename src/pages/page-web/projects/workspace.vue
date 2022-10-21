@@ -23,12 +23,13 @@
 
 import Sidebar from '/@/components/common/sidebar.vue'
 import MediaPanel from '/@/components/MediaPanel.vue'
-import TaskPanel from '/@/components/TaskPanel.vue'
+import TaskPanel from '/@/components/task/TaskPanel.vue'
 import GMap from '/@/components/GMap.vue'
 import { EBizCode, ERouterName } from '/@/types'
 import { getRoot } from '/@/root'
 import { useMyStore } from '/@/store'
 import { useConnectWebSocket } from '/@/hooks/use-connect-websocket'
+import EventBus from '/@/event-bus'
 
 const root = getRoot()
 const store = useMyStore()
@@ -72,7 +73,7 @@ const messageHandler = async (payload: any) => {
       break
     }
     case EBizCode.FlightTaskProgress: {
-      store.commit('SET_FLIGHT_TASK_PROGRESS', payload.data)
+      EventBus.emit('deviceTaskProgress', payload)
       break
     }
     case EBizCode.DeviceHms: {
