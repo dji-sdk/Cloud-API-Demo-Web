@@ -89,3 +89,14 @@ export async function deleteTask (workspaceId: string, params: DeleteTaskParams)
   })
   return result.data
 }
+
+// Upload Wayline file
+export const importKmzFile = async function (workspaceId: string, file: {}): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/waylines/file/upload`
+  const result = await request.post(url, file, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    }
+  })
+  return result.data
+}

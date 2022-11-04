@@ -3,12 +3,24 @@
     <div style="height: 50px; line-height: 50px; border-bottom: 1px solid #4f4f4f; font-weight: 450;">
       <a-row>
         <a-col :span="1"></a-col>
-        <a-col :span="22">Flight Route Library</a-col>
-        <a-col :span="1"></a-col>
+        <a-col :span="15">Flight Route Library</a-col>
+        <a-col :span="8" class="flex-row flex-justify-end flex-align-center">
+          <a-upload
+            name="file"
+            :multiple="false"
+            :before-upload="beforeUpload"
+            :show-upload-list="false"
+            :customRequest="uploadFile"
+          >
+            <a-button type="text" style="color: white;" @click="() => importVisible = !importVisible">
+              <SelectOutlined />
+            </a-button>
+          </a-upload>
+        </a-col>
       </a-row>
     </div>
     <div class="height-100">
-    <a-spin :spinning="loading" :delay="1000" tip="downloading" size="large">
+    <a-spin :spinning="loading" :delay="300" tip="downloading" size="large">
       <div class="scrollbar uranus-scrollbar" v-if="waylinesData.data.length !== 0" @scroll="onScroll">
         <div v-for="wayline in waylinesData.data" :key="wayline.id">
           <div class="wayline-panel" style="padding-top: 5px;" @click="selectRoute(wayline)">
@@ -72,14 +84,16 @@
 import { reactive } from '@vue/reactivity'
 import { message } from 'ant-design-vue'
 import { onMounted, onUpdated, ref } from 'vue'
-import { deleteWaylineFile, downloadWaylineFile, getWaylineFiles } from '/@/api/wayline'
+import { deleteWaylineFile, downloadWaylineFile, getWaylineFiles, importKmzFile } from '/@/api/wayline'
 import { ELocalStorageKey } from '/@/types'
-import { EllipsisOutlined, RocketOutlined, CameraFilled, UserOutlined } from '@ant-design/icons-vue'
+import { EllipsisOutlined, RocketOutlined, CameraFilled, UserOutlined, SelectOutlined } from '@ant-design/icons-vue'
 import { EDeviceType } from '/@/types/device'
 import { useMyStore } from '/@/store'
 import { WaylineFile } from '/@/types/wayline'
 import { downloadFile } from '/@/utils/common'
 import { IPage } from '/@/api/http/type'
+import { CURRENT_CONFIG } from '/@/api/http/config'
+import { load } from '@amap/amap-jsapi-loader'
 
 const loading = ref(false)
 const store = useMyStore()
@@ -97,15 +111,24 @@ const workspaceId = localStorage.getItem(ELocalStorageKey.WorkspaceId)!
 const deleteTip = ref(false)
 const deleteWaylineId = ref<string>('')
 const canRefresh = ref(true)
+const importVisible = ref(false)
+const urlUpload = `${CURRENT_CONFIG.baseURL}wayline/api/v1/workspaces/${workspaceId}/waylines/file/upload`
 
 onMounted(() => {
   getWaylines()
+  setTimeout(() => {
+    const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
+    const parent = element?.parentNode as HTMLDivElement
+    console.info(element, parent)
+    // console.info(element.scrollHeight, parent.clientHeight)
+  }, 1000)
 })
 
 onUpdated(() => {
   const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
   const parent = element?.parentNode as HTMLDivElement
   setTimeout(() => {
+    console.info(element, parent)
     if (element?.scrollHeight < parent?.clientHeight && pagination.total > waylinesData.data.length) {
       if (canRefresh.value) {
         pagination.page++
@@ -130,6 +153,7 @@ function getWaylines () {
     if (res.code !== 0) {
       return
     }
+    waylinesData.data = []
     res.data.list.forEach((wayline: WaylineFile) => waylinesData.data.push(wayline))
     pagination.total = res.data.pagination.total
     pagination.page = res.data.pagination.page
@@ -151,8 +175,7 @@ function deleteWayline () {
     deleteWaylineId.value = ''
     deleteTip.value = false
     pagination.total--
-    waylinesData.data = []
-    setTimeout(getWaylines, 500)
+    getWaylines()
   })
 }
 
@@ -175,10 +198,48 @@ function selectRoute (wayline: WaylineFile) {
 
 function onScroll (e: any) {
   const element = e.srcElement
+  console.info(element)
   if (element.scrollTop + element.clientHeight === element.scrollHeight && Math.ceil(pagination.total / pagination.page_size) > pagination.page && canRefresh.value) {
     pagination.page++
     getWaylines()
   }
+}
+
+interface FileItem {
+  uid: string;
+  name?: string;
+  status?: string;
+  response?: string;
+  url?: string;
+}
+
+interface FileInfo {
+  file: FileItem;
+  fileList: FileItem[];
+}
+const fileList = ref<FileItem[]>([])
+
+function beforeUpload (file: FileItem) {
+  fileList.value = [file]
+  loading.value = true
+  return true
+}
+const uploadFile = async () => {
+  console.info(loading.value)
+  fileList.value.forEach(async (file: FileItem) => {
+    const fileData = new FormData()
+    fileData.append('file', file, file.name)
+    await importKmzFile(workspaceId, fileData).then((res) => {
+      if (res.code === 0) {
+        message.success(`${file.name} file uploaded successfully`)
+        canRefresh.value = true
+        getWaylines()
+      }
+    }).finally(() => {
+      loading.value = false
+      fileList.value = []
+    })
+  })
 }
 
 </script>

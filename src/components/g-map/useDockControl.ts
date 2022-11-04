@@ -12,13 +12,14 @@ export function useDockControl () {
 
   // 远程调试开关
   async function dockDebugOnOff (sn: string, on: boolean) {
-    const success = await sendDockControlCmd({
+    const result = await sendDockControlCmd({
       sn: sn,
       cmd: on ? DeviceCmd.DebugModeOpen : DeviceCmd.DebugModeClose
     }, false)
-    if (success) {
+    if (result) {
       setControlPanelVisible(on)
     }
+    return result
   }
 
   // 发送指令

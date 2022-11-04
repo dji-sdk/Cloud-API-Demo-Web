@@ -318,6 +318,9 @@ const onStart = async () => {
     })
 }
 const onStop = () => {
+  videoId.value =
+    droneSelected.value + '/' + cameraSelected.value + '/' + (videoSelected.value || nonSwitchable + '-0')
+
   stopLivestream({
     video_id: videoId.value
   }).then(res => {

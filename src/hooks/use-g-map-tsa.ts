@@ -41,7 +41,11 @@ export function deviceTsaUpdate () {
   }
 
   function initMarker (type: string, name: string, sn: string, lng?: number, lat?: number) {
-    if (markers[sn] || AMap === undefined) {
+    if (AMap === undefined) {
+      location.reload()
+      return
+    }
+    if (markers[sn]) {
       return
     }
     markers[sn] = new AMap.Marker({

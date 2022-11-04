@@ -108,16 +108,23 @@ const mutations: MutationTree<RootStateType> = {
     state.deviceState.currentType = EDeviceTypeName.Gateway
   },
   SET_DOCK_INFO (state, info) {
+    if (Object.keys(info.host).length === 0) {
+      return
+    }
+    if (!state.deviceState.dockInfo[info.sn]) {
+      state.deviceState.dockInfo[info.sn] = info.host
+      return
+    }
     state.deviceState.currentSn = info.sn
     state.deviceState.currentType = EDeviceTypeName.Dock
     const dock = state.deviceState.dockInfo[info.sn]
-    if (info.host.sdr && state.deviceState.dockInfo[info.sn]) {
+    if (info.host.sdr) {
       dock.sdr = info.host.sdr
       dock.media_file_detail = info.host.media_file_detail
       return
     }
-    const sdr = dock?.sdr
-    const mediaFileDetail = dock?.media_file_detail
+    const sdr = dock.sdr
+    const mediaFileDetail = dock.media_file_detail
     state.deviceState.dockInfo[info.sn] = info.host
     state.deviceState.dockInfo[info.sn].sdr = sdr
     state.deviceState.dockInfo[info.sn].media_file_detail = mediaFileDetail

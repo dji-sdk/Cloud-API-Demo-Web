@@ -1,5 +1,5 @@
 import { commonColor } from '/@/utils/color'
-
+import { NightLightsStateEnum, DistanceLimitStatus, ObstacleAvoidance } from './device-setting'
 export interface DeviceValue {
   key: string; // 'domain-type-subtype'
   domain: string; // 表示一个领域，作为一个命名空间，暂时分 飞机类-0, 负载类-1,RC类-2,机场类-3 4种
@@ -235,7 +235,11 @@ export interface DeviceOsd {
     landing_power: string,
     remain_flight_time: number,
     return_home_power: string,
-  }
+  },
+  night_lights_state?: NightLightsStateEnum;// 夜航灯开关
+  height_limit?: number;// 限高设置
+  distance_limit_status?: DistanceLimitStatus;// 限远开关
+  obstacle_avoidance?: ObstacleAvoidance;// 飞行器避障开关设置
 }
 
 export interface DockOsd {
@@ -343,6 +347,10 @@ export enum EDeviceType {
   H20N = '1-61-0' as any,
   DJI_Dock_Camera = '1-165-0' as any,
   L1 = '1-90742-0' as any,
+  M3E = '0-77-0' as any,
+  M3D = '0-77-1' as any,
+  M3E_Camera = '1-66-0' as any,
+  M3T_Camera = '1-67-0' as any,
 }
 
 export enum EDockModeCode {
