@@ -291,7 +291,7 @@ onMounted(() => {
     // thing
     const param: ThingParam = {
       host: res.data.mqtt_addr,
-      username: res.data.mqtt.username,
+      username: res.data.mqtt_username,
       password: res.data.mqtt_password,
       connectCallback: 'connectCallback'
     }
