@@ -9,7 +9,7 @@
     </div>
     <div v-if="docksData.data.length !== 0">
       <div v-for="dock in docksData.data" :key="dock.device_sn">
-        <div v-if="dock.children" class="panel" style="padding-top: 5px;" @click="selectDock(dock)">
+        <div v-if="dock?.children" class="panel" style="padding-top: 5px;" @click="selectDock(dock)">
           <div class="title">
             <a-tooltip :title="dock.nickname">
               <div class="pr10" style="width: 120px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ dock.nickname }}</div>

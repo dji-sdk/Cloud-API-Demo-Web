@@ -4,7 +4,7 @@ import { EDeviceTypeName } from '../types'
 import { Device, DeviceHms, DeviceOsd, DeviceStatus, DockOsd, GatewayOsd, OSDVisible } from '../types/device'
 import { getLayers } from '/@/api/layer'
 import { LayerType } from '/@/types/mapLayer'
-import { ETaskStatus, TaskInfo, WaylineFile } from '/@/types/wayline'
+import { WaylineFile } from '/@/types/wayline'
 import { DevicesCmdExecuteInfo } from '/@/types/device-cmd'
 
 const initStateFunc = () => ({
@@ -81,11 +81,6 @@ const initStateFunc = () => ({
   dockInfo: {
 
   } as Device,
-  taskProgressInfo: {
-
-  } as {
-    [bid: string]: TaskInfo
-  },
   hmsInfo: {} as {
     [sn: string]: DeviceHms[]
   },
@@ -113,16 +108,29 @@ const mutations: MutationTree<RootStateType> = {
     state.deviceState.currentType = EDeviceTypeName.Gateway
   },
   SET_DOCK_INFO (state, info) {
+    if (Object.keys(info.host).length === 0) {
+      return
+    }
+    if (!state.deviceState.dockInfo[info.sn]) {
+      state.deviceState.dockInfo[info.sn] = info.host
+      return
+    }
     state.deviceState.currentSn = info.sn
     state.deviceState.currentType = EDeviceTypeName.Dock
     const dock = state.deviceState.dockInfo[info.sn]
-    if (info.host.sdr && state.deviceState.dockInfo[info.sn]) {
+    if (info.host.sdr) {
       dock.sdr = info.host.sdr
       dock.media_file_detail = info.host.media_file_detail
       return
     }
-    const sdr = dock?.sdr
-    const mediaFileDetail = dock?.media_file_detail
+    if (info.host.job_number !== undefined) {
+      if (info.host.drone_battery_maintenance_info) {
+        dock.drone_battery_maintenance_info = info.host.drone_battery_maintenance_info
+      }
+      return
+    }
+    const sdr = dock.sdr
+    const mediaFileDetail = dock.media_file_detail
     state.deviceState.dockInfo[info.sn] = info.host
     state.deviceState.dockInfo[info.sn].sdr = sdr
     state.deviceState.dockInfo[info.sn].media_file_detail = mediaFileDetail
@@ -159,17 +167,6 @@ const mutations: MutationTree<RootStateType> = {
   },
   SET_SELECT_DOCK_INFO (state, info) {
     state.dockInfo = info
-  },
-  SET_FLIGHT_TASK_PROGRESS (state, info) {
-    const taskInfo: TaskInfo = info.output
-
-    if (taskInfo.status === ETaskStatus.OK || taskInfo.status === ETaskStatus.FAILED) {
-      taskInfo.status = taskInfo.status.concat('(Code:').concat(info.result).concat(')')
-      setTimeout(() => {
-        delete state.taskProgressInfo[info.bid]
-      }, 60000)
-    }
-    state.taskProgressInfo[info.bid] = info.output
   },
   SET_DEVICE_HMS_INFO (state, info) {
     const hmsList: Array<DeviceHms> = state.hmsInfo[info.sn]

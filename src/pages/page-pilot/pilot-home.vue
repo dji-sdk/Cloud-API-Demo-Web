@@ -252,6 +252,12 @@ onMounted(() => {
   apiPilot.onBackClickReg()
   apiPilot.onStopPlatform()
 
+  window.connectCallback = arg => {
+    connectCallback(arg)
+  }
+  window.wsConnectCallback = arg => {
+    wsConnectCallback(arg)
+  }
   device.data.gateway_sn = apiPilot.getRemoteControllerSN()
   if (device.data.gateway_sn === EStatusValue.DISCONNECT.toString()) {
     message.warn('Data is not available, please restart the remote control.')
@@ -296,12 +302,6 @@ onMounted(() => {
     bindParam.user_id = res.data.user_id
     bindParam.workspace_id = res.data.workspace_id
   })
-  window.connectCallback = arg => {
-    connectCallback(arg)
-  }
-  window.wsConnectCallback = arg => {
-    wsConnectCallback(arg)
-  }
 })
 
 const connectCallback = async (arg: any) => {

@@ -1,6 +1,7 @@
+import { DroneBatteryModeEnum, DroneBatteryStateEnum } from './../types/airport-tsa';
 import { DeviceInfoType } from '/@/types/device'
 import { DeviceCmd, DeviceCmdItem, DeviceCmdExecuteInfo, DeviceCmdStatusText, DeviceCmdExecuteStatus } from '/@/types/device-cmd'
-import { AirportStorage, CoverStateEnum, PutterStateEnum, ChargeStateEnum, SupplementLightStateEnum } from '/@/types/airport-tsa'
+import { AirportStorage, CoverStateEnum, PutterStateEnum, ChargeStateEnum, SupplementLightStateEnum, AlarmModeEnum, BatteryStoreModeEnum } from '/@/types/airport-tsa'
 import { getBytesObject } from './bytes'
 import { DEFAULT_PLACEHOLDER } from './constants'
 
@@ -35,6 +36,12 @@ export function updateDeviceCmdInfoByOsd (cmdList: DeviceCmdItem[], deviceInfo: 
       droneFormat(cmdItem, device)
     } else if (cmdItem.cmdKey === DeviceCmd.SupplementLightOpen || cmdItem.cmdKey === DeviceCmd.SupplementLightClose) { // 补光灯开关
       getSupplementLightState(cmdItem, dock)
+    } else if (cmdItem.cmdKey === DeviceCmd.AlarmStateSwitch) { // 声光报警
+      getAlarmState(cmdItem, dock)
+    } else if (cmdItem.cmdKey === DeviceCmd.BatteryStoreModeSwitch) { // 电池保养
+      getBatteryStoreMode(cmdItem, dock)
+    } else if (cmdItem.cmdKey === DeviceCmd.DroneBatteryModeSwitch) { // 飞行器电池保养
+      getDroneBatteryMode(cmdItem, dock)
     }
   })
 }
@@ -163,6 +170,55 @@ function getSupplementLightState (cmdItem: DeviceCmdItem, airportProperties: any
     if (cmdItem.cmdKey !== DeviceCmd.SupplementLightClose) {
       exchangeDeviceCmd(cmdItem)
     }
+  }
+}
+
+// 声光报警
+function getAlarmState (cmdItem: DeviceCmdItem, airportProperties: any) {
+  const alarmState = airportProperties?.alarm_state
+  if (alarmState === AlarmModeEnum.CLOSE) {
+    cmdItem.operateText = DeviceCmdStatusText.AlarmStateCloseBtnText
+    cmdItem.status = DeviceCmdStatusText.AlarmStateCloseNormalText
+    cmdItem.action = AlarmModeEnum.OPEN
+  } else if (alarmState === AlarmModeEnum.OPEN) {
+    cmdItem.operateText = DeviceCmdStatusText.AlarmStateOpenBtnText
+    cmdItem.status = DeviceCmdStatusText.AlarmStateOpenNormalText
+    cmdItem.action = AlarmModeEnum.CLOSE
+  }
+}
+
+// 机场电池模式
+function getBatteryStoreMode (cmdItem: DeviceCmdItem, airportProperties: any) {
+  const batteryStoreMode = airportProperties?.battery_store_mode
+  if (batteryStoreMode === BatteryStoreModeEnum.BATTERY_PLAN_STORE) {
+    cmdItem.operateText = DeviceCmdStatusText.BatteryStoreModePlanBtnText
+    cmdItem.status = DeviceCmdStatusText.BatteryStoreModePlanNormalText
+    cmdItem.action = BatteryStoreModeEnum.BATTERY_EMERGENCY_STORE
+  } else if (batteryStoreMode === BatteryStoreModeEnum.BATTERY_EMERGENCY_STORE) {
+    cmdItem.operateText = DeviceCmdStatusText.BatteryStoreModeEmergencyBtnText
+    cmdItem.status = DeviceCmdStatusText.BatteryStoreModeEmergencyNormalText
+    cmdItem.action = BatteryStoreModeEnum.BATTERY_PLAN_STORE
+  }
+}
+
+// 飞行器电池保养
+function getDroneBatteryMode (cmdItem: DeviceCmdItem, airportProperties: any) {
+  const maintenanceState = airportProperties?.drone_battery_maintenance_info?.maintenance_state
+  if (maintenanceState === DroneBatteryStateEnum.MaintenanceInProgress) {
+    cmdItem.operateText = DeviceCmdStatusText.DroneBatteryModeCloseBtnText
+    cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceInProgressText
+    cmdItem.action = DroneBatteryModeEnum.CLOSE
+    cmdItem.disabled = false
+  } else if (maintenanceState === DroneBatteryStateEnum.NoMaintenanceRequired) {
+    cmdItem.operateText = DeviceCmdStatusText.DroneBatteryModeOpenBtnText
+    cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNeedText
+    cmdItem.action = DroneBatteryModeEnum.OPEN
+    cmdItem.disabled = true
+  } else if (maintenanceState === DroneBatteryStateEnum.MaintenanceRequired) {
+    cmdItem.operateText = DeviceCmdStatusText.DroneBatteryModeOpenBtnText
+    cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNotNeedText
+    cmdItem.action = DroneBatteryModeEnum.OPEN
+    cmdItem.disabled = false
   }
 }
 
@@ -343,6 +399,74 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
           cmdItem.loading = false
+        }
+      } else if (cmdItem.cmdKey === DeviceCmd.AlarmStateSwitch) { // 机场声光报警
+        if (cmdItem.action === AlarmModeEnum.CLOSE) {
+          if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
+            cmdItem.status = DeviceCmdStatusText.AlarmStateCloseText
+            cmdItem.loading = true
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+            cmdItem.status = DeviceCmdStatusText.AlarmStateCloseFailedText
+            cmdItem.loading = false
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
+            cmdItem.loading = false
+          }
+        } else if (cmdItem.action === AlarmModeEnum.OPEN) {
+          if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
+            cmdItem.status = DeviceCmdStatusText.AlarmStateOpenText
+            cmdItem.loading = true
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+            cmdItem.status = DeviceCmdStatusText.AlarmStateOpenFailedText
+            cmdItem.loading = false
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
+            cmdItem.loading = false
+          }
+        }
+      } else if (cmdItem.cmdKey === DeviceCmd.BatteryStoreModeSwitch) { // 电池保养
+        if (cmdItem.action === BatteryStoreModeEnum.BATTERY_PLAN_STORE) {
+          if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
+            cmdItem.status = DeviceCmdStatusText.BatteryStoreModePlanText
+            cmdItem.loading = true
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+            cmdItem.status = DeviceCmdStatusText.BatteryStoreModePlanFailedText
+            cmdItem.loading = false
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
+            cmdItem.loading = false
+          }
+        } else if (cmdItem.action === BatteryStoreModeEnum.BATTERY_EMERGENCY_STORE) {
+          if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
+            cmdItem.status = DeviceCmdStatusText.BatteryStoreModeEmergencyText
+            cmdItem.loading = true
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+            cmdItem.status = DeviceCmdStatusText.BatteryStoreModeEmergencyFailedText
+            cmdItem.loading = false
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
+            cmdItem.loading = false
+          }
+        }
+      } else if (cmdItem.cmdKey === DeviceCmd.DroneBatteryModeSwitch) { // 飞行器电池保养
+        if (cmdItem.action === DroneBatteryModeEnum.OPEN) {
+          if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
+            cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceInProgressText
+            // cmdItem.loading = true
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+            cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNeedText
+            // cmdItem.loading = false
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
+            cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNotNeedText
+            // cmdItem.loading = false
+          }
+        } else if (cmdItem.action === DroneBatteryModeEnum.CLOSE) {
+          if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
+            cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceInProgressText
+            cmdItem.loading = true
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+            cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceInProgressText
+            cmdItem.loading = false
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
+            cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNeedText
+            cmdItem.loading = false
+          }
         }
       }
     }

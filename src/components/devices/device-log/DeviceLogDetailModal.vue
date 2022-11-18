@@ -8,7 +8,7 @@
     <div class="device-log-detail-wrap">
       <div class="device-log-list">
         <div class="log-list-item">
-          <a-button type="primary" class="download-btn" :disabled="!airportTableLogState.logList?.file_id"  size="small" @click="onDownloadLog(airportTableLogState.logList.file_id)">
+          <a-button type="primary" class="download-btn" :disabled="!airportTableLogState.logList?.file_id || !airportTableLogState.logList?.object_key"  size="small" @click="onDownloadLog(airportTableLogState.logList.file_id)">
              下载机场日志
           </a-button>
           <a-table  :columns="airportLogColumns"
@@ -26,7 +26,7 @@
           </a-table>
         </div>
         <div class="log-list-item">
-          <a-button type="primary"  class="download-btn" :disabled="!droneTableLogState.logList?.file_id" size="small" @click="onDownloadLog(droneTableLogState.logList.file_id)">
+          <a-button type="primary"  class="download-btn" :disabled="!droneTableLogState.logList?.file_id || !droneTableLogState.logList?.object_key" size="small" @click="onDownloadLog(droneTableLogState.logList.file_id)">
              下载飞行器日志
           </a-button>
           <a-table  :columns="droneLogColumns"

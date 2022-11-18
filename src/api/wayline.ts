@@ -1,14 +1,9 @@
 import { message } from 'ant-design-vue'
-import request, { IPage, IWorkspaceResponse } from '/@/api/http/request'
-const HTTP_PREFIX = '/wayline/api/v1'
+import request, { IPage, IWorkspaceResponse, IListWorkspaceResponse } from '/@/api/http/request'
+import { TaskType, TaskStatus, OutOfControlAction } from '/@/types/task'
+import { WaylineType } from '/@/types/wayline'
 
-export interface CreatePlan {
-  name: string,
-  file_id: string,
-  dock_sn: string,
-  immediate: boolean,
-  type: string,
-}
+const HTTP_PREFIX = '/wayline/api/v1'
 
 // Get Wayline Files
 export const getWaylineFiles = async function (wid: string, body: {}): Promise<IWorkspaceResponse<any>> {
@@ -24,12 +19,11 @@ export const downloadWaylineFile = async function (workspaceId: string, waylineI
   if (result.data.type === 'application/json') {
     const reader = new FileReader()
     reader.onload = function (e) {
-      let text = reader.result as string
+      const text = reader.result as string
       const result = JSON.parse(text)
       message.error(result.message)
     }
     reader.readAsText(result.data, 'utf-8')
-    return
   } else {
     return result.data
   }
@@ -42,6 +36,17 @@ export const deleteWaylineFile = async function (workspaceId: string, waylineId:
   return result.data
 }
 
+export interface CreatePlan {
+  name: string,
+  file_id: string,
+  dock_sn: string,
+  task_type: TaskType, // 任务类型
+  wayline_type: WaylineType, // 航线类型
+  execute_time?: number // 执行时间（毫秒）
+  rth_altitude: number // 相对机场返航高度 20 - 500
+  out_of_control_action: OutOfControlAction // 失控动作
+}
+
 // Create Wayline Job
 export const createPlan = async function (workspaceId: string, plan: CreatePlan): Promise<IWorkspaceResponse<any>> {
   const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/flight-tasks`
@@ -49,16 +54,53 @@ export const createPlan = async function (workspaceId: string, plan: CreatePlan)
   return result.data
 }
 
+export interface Task {
+  job_id: string,
+  job_name: string,
+  task_type: TaskType, // 任务类型
+  file_id: string, // 航线文件id
+  file_name: string, // 航线名称
+  wayline_type: WaylineType, // 航线类型
+  dock_sn: string,
+  dock_name: string,
+  workspace_id: string,
+  username: string,
+  execute_time: string,
+  end_time: string,
+  status: TaskStatus, // 任务状态
+  progress: number, // 执行进度
+  code: number, // 错误码
+  rth_altitude: number // 相对机场返航高度 20 - 500
+  out_of_control_action: OutOfControlAction // 失控动作
+}
+
 // Get Wayline Jobs
-export const getWaylineJobs = async function (workspaceId: string, page: IPage): Promise<IWorkspaceResponse<any>> {
+export const getWaylineJobs = async function (workspaceId: string, page: IPage): Promise<IListWorkspaceResponse<Task>> {
   const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/jobs?page=${page.page}&page_size=${page.page_size}`
   const result = await request.get(url)
   return result.data
 }
 
-// Execute Wayline Job
-export const executeWaylineJobs = async function (workspaceId: string, plan_id: string): Promise<IWorkspaceResponse<any>> {
-  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/jobs/${plan_id}`
-  const result = await request.post(url)
+export interface DeleteTaskParams {
+  job_id: string
+}
+
+// 取消机场任务
+export async function deleteTask (workspaceId: string, params: DeleteTaskParams): Promise<IWorkspaceResponse<{}>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/jobs`
+  const result = await request.delete(url, {
+    params: params
+  })
+  return result.data
+}
+
+// Upload Wayline file
+export const importKmzFile = async function (workspaceId: string, file: {}): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/waylines/file/upload`
+  const result = await request.post(url, file, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    }
+  })
   return result.data
 }

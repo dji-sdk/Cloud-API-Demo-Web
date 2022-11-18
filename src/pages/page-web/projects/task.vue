@@ -5,34 +5,42 @@
         <a-col :span="1"></a-col>
         <a-col :span="20">Task Plan Library</a-col>
         <a-col :span="2">
-          <span v-if="!createPlanTip">
-            <router-link :to="{ name: 'create-plan'}">
-              <PlusOutlined style="color: white; font-size: 16px;" @click="() => createPlanTip = true"/>
+          <span v-if="taskRoute">
+            <router-link :to="{ name: ERouterName.CREATE_PLAN}">
+              <PlusOutlined class="route-icon"/>
             </router-link>
           </span>
           <span v-else>
-            <router-link :to="{ name: 'task'}">
-              <MinusOutlined style="color: white; font-size: 16px;" @click="() => createPlanTip = false"/>
+            <router-link :to="{ name: ERouterName.TASK}">
+              <MinusOutlined class="route-icon"/>
             </router-link>
           </span>
         </a-col>
         <a-col :span="1"></a-col>
       </a-row>
     </div>
-    <div v-if="createPlanTip">
-      <router-view />
+    <div v-if="!taskRoute">
+      <router-view/>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons-vue'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { ERouterName } from '/@/types/enums'
 
-const createPlanTip = ref(false)
+const route = useRoute()
 
+const taskRoute = computed(() => {
+  return route.name === ERouterName.TASK
+})
 </script>
 
 <style lang="scss">
-
+.route-icon {
+  color: #fff;
+  font-size: 16px;
+}
 </style>

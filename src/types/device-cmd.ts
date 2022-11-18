@@ -1,3 +1,4 @@
+import { AlarmModeEnum, BatteryStoreModeEnum, DroneBatteryModeEnum } from '/@/types/airport-tsa';
 // 机场指令集
 export enum DeviceCmd {
   // 简单指令
@@ -19,7 +20,13 @@ export enum DeviceCmd {
   PutterClose = 'putter_close', // 推杆闭合
   ChargeOpen = 'charge_open', // 打开充电
   ChargeClose = 'charge_close', // 关闭充电
+  AlarmStateSwitch = 'alarm_state_switch', // 机场声光报警
+  BatteryStoreModeSwitch = 'battery_store_mode_switch', // 电池保养
+  DroneBatteryModeSwitch = 'battery_maintenance_switch', // 飞行器电池保养
+
 }
+
+export type DeviceCmdItemAction = AlarmModeEnum | BatteryStoreModeEnum | DroneBatteryModeEnum
 
 export interface DeviceCmdItem{
   label: string, // 标题
@@ -27,8 +34,10 @@ export interface DeviceCmdItem{
   operateText: string, // 按钮文字
   cmdKey: DeviceCmd, // 请求指令
   oppositeCmdKey?: DeviceCmd, // 相反状态指令
+  action?: DeviceCmdItemAction, // 参数
   func: string, // 处理函数
   loading: boolean // 按钮loading
+  disabled?: boolean // 按钮disabled
 }
 
 // 机场指令
@@ -114,6 +123,34 @@ export const cmdList: DeviceCmdItem[] = [
     func: 'supplementLightStatus',
     loading: false,
   },
+  {
+    label: '机场声光报警',
+    status: '关',
+    operateText: '打开',
+    cmdKey: DeviceCmd.AlarmStateSwitch,
+    action: AlarmModeEnum.OPEN,
+    func: 'alarmState',
+    loading: false,
+  },
+  {
+    label: '机场电池存储模式',
+    status: '计划',
+    operateText: '应急',
+    cmdKey: DeviceCmd.BatteryStoreModeSwitch,
+    action: BatteryStoreModeEnum.BATTERY_EMERGENCY_STORE,
+    func: 'batteryStoreMode',
+    loading: false,
+  },
+  {
+    label: '飞机电池保养',
+    status: '--',
+    operateText: '保养',
+    cmdKey: DeviceCmd.DroneBatteryModeSwitch,
+    action: DroneBatteryModeEnum.OPEN,
+    func: 'droneBatteryMode',
+    loading: false,
+    disabled: true,
+  },
 ]
 
 export enum DeviceCmdStatusText {
@@ -176,6 +213,32 @@ export enum DeviceCmdStatusText {
   DeviceSupplementLightCloseText = '关闭中...',
   DeviceSupplementLightCloseFailedText = '开',
   DeviceSupplementLightCloseBtnText = '打开',
+
+  AlarmStateOpenNormalText = '开',
+  AlarmStateOpenText = '开启中...',
+  AlarmStateOpenFailedText = '关',
+  AlarmStateOpenBtnText = '关闭',
+
+  AlarmStateCloseNormalText = '关',
+  AlarmStateCloseText = '关闭中...',
+  AlarmStateCloseFailedText = '开',
+  AlarmStateCloseBtnText = '打开',
+
+  BatteryStoreModePlanNormalText = '计划',
+  BatteryStoreModePlanText = '切换中...',
+  BatteryStoreModePlanFailedText = '应急',
+  BatteryStoreModePlanBtnText = '应急',
+
+  BatteryStoreModeEmergencyNormalText = '应急',
+  BatteryStoreModeEmergencyText = '切换中...',
+  BatteryStoreModeEmergencyFailedText = '计划',
+  BatteryStoreModeEmergencyBtnText = '计划',
+
+  DroneBatteryModeMaintenanceInProgressText = '保养中',
+  DroneBatteryModeMaintenanceNotNeedText = '无需保养',
+  DroneBatteryModeMaintenanceNeedText = '需保养',
+  DroneBatteryModeOpenBtnText = '保养',
+  DroneBatteryModeCloseBtnText = '关闭保养',
 }
 
 // cmd ws 消息状态

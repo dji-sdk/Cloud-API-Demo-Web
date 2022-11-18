@@ -36,3 +36,27 @@ export enum SupplementLightStateEnum {
   Close = 0, // 关闭
   Open = 1, // 打开
 }
+
+// 机场声光报警状态
+export enum AlarmModeEnum {
+  CLOSE = 0, // 关闭
+  OPEN = 1, // 开启
+}
+
+// 电池保养
+export enum BatteryStoreModeEnum {
+  BATTERY_PLAN_STORE = 1, // 电池计划存储策略
+  BATTERY_EMERGENCY_STORE = 2, // 电池应急存储策略
+}
+
+// 飞行器电池保养
+export enum DroneBatteryStateEnum {
+  NoMaintenanceRequired = 0, // 0-无需保养
+  MaintenanceRequired = 1, // 1-待保养
+  MaintenanceInProgress = 2, // 2-正在保养
+}
+
+export enum DroneBatteryModeEnum {
+  CLOSE = 0, // 关闭
+  OPEN = 1, // 开启
+}

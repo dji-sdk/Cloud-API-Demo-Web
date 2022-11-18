@@ -1,5 +1,5 @@
 <template>
-  <div id="demo-app" class="demo-app">
+  <div class="demo-app">
     <router-view />
     <!-- <div class="map-wrapper">
       <GMap/>
@@ -26,9 +26,17 @@ export default defineComponent({
 .demo-app {
   width: 100%;
   height: 100%;
+
   .map-wrapper {
     height: 100%;
     width: 100%;
   }
+}
+</style>
+
+<style lang="scss">
+#demo-app {
+  width: 100%;
+  height: 100%
 }
 </style>

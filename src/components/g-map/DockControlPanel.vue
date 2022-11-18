@@ -2,24 +2,32 @@
 <div class="dock-control-panel">
   <!-- title -->
   <div class="dock-control-panel-header fz16 pl5 pr5 flex-align-center flex-row flex-justify-between">
-    <span>远程调试 {{ props.sn}}</span>
+    <span>设备操作 {{ props.sn}}</span>
     <span @click="closeControlPanel">
     <CloseOutlined />
     </span>
   </div>
+  <!-- setting -->
+  <DeviceSettingBox :sn="props.sn" :deviceInfo="props.deviceInfo"></DeviceSettingBox>
   <!-- cmd -->
   <div class="control-cmd-wrapper">
-    <div v-for="(cmdItem, index) in cmdList" :key="cmdItem.cmdKey" class="control-cmd-item">
-     <div class="control-cmd-item-left">
-        <div class="item-label">{{ cmdItem.label }}</div>
-        <div class="item-status">{{ cmdItem.status }}</div>
-     </div>
-     <div class="control-cmd-item-right">
-        <a-button :loading="cmdItem.loading" size="small" type="primary" @click="sendControlCmd(cmdItem, index)">
-        {{ cmdItem.operateText }}
-        </a-button>
-     </div>
-   </div>
+    <div class="control-cmd-header">
+      远程调试
+      <a-switch class="debug-btn" checked-children="开" un-checked-children="关" v-model:checked="debugStatus" @change="onDeviceStatusChange"/>
+    </div>
+    <div class="control-cmd-box">
+      <div v-for="(cmdItem, index) in cmdList" :key="cmdItem.cmdKey" class="control-cmd-item">
+        <div class="control-cmd-item-left">
+            <div class="item-label">{{ cmdItem.label }}</div>
+            <div class="item-status">{{ cmdItem.status }}</div>
+        </div>
+        <div class="control-cmd-item-right">
+            <a-button :disabled="!debugStatus || cmdItem.disabled" :loading="cmdItem.loading" size="small" type="primary" @click="sendControlCmd(cmdItem, index)">
+            {{ cmdItem.operateText }}
+            </a-button>
+        </div>
+      </div>
+    </div>
  </div>
 </div>
 
@@ -35,6 +43,7 @@ import { DeviceInfoType } from '/@/types/device'
 import { cmdList as baseCmdList, DeviceCmdItem } from '/@/types/device-cmd'
 import { useMyStore } from '/@/store'
 import { updateDeviceCmdInfoByOsd, updateDeviceCmdInfoByExecuteInfo } from '/@/utils/device-cmd'
+import DeviceSettingBox from './DeviceSettingBox.vue'
 
 const props = defineProps<{
   sn: string,
@@ -71,14 +80,34 @@ function closeControlPanel () {
 }
 
 // dock 控制指令
+const debugStatus = ref(false)
+
+async function onDeviceStatusChange (status: boolean) {
+  let result = false
+  if (status) {
+    result = await dockDebugOnOff(props.sn, true)
+  } else {
+    result = await dockDebugOnOff(props.sn, false)
+  }
+  if (!result) {
+    if (status) {
+      debugStatus.value = false
+    } else {
+      debugStatus.value = true
+    }
+  }
+}
+
 const {
   sendDockControlCmd,
+  dockDebugOnOff
 } = useDockControl()
 
 async function sendControlCmd (cmdItem: DeviceCmdItem, index: number) {
   const success = await sendDockControlCmd({
     sn: props.sn,
-    cmd: cmdItem.cmdKey
+    cmd: cmdItem.cmdKey,
+    action: cmdItem.action
   }, true)
   if (success) {
     // updateDeviceSingleCmdInfo(cmdList.value[index])
@@ -103,26 +132,39 @@ async function sendControlCmd (cmdItem: DeviceCmdItem, index: number) {
   }
 
   .control-cmd-wrapper{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 4px 10px;
-    .control-cmd-item{
-      width: 220px;
-      height: 58px;
+    .control-cmd-header{
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 10px 0px;
+
+      .debug-btn{
+        margin-left: 10px;
+        border:1px solid #585858;
+      }
+    }
+
+    .control-cmd-box{
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
       justify-content: space-between;
-      border: 1px solid #666;
-      margin: 4px 0;
-      padding: 0 8px;
-
-      .control-cmd-item-left{
+      padding: 4px 10px;
+      .control-cmd-item{
+        width: 220px;
+        height: 58px;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid #666;
+        margin: 4px 0;
+        padding: 0 8px;
 
-        .item-label{
-          font-weight: 700;
+        .control-cmd-item-left{
+          display: flex;
+          flex-direction: column;
+
+          .item-label{
+            font-weight: 700;
+          }
         }
       }
     }

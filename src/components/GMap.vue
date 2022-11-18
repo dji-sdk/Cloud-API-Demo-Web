@@ -182,12 +182,12 @@
             <a-row>
               <a-col span="12">
                 <a-tooltip title="Network State">
-                  <span :style="deviceInfo.dock.network_state.quality === 2 ? 'color: #00ee8b' :
-                    deviceInfo.dock.network_state.quality === 1 ? 'color: yellow' : 'color: red'">
-                    <span v-if="deviceInfo.dock.network_state.type === 1"><SignalFilled /></span>
+                  <span :style="deviceInfo.dock.network_state?.quality === 2 ? 'color: #00ee8b' :
+                    deviceInfo.dock.network_state?.quality === 1 ? 'color: yellow' : 'color: red'">
+                    <span v-if="deviceInfo.dock.network_state?.type === 1"><SignalFilled /></span>
                     <span v-else><GlobalOutlined /></span>
                   </span>
-                  <span class="ml10" >{{ deviceInfo.dock.network_state.rate }} KB/S</span>
+                  <span class="ml10" >{{ deviceInfo.dock.network_state?.rate }} KB/S</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
@@ -199,13 +199,13 @@
               <a-col span="6">
                 <a-tooltip>
                   <template #title>
-                    <p>total: {{ deviceInfo.dock.storage.total }}</p>
-                    <p>used: {{ deviceInfo.dock.storage.used  }}</p>
+                    <p>total: {{ deviceInfo.dock.storage?.total }}</p>
+                    <p>used: {{ deviceInfo.dock.storage?.used  }}</p>
                   </template>
                   <span><FolderOpenOutlined /></span>
-                  <span class="ml10" v-if="deviceInfo.dock.storage.total > 0">
-                    <a-progress type="circle" :width="20" :percent="deviceInfo.dock.storage.used * 100/ deviceInfo.dock.storage.total"
-                      :strokeWidth="20" :showInfo="false" :strokeColor="deviceInfo.dock.storage.used * 100 / deviceInfo.dock.storage.total > 80 ? 'red' : '#00ee8b' "/>
+                  <span class="ml10" v-if="deviceInfo.dock.storage?.total > 0">
+                    <a-progress type="circle" :width="20" :percent="deviceInfo.dock.storage?.used * 100/ deviceInfo.dock.storage?.total"
+                      :strokeWidth="20" :showInfo="false" :strokeColor="deviceInfo.dock.storage?.used * 100 / deviceInfo.dock.storage?.total > 80 ? 'red' : '#00ee8b' "/>
                   </span>
                 </a-tooltip>
               </a-col>
@@ -264,8 +264,8 @@
             </a-row>
             <a-row class="p5">
               <a-col span="24">
-                <a-button type="primary" :disabled="controlPanelVisible" size="small" @click="dockDebugOnOff(osdVisible.gateway_sn, true)">
-                  远程调试
+                <a-button type="primary" :disabled="controlPanelVisible" size="small" @click="setControlPanelVisible(true)">
+                  设备操作
                 </a-button>
               </a-col>
             </a-row>
@@ -589,6 +589,7 @@ export default defineComponent({
         }
       }
       if (data.currentType === EDeviceTypeName.Dock && data.dockInfo[data.currentSn]) {
+        deviceTsaUpdateHook.value.initMarker(EDeviceTypeName.Dock, EDeviceTypeName.Dock, data.currentSn, data.dockInfo[data.currentSn].longitude, data.dockInfo[data.currentSn].latitude)
         if (osdVisible.value.visible && osdVisible.value.is_dock && osdVisible.value.gateway_sn !== '') {
           deviceInfo.dock = data.dockInfo[osdVisible.value.gateway_sn]
           deviceInfo.device = data.deviceInfo[deviceInfo.dock.sub_device?.device_sn]
@@ -839,6 +840,7 @@ export default defineComponent({
       EDockModeCode,
       controlPanelVisible,
       dockDebugOnOff,
+      setControlPanelVisible,
     }
   }
 })
@@ -883,7 +885,7 @@ export default defineComponent({
 }
 .osd-panel {
   position: absolute;
-  left: 350px;
+  left: 10px;
   top: 10px;
   width: 480px;
   background: black;
