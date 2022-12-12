@@ -10,6 +10,12 @@ export interface Firmware {
   firmware_status: boolean
 }
 
+export enum FirmwareStatusEnum {
+  NONE = 'All',
+  FALSE = 'Disabled',
+  TRUE = 'Available'
+}
+
 export interface FirmwareQueryParam {
   product_version: string
   device_name: string
@@ -20,12 +26,6 @@ export interface FirmwareUploadParam {
   device_name: string
   release_note: string
   status: boolean
-}
-
-export enum FirmwareStatusEnum {
-  NONE = 'All',
-  FALSE = 'Disabled',
-  TRUE = 'Available'
 }
 
 export enum DeviceNameEnum {
