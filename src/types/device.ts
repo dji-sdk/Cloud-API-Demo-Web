@@ -1,6 +1,6 @@
 import { commonColor } from '/@/utils/color'
 import { NightLightsStateEnum, DistanceLimitStatus, ObstacleAvoidance } from './device-setting'
-import { AlarmModeEnum, BatteryStoreModeEnum, DroneBatteryStateEnum } from './airport-tsa'
+import { AlarmModeEnum, BatteryStoreModeEnum, DroneBatteryStateEnum, FourGLinkStateEnum, SdrLinkStateEnum, LinkWorkModeEnum } from './airport-tsa'
 export interface DeviceValue {
   key: string; // 'domain-type-subtype'
   domain: string; // 表示一个领域，作为一个命名空间，暂时分 飞机类-0, 负载类-1,RC类-2,机场类-3 4种
@@ -304,6 +304,14 @@ export interface DockOsd {
   drone_battery_maintenance_info?: { // 飞行器电池保养信息
     maintenance_state: DroneBatteryStateEnum, // 保养状态
     maintenance_time_left: number, // 电池保养剩余时间(小时)
+  }
+  wireless_link?:{
+    dongle_number: number, // dongle 数量
+    ['4g_link_state']: FourGLinkStateEnum, // 4g_link_state
+    sdr_link_state: SdrLinkStateEnum, // sdr链路连接状态
+    link_workmode: LinkWorkModeEnum, // 图传链路模式
+    sdr_quality: number, // sdr信号质量 0-5
+    ['4g_quality']: number, // 4G信号质量 0-5
   }
 }
 

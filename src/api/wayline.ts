@@ -72,6 +72,9 @@ export interface Task {
   code: number, // 错误码
   rth_altitude: number // 相对机场返航高度 20 - 500
   out_of_control_action: OutOfControlAction // 失控动作
+  media_count: number // 媒体数量
+  uploading:boolean // 是否正在上传媒体
+  uploaded_count: number // 已上传媒体数量
 }
 
 // Get Wayline Jobs
@@ -102,5 +105,12 @@ export const importKmzFile = async function (workspaceId: string, file: {}): Pro
       'Content-Type': 'multipart/form-data',
     }
   })
+  return result.data
+}
+
+// 媒体立即上传
+export const uploadMediaFileNow = async function (workspaceId: string, jobId: string): Promise<IWorkspaceResponse<{}>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/jobs/${jobId}/media-highest`
+  const result = await request.post(url)
   return result.data
 }

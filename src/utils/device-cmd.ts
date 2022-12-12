@@ -1,4 +1,4 @@
-import { DroneBatteryModeEnum, DroneBatteryStateEnum } from './../types/airport-tsa';
+import { DroneBatteryModeEnum, DroneBatteryStateEnum, LinkWorkModeEnum } from './../types/airport-tsa'
 import { DeviceInfoType } from '/@/types/device'
 import { DeviceCmd, DeviceCmdItem, DeviceCmdExecuteInfo, DeviceCmdStatusText, DeviceCmdExecuteStatus } from '/@/types/device-cmd'
 import { AirportStorage, CoverStateEnum, PutterStateEnum, ChargeStateEnum, SupplementLightStateEnum, AlarmModeEnum, BatteryStoreModeEnum } from '/@/types/airport-tsa'
@@ -42,6 +42,8 @@ export function updateDeviceCmdInfoByOsd (cmdList: DeviceCmdItem[], deviceInfo: 
       getBatteryStoreMode(cmdItem, dock)
     } else if (cmdItem.cmdKey === DeviceCmd.DroneBatteryModeSwitch) { // 飞行器电池保养
       getDroneBatteryMode(cmdItem, dock)
+    } else if (cmdItem.cmdKey === DeviceCmd.SdrWorkModeSwitch) { // 增强图传开关
+      getSdrWorkNode(cmdItem, dock)
     }
   })
 }
@@ -211,14 +213,28 @@ function getDroneBatteryMode (cmdItem: DeviceCmdItem, airportProperties: any) {
     cmdItem.disabled = false
   } else if (maintenanceState === DroneBatteryStateEnum.NoMaintenanceRequired) {
     cmdItem.operateText = DeviceCmdStatusText.DroneBatteryModeOpenBtnText
-    cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNeedText
+    cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNotNeedText
     cmdItem.action = DroneBatteryModeEnum.OPEN
     cmdItem.disabled = true
   } else if (maintenanceState === DroneBatteryStateEnum.MaintenanceRequired) {
     cmdItem.operateText = DeviceCmdStatusText.DroneBatteryModeOpenBtnText
-    cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNotNeedText
+    cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNeedText
     cmdItem.action = DroneBatteryModeEnum.OPEN
     cmdItem.disabled = false
+  }
+}
+
+// 增强图传开关
+function getSdrWorkNode (cmdItem: DeviceCmdItem, airportProperties: any) {
+  const linkWorkMode = airportProperties?.wireless_link?.link_workmode
+  if (linkWorkMode === LinkWorkModeEnum.SDR) {
+    cmdItem.operateText = DeviceCmdStatusText.SdrWorkModeFourCloseBtnText
+    cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGCloseNormalText
+    cmdItem.action = LinkWorkModeEnum.FourG_FUSION_MODE
+  } else if (linkWorkMode === LinkWorkModeEnum.FourG_FUSION_MODE) {
+    cmdItem.operateText = DeviceCmdStatusText.SdrWorkModeFourGOpenBtnText
+    cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGOpenNormalText
+    cmdItem.action = LinkWorkModeEnum.SDR
   }
 }
 
@@ -269,7 +285,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DeviceRebootInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DeviceRebootFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -280,7 +296,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DroneStatusOpenInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DroneStatusOpenFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -293,7 +309,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DroneStatusCloseInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DroneStatusCloseFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -306,7 +322,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DeviceCoverOpenInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DeviceCoverOpenFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -319,7 +335,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DeviceCoverCloseInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DeviceCoverCloseFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -332,7 +348,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DevicePutterOpenInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DevicePutterOpenFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -345,7 +361,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DevicePutterCloseInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DevicePutterCloseFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -358,7 +374,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DeviceChargeOpenInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DeviceChargeOpenFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -371,7 +387,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DeviceChargeCloseInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DeviceChargeCloseFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -384,7 +400,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DeviceFormatInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DeviceFormatFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -394,7 +410,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
           cmdItem.status = DeviceCmdStatusText.DroneFormatInProgressText
           cmdItem.loading = true
-        } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+        } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
           cmdItem.status = DeviceCmdStatusText.DroneFormatFailedText
           cmdItem.loading = false
         } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -405,7 +421,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
           if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
             cmdItem.status = DeviceCmdStatusText.AlarmStateCloseText
             cmdItem.loading = true
-          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+          } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
             cmdItem.status = DeviceCmdStatusText.AlarmStateCloseFailedText
             cmdItem.loading = false
           } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -415,7 +431,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
           if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
             cmdItem.status = DeviceCmdStatusText.AlarmStateOpenText
             cmdItem.loading = true
-          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+          } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
             cmdItem.status = DeviceCmdStatusText.AlarmStateOpenFailedText
             cmdItem.loading = false
           } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -427,7 +443,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
           if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
             cmdItem.status = DeviceCmdStatusText.BatteryStoreModePlanText
             cmdItem.loading = true
-          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+          } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
             cmdItem.status = DeviceCmdStatusText.BatteryStoreModePlanFailedText
             cmdItem.loading = false
           } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -437,7 +453,7 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
           if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
             cmdItem.status = DeviceCmdStatusText.BatteryStoreModeEmergencyText
             cmdItem.loading = true
-          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+          } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
             cmdItem.status = DeviceCmdStatusText.BatteryStoreModeEmergencyFailedText
             cmdItem.loading = false
           } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -448,19 +464,19 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
         if (cmdItem.action === DroneBatteryModeEnum.OPEN) {
           if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
             cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceInProgressText
-            // cmdItem.loading = true
-          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+            cmdItem.loading = true
+          } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
             cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNeedText
-            // cmdItem.loading = false
+            cmdItem.loading = false
           } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
             cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceNotNeedText
-            // cmdItem.loading = false
+            cmdItem.loading = false
           }
         } else if (cmdItem.action === DroneBatteryModeEnum.CLOSE) {
           if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
             cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceInProgressText
             cmdItem.loading = true
-          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.Failed) {
+          } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
             cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceInProgressText
             cmdItem.loading = false
           } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
@@ -468,7 +484,40 @@ export function updateDeviceCmdInfoByExecuteInfo (cmdList: DeviceCmdItem[], devi
             cmdItem.loading = false
           }
         }
+      } else if (cmdItem.cmdKey === DeviceCmd.SdrWorkModeSwitch) { // 增强图传
+        if (cmdItem.action === LinkWorkModeEnum.SDR) { // 关闭
+          if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
+            cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGCloseText
+            cmdItem.loading = true
+          } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
+            cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGCloseFailedText
+            cmdItem.loading = false
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
+            cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGCloseNormalText
+            cmdItem.loading = false
+          }
+        } else if (cmdItem.action === LinkWorkModeEnum.FourG_FUSION_MODE) { // 开启
+          if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.InProgress) {
+            cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGOpenText
+            cmdItem.loading = true
+          } else if (isExecuteFailed(deviceCmdExecuteInfo.output.status)) {
+            cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGOpenFailedText
+            cmdItem.loading = false
+          } else if (deviceCmdExecuteInfo.output.status === DeviceCmdExecuteStatus.OK) {
+            cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGOpenNormalText
+            cmdItem.loading = false
+          }
+        }
       }
     }
   })
+}
+
+/**
+ * 判断是否执行失败
+ * @param status
+ * @returns
+ */
+function isExecuteFailed (status: DeviceCmdExecuteStatus) {
+  return [DeviceCmdExecuteStatus.Canceled, DeviceCmdExecuteStatus.Failed, DeviceCmdExecuteStatus.Timeout].includes(status)
 }

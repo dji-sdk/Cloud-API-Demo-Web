@@ -1,4 +1,4 @@
-import { AlarmModeEnum, BatteryStoreModeEnum, DroneBatteryModeEnum } from '/@/types/airport-tsa';
+import { AlarmModeEnum, BatteryStoreModeEnum, DroneBatteryModeEnum, LinkWorkModeEnum } from '/@/types/airport-tsa'
 // 机场指令集
 export enum DeviceCmd {
   // 简单指令
@@ -23,10 +23,10 @@ export enum DeviceCmd {
   AlarmStateSwitch = 'alarm_state_switch', // 机场声光报警
   BatteryStoreModeSwitch = 'battery_store_mode_switch', // 电池保养
   DroneBatteryModeSwitch = 'battery_maintenance_switch', // 飞行器电池保养
-
+  SdrWorkModeSwitch = 'sdr_workmode_switch', // 增强图传
 }
 
-export type DeviceCmdItemAction = AlarmModeEnum | BatteryStoreModeEnum | DroneBatteryModeEnum
+export type DeviceCmdItemAction = AlarmModeEnum | BatteryStoreModeEnum | DroneBatteryModeEnum | LinkWorkModeEnum
 
 export interface DeviceCmdItem{
   label: string, // 标题
@@ -151,6 +151,15 @@ export const cmdList: DeviceCmdItem[] = [
     loading: false,
     disabled: true,
   },
+  {
+    label: '4g 增强',
+    status: '--',
+    operateText: '开启',
+    cmdKey: DeviceCmd.SdrWorkModeSwitch,
+    action: LinkWorkModeEnum.FourG_FUSION_MODE,
+    func: 'sdrWorkMode',
+    loading: false,
+  },
 ]
 
 export enum DeviceCmdStatusText {
@@ -239,6 +248,16 @@ export enum DeviceCmdStatusText {
   DroneBatteryModeMaintenanceNeedText = '需保养',
   DroneBatteryModeOpenBtnText = '保养',
   DroneBatteryModeCloseBtnText = '关闭保养',
+
+  SdrWorkModeFourGOpenNormalText = '开',
+  SdrWorkModeFourGOpenText = '开启中...',
+  SdrWorkModeFourGOpenFailedText = '--',
+  SdrWorkModeFourGOpenBtnText = '关闭',
+
+  SdrWorkModeFourGCloseNormalText = '--',
+  SdrWorkModeFourGCloseText = '关闭中...',
+  SdrWorkModeFourGCloseFailedText = '开',
+  SdrWorkModeFourCloseBtnText = '开启',
 }
 
 // cmd ws 消息状态

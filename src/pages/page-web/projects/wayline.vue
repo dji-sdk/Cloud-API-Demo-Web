@@ -226,7 +226,6 @@ function beforeUpload (file: FileItem) {
   return true
 }
 const uploadFile = async () => {
-  console.info(loading.value)
   fileList.value.forEach(async (file: FileItem) => {
     const fileData = new FormData()
     fileData.append('file', file, file.name)

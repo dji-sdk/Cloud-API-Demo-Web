@@ -121,9 +121,10 @@ const mutations: MutationTree<RootStateType> = {
     if (info.host.sdr) {
       dock.sdr = info.host.sdr
       dock.media_file_detail = info.host.media_file_detail
+      dock.wireless_link = info.host.wireless_link
       return
     }
-    if (info.host.job_number !== undefined) {
+    if (info.host.job_number) {
       if (info.host.drone_battery_maintenance_info) {
         dock.drone_battery_maintenance_info = info.host.drone_battery_maintenance_info
       }
@@ -131,9 +132,11 @@ const mutations: MutationTree<RootStateType> = {
     }
     const sdr = dock.sdr
     const mediaFileDetail = dock.media_file_detail
+    const wireless = dock.wireless_link
     state.deviceState.dockInfo[info.sn] = info.host
     state.deviceState.dockInfo[info.sn].sdr = sdr
     state.deviceState.dockInfo[info.sn].media_file_detail = mediaFileDetail
+    state.deviceState.dockInfo[info.sn].wireless_link = wireless
   },
   SET_DRAW_VISIBLE_INFO (state, bool) {
     state.drawVisible = bool

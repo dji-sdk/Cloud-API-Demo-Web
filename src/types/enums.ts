@@ -14,6 +14,7 @@ export enum ERouterName {
     TASK = 'task',
     CREATE_PLAN = 'create-plan',
     SELECT_PLAN = 'select-plan',
+    FIRMWARES = 'firmwares',
 
     PILOT = 'pilot-login',
     PILOT_HOME = 'pilot-home',
@@ -90,8 +91,12 @@ export enum EBizCode {
     MapElementDelete = 'map_element_delete',
     DeviceOnline = 'device_online',
     DeviceOffline = 'device_offline',
-    FlightTaskProgress = 'flighttask_progress', // 机场任务执行进度
     DeviceHms = 'device_hms',
+
+    // 机场任务
+    FlightTaskProgress = 'flighttask_progress', // 机场任务执行进度
+    FlightTaskMediaProgress = 'file_upload_callback', // 机场任务媒体上传进度
+    FlightTaskMediaHighestPriority = 'highest_priority_upload_flighttask_media', // 机场任务媒体优先级上报
 
     // 设备指令
     DeviceReboot = 'device_reboot', // 机场重启

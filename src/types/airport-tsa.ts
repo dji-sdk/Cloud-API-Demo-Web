@@ -60,3 +60,21 @@ export enum DroneBatteryModeEnum {
   CLOSE = 0, // 关闭
   OPEN = 1, // 开启
 }
+
+// 4g链路连接状态
+export enum FourGLinkStateEnum {
+  CLOSE = 0, // 断开
+  OPEN = 1, // 连接
+}
+
+//  Sdr链路连接状态
+export enum SdrLinkStateEnum {
+  CLOSE = 0, // 断开
+  OPEN = 1, // 连接
+}
+
+// 机场的图传链路模式
+export enum LinkWorkModeEnum {
+  SDR = 0, // sdr模式
+  FourG_FUSION_MODE = 1, // 4G融合模式
+}

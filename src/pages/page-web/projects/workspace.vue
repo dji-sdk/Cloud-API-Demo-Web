@@ -71,8 +71,10 @@ const messageHandler = async (payload: any) => {
       store.commit('SET_DEVICE_OFFLINE', payload.data)
       break
     }
-    case EBizCode.FlightTaskProgress: {
-      EventBus.emit('deviceTaskProgress', payload)
+    case EBizCode.FlightTaskProgress:
+    case EBizCode.FlightTaskMediaProgress:
+    case EBizCode.FlightTaskMediaHighestPriority: {
+      EventBus.emit('flightTaskWs', payload)
       break
     }
     case EBizCode.DeviceHms: {

@@ -95,3 +95,38 @@ export const TaskProgressWsStatusMap = {
   [TaskProgressStatus.Timeout]: TaskStatus.Fail,
   [TaskProgressStatus.Paused]: TaskStatus.Wait,
 }
+
+// 根据媒体文件上传进度信息，前端自己判断出的状态
+export enum MediaStatus { // 媒体上传进度
+  ToUpload = 1, // 待上传
+  Uploading = 2, // 上传中
+  Empty = 3, // 无媒体文件
+  Success = 4, // 上传成功
+}
+
+export const MediaStatusMap = {
+  [MediaStatus.ToUpload]: 'Waiting to upload',
+  [MediaStatus.Uploading]: 'Uploading…',
+  [MediaStatus.Success]: 'Uploaded',
+  [MediaStatus.Empty]: 'No media files',
+}
+
+export const MediaStatusColorMap = {
+  [MediaStatus.ToUpload]: commonColor.BLUE,
+  [MediaStatus.Uploading]: commonColor.BLUE,
+  [MediaStatus.Success]: commonColor.NORMAL,
+  [MediaStatus.Empty]: commonColor.WARN,
+}
+
+// 媒体上传进度消息
+export interface MediaStatusProgressInfo {
+  job_id: string,
+  media_count: number
+  uploaded_count: number,
+}
+
+// 媒体上传优先级消息
+export interface TaskMediaHighestPriorityProgressInfo {
+  pre_job_id: string,
+  job_id: string,
+}

@@ -1,3 +1,4 @@
+import { Firmware, FirmwareQueryParam, FirmwareUploadParam } from '/@/types/device-firmware'
 import request, { CommonListResponse, IListWorkspaceResponse, IPage, IWorkspaceResponse } from '/@/api/http/request'
 import { Device } from '/@/types/device'
 
@@ -150,7 +151,7 @@ export const updateDeviceHms = async function (workspace_id: string, device_sn: 
 }
 
 export const getDeviceHms = async function (body: HmsQueryBody, workspace_id: string, pagination: IPage): Promise<IListWorkspaceResponse<any>> {
-  let url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/hms?page=${pagination.page}&page_size=${pagination.page_size}` + 
+  let url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/hms?page=${pagination.page}&page_size=${pagination.page_size}` +
     `&level=${body.level ?? ''}&begin_time=${body.begin_time ?? ''}&end_time=${body.end_time ?? ''}&message=${body.message ?? ''}&language=${body.language}`
   body.sns.forEach((sn: string) => {
     if (sn !== '') {
@@ -164,5 +165,24 @@ export const getDeviceHms = async function (body: HmsQueryBody, workspace_id: st
 export const changeLivestreamLens = async function (body: {}): Promise<IWorkspaceResponse<any>> {
   const url = `${HTTP_PREFIX}/live/streams/switch`
   const result = await request.post(url, body)
+  return result.data
+}
+
+export const getFirmwares = async function (workspace_id: string, page: IPage, body: FirmwareQueryParam): Promise<IListWorkspaceResponse<Firmware>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspace_id}/firmwares?page=${page.page}&page_size=${page.page_size}` +
+    `&device_name=${body.device_name}&product_version=${body.product_version}&status=${body.firmware_status ?? ''}`
+  const result = await request.get(url)
+  return result.data
+}
+
+export const importFirmareFile = async function (workspaceId: string, param: FormData): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/firmwares/file/upload`
+  const result = await request.post(url, param)
+  return result.data
+}
+
+export const changeFirmareStatus = async function (workspaceId: string, firmwareId: string, param: {status: boolean}): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/firmwares/${firmwareId}`
+  const result = await request.put(url, param)
   return result.data
 }
