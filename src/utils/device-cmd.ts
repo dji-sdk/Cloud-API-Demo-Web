@@ -67,7 +67,7 @@ function getDroneState (cmdItem: DeviceCmdItem, droneProperties: any) {
 
 // 舱盖开关
 function getCoverState (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const coverState = airportProperties?.cover_state as CoverStateEnum
+  const coverState = airportProperties?.basic_osd?.cover_state as CoverStateEnum
 
   if (coverState === CoverStateEnum.Close || coverState === CoverStateEnum.Failed) {
     cmdItem.status = DeviceCmdStatusText.DeviceCoverCloseNormalText
@@ -86,7 +86,7 @@ function getCoverState (cmdItem: DeviceCmdItem, airportProperties: any) {
 
 // 推杆状态
 function getPutterState (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const putterState = airportProperties?.putter_state as PutterStateEnum
+  const putterState = airportProperties?.basic_osd?.putter_state as PutterStateEnum
   if (putterState === PutterStateEnum.Close || putterState === PutterStateEnum.Failed) {
     cmdItem.status = DeviceCmdStatusText.DevicePutterCloseNormalText
     cmdItem.operateText = DeviceCmdStatusText.DevicePutterCloseBtnText
@@ -104,7 +104,7 @@ function getPutterState (cmdItem: DeviceCmdItem, airportProperties: any) {
 
 // 充电状态
 function getChargeState (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const chargeState = airportProperties?.drone_charge_state
+  const chargeState = airportProperties?.basic_osd?.drone_charge_state
   const state = chargeState?.state as ChargeStateEnum
   if (!state) return
   if (state === ChargeStateEnum.Charge) {
@@ -124,7 +124,7 @@ function getChargeState (cmdItem: DeviceCmdItem, airportProperties: any) {
 
 // 机场存储格式化
 function deviceFormat (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const airportStorage = airportProperties?.storage
+  const airportStorage = airportProperties?.basic_osd?.storage
   const value = getAirportStorage(airportStorage)
   cmdItem.status = value
 }
@@ -159,7 +159,7 @@ function getBytes (bytes: number, index: number, fixed = 1) {
 
 // 补光灯状态
 function getSupplementLightState (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const supplementLightState = airportProperties?.supplement_light_state
+  const supplementLightState = airportProperties?.basic_osd?.supplement_light_state
   if (supplementLightState === SupplementLightStateEnum.Close) {
     cmdItem.operateText = DeviceCmdStatusText.DeviceSupplementLightCloseBtnText
     cmdItem.status = DeviceCmdStatusText.DeviceSupplementLightCloseNormalText
@@ -177,7 +177,7 @@ function getSupplementLightState (cmdItem: DeviceCmdItem, airportProperties: any
 
 // 声光报警
 function getAlarmState (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const alarmState = airportProperties?.alarm_state
+  const alarmState = airportProperties?.basic_osd?.alarm_state
   if (alarmState === AlarmModeEnum.CLOSE) {
     cmdItem.operateText = DeviceCmdStatusText.AlarmStateCloseBtnText
     cmdItem.status = DeviceCmdStatusText.AlarmStateCloseNormalText
@@ -191,7 +191,7 @@ function getAlarmState (cmdItem: DeviceCmdItem, airportProperties: any) {
 
 // 机场电池模式
 function getBatteryStoreMode (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const batteryStoreMode = airportProperties?.battery_store_mode
+  const batteryStoreMode = airportProperties?.basic_osd?.battery_store_mode
   if (batteryStoreMode === BatteryStoreModeEnum.BATTERY_PLAN_STORE) {
     cmdItem.operateText = DeviceCmdStatusText.BatteryStoreModePlanBtnText
     cmdItem.status = DeviceCmdStatusText.BatteryStoreModePlanNormalText
@@ -205,7 +205,7 @@ function getBatteryStoreMode (cmdItem: DeviceCmdItem, airportProperties: any) {
 
 // 飞行器电池保养
 function getDroneBatteryMode (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const maintenanceState = airportProperties?.drone_battery_maintenance_info?.maintenance_state
+  const maintenanceState = airportProperties?.work_osd?.drone_battery_maintenance_info?.maintenance_state
   if (maintenanceState === DroneBatteryStateEnum.MaintenanceInProgress) {
     cmdItem.operateText = DeviceCmdStatusText.DroneBatteryModeCloseBtnText
     cmdItem.status = DeviceCmdStatusText.DroneBatteryModeMaintenanceInProgressText
@@ -226,7 +226,7 @@ function getDroneBatteryMode (cmdItem: DeviceCmdItem, airportProperties: any) {
 
 // 增强图传开关
 function getSdrWorkNode (cmdItem: DeviceCmdItem, airportProperties: any) {
-  const linkWorkMode = airportProperties?.wireless_link?.link_workmode
+  const linkWorkMode = airportProperties?.link_osd?.wireless_link?.link_workmode
   if (linkWorkMode === LinkWorkModeEnum.SDR) {
     cmdItem.operateText = DeviceCmdStatusText.SdrWorkModeFourCloseBtnText
     cmdItem.status = DeviceCmdStatusText.SdrWorkModeFourGCloseNormalText

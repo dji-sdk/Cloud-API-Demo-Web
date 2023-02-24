@@ -119,9 +119,9 @@ export enum EBizCode {
 }
 
 export enum EDeviceTypeName {
-    Aircraft = 'sub-device',
-    Gateway = 'gateway',
-    Dock = 'dock',
+    Aircraft = 0,
+    Gateway = 2,
+    Dock = 3,
 }
 
 export enum EHmsLevel {

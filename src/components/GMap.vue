@@ -24,7 +24,7 @@
         <span><a class="fz16" style="color: white;" @click="() => osdVisible.visible = false"><CloseOutlined /></a></span>
       </div>
       <div style="height: 82%;">
-        <div class="flex-column flex-align-center flex-justify-center" style="float: left; width: 60px; height: 100%; background: #2d2d2d;">
+        <div class="flex-column flex-align-center flex-justify-center" style="margin-top: -5px; padding-top: 25px; float: left; width: 60px; background: #2d2d2d;">
           <a-tooltip :title="osdVisible.model">
             <div style="width: 90%;" class="flex-column flex-align-center flex-justify-center">
               <span><a-image :src="M30" :preview="false"/></span>
@@ -155,57 +155,63 @@
         </div>
         <div class="osd flex-1" style="flex: 1">
             <a-row>
-              <a-col span="16" :style="deviceInfo.dock.mode_code === EDockModeCode.Disconnected ? 'color: red; font-weight: 700;': 'color: rgb(25,190,107)'">
-                {{ EDockModeCode[deviceInfo.dock.mode_code] }}</a-col>
+              <a-col span="16" :style="deviceInfo.dock.basic_osd?.mode_code === EDockModeCode.Disconnected ? 'color: red; font-weight: 700;': 'color: rgb(25,190,107)'">
+                {{ EDockModeCode[deviceInfo.dock.basic_osd?.mode_code] }}</a-col>
             </a-row>
             <a-row>
               <a-col span="12">
                 <a-tooltip title="Accumulated Running Time">
                   <span><HistoryOutlined /></span>
                   <span class="ml10">
-                    <span v-if="deviceInfo.dock.acc_time >= 2592000"> {{ Math.floor(deviceInfo.dock.acc_time / 2592000) }}m </span>
-                    <span v-if="(deviceInfo.dock.acc_time % 2592000) >= 86400"> {{ Math.floor((deviceInfo.dock.acc_time % 2592000) / 86400) }}d </span>
-                    <span v-if="(deviceInfo.dock.acc_time % 2592000 % 86400) >= 3600"> {{ Math.floor((deviceInfo.dock.acc_time % 2592000 % 86400) / 3600) }}h </span>
-                    <span v-if="(deviceInfo.dock.acc_time % 2592000 % 86400 % 3600) >= 60"> {{ Math.floor((deviceInfo.dock.acc_time % 2592000 % 86400 % 3600) / 60) }}min </span>
-                    <span>{{ Math.floor(deviceInfo.dock.acc_time % 2592000 % 86400 % 3600 % 60) }} s</span>
+                    <span v-if="deviceInfo.dock.work_osd?.acc_time >= 2592000"> {{ Math.floor(deviceInfo.dock.work_osd?.acc_time / 2592000) }}m </span>
+                    <span v-if="(deviceInfo.dock.work_osd?.acc_time % 2592000) >= 86400"> {{ Math.floor((deviceInfo.dock.work_osd?.acc_time % 2592000) / 86400) }}d </span>
+                    <span v-if="(deviceInfo.dock.work_osd?.acc_time % 2592000 % 86400) >= 3600"> {{ Math.floor((deviceInfo.dock.work_osd?.acc_time % 2592000 % 86400) / 3600) }}h </span>
+                    <span v-if="(deviceInfo.dock.work_osd?.acc_time % 2592000 % 86400 % 3600) >= 60"> {{ Math.floor((deviceInfo.dock.work_osd?.acc_time % 2592000 % 86400 % 3600) / 60) }}min </span>
+                    <span>{{ Math.floor(deviceInfo.dock.work_osd?.acc_time % 2592000 % 86400 % 3600 % 60) }} s</span>
                   </span>
                 </a-tooltip>
               </a-col>
               <a-col span="12">
-                <a-tooltip title="Last login">
+                <a-tooltip title="Activation time">
                   <span><FieldTimeOutlined /></span>
-                  <span class="ml10">{{ new Date(deviceInfo.dock.first_power_on).toLocaleString() }}
+                  <span class="ml10">{{ new Date((deviceInfo.dock.work_osd?.activation_time ?? 0) * 1000).toLocaleString() }}
                   </span>
                 </a-tooltip>
               </a-col>
             </a-row>
             <a-row>
-              <a-col span="12">
+              <a-col span="6">
                 <a-tooltip title="Network State">
-                  <span :style="deviceInfo.dock.network_state?.quality === 2 ? 'color: #00ee8b' :
-                    deviceInfo.dock.network_state?.quality === 1 ? 'color: yellow' : 'color: red'">
-                    <span v-if="deviceInfo.dock.network_state?.type === 1"><SignalFilled /></span>
+                  <span :style="deviceInfo.dock.basic_osd?.network_state?.type === NetworkStateTypeEnum.ETHERNET || deviceInfo.dock.basic_osd?.network_state?.quality === NetworkStateQualityEnum.GOOD ?
+                    'color: #00ee8b' : deviceInfo.dock.basic_osd?.network_state?.quality === NetworkStateQualityEnum.MEDIUM ? 'color: yellow' : 'color: red'">
+                    <span v-if="deviceInfo.dock.basic_osd?.network_state?.type === NetworkStateTypeEnum.FOUR_G"><SignalFilled /></span>
                     <span v-else><GlobalOutlined /></span>
                   </span>
-                  <span class="ml10" >{{ deviceInfo.dock.network_state?.rate }} KB/S</span>
+                  <span class="ml10" >{{ deviceInfo.dock.basic_osd?.network_state?.rate }} kb/s</span>
+                </a-tooltip>
+              </a-col>
+              <a-col span="6">
+                <a-tooltip title="The total number of times the dock has performed missions.">
+                  <span><CarryOutOutlined /></span>
+                  <span class="ml10" >{{ deviceInfo.dock.work_osd?.job_number }} </span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
                 <a-tooltip title="Media File Remain Upload">
                   <span><CloudUploadOutlined class="fz14"/></span>
-                  <span class="ml10">{{ deviceInfo.dock.media_file_detail?.remain_upload }}</span>
+                  <span class="ml10">{{ deviceInfo.dock.link_osd?.media_file_detail?.remain_upload }}</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
                 <a-tooltip>
                   <template #title>
-                    <p>total: {{ deviceInfo.dock.storage?.total }}</p>
-                    <p>used: {{ deviceInfo.dock.storage?.used  }}</p>
+                    <p>total: {{ deviceInfo.dock.basic_osd?.storage?.total }}</p>
+                    <p>used: {{ deviceInfo.dock.basic_osd?.storage?.used  }}</p>
                   </template>
                   <span><FolderOpenOutlined /></span>
-                  <span class="ml10" v-if="deviceInfo.dock.storage?.total > 0">
-                    <a-progress type="circle" :width="20" :percent="deviceInfo.dock.storage?.used * 100/ deviceInfo.dock.storage?.total"
-                      :strokeWidth="20" :showInfo="false" :strokeColor="deviceInfo.dock.storage?.used * 100 / deviceInfo.dock.storage?.total > 80 ? 'red' : '#00ee8b' "/>
+                  <span class="ml10" v-if="deviceInfo.dock.basic_osd?.storage?.total > 0">
+                    <a-progress type="circle" :width="20" :percent="deviceInfo.dock.basic_osd?.storage?.used * 100/ deviceInfo.dock.basic_osd?.storage?.total"
+                      :strokeWidth="20" :showInfo="false" :strokeColor="deviceInfo.dock.basic_osd?.storage?.used * 100 / deviceInfo.dock.basic_osd?.storage?.total > 80 ? 'red' : '#00ee8b' "/>
                   </span>
                 </a-tooltip>
               </a-col>
@@ -214,51 +220,51 @@
               <a-col span="6">
                 <a-tooltip title="Wind Speed">
                   <span>W.S</span>
-                  <span class="ml10">{{ deviceInfo.dock.wind_speed === str ? str : (deviceInfo.dock.wind_speed / 10).toFixed(2) + ' m/s'}}</span>
+                  <span class="ml10">{{ (deviceInfo.dock.basic_osd?.wind_speed ?? str) + ' m/s'}}</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
                 <a-tooltip title="Rainfall">
                   <span>🌧</span>
-                  <span class="ml10">{{ deviceInfo.dock.rainfall === str ? str : deviceInfo.dock.rainfall + ' mm/h' }}</span>
+                  <span class="ml10">{{ RainfallEnum[deviceInfo.dock.basic_osd?.rainfall] }}</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
                 <a-tooltip title="Environment Temperature">
                   <span>°C</span>
-                  <span class="ml10">{{ deviceInfo.dock.environment_temperature }}</span>
+                  <span class="ml10">{{ deviceInfo.dock.basic_osd?.environment_temperature }}</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
-                <a-tooltip title="Environment Humidity">
-                  <span>💦</span>
-                  <span class="ml10">{{ deviceInfo.dock.environment_humidity === str ? str : deviceInfo.dock.environment_humidity }}</span>
+                <a-tooltip title="Dock Temperature">
+                  <span>°C</span>
+                  <span class="ml10">{{ deviceInfo.dock.basic_osd?.temperature }}</span>
                 </a-tooltip>
               </a-col>
             </a-row>
             <a-row>
-               <a-col span="6">
-                <a-tooltip title="Dock Temperature">
-                  <span>°C</span>
-                  <span class="ml10">{{ deviceInfo.dock.temperature }}</span>
-                </a-tooltip>
-              </a-col>
               <a-col span="6">
                 <a-tooltip title="Dock Humidity">
                   <span>💦</span>
-                  <span class="ml10">{{ deviceInfo.dock.humidity === str ? str : deviceInfo.dock.humidity }}</span>
+                  <span class="ml10">{{ deviceInfo.dock.basic_osd?.humidity }}</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
                 <a-tooltip title="Working Voltage">
                   <span style="border: 1px solid; border-radius: 50%; width: 18px; height: 18px; line-height: 16px; text-align: center; float: left;">V</span>
-                  <span class="ml10">{{ deviceInfo.dock.working_voltage === str ? str : deviceInfo.dock.working_voltage + ' mV' }}</span>
+                  <span class="ml10">{{ (deviceInfo.dock.work_osd?.working_voltage ?? str) + ' mV' }}</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
                 <a-tooltip title="Working Current">
                   <span style="border: 1px solid; border-radius: 50%; width: 18px; height: 18px; line-height: 15px; text-align: center; float: left;" >A</span>
-                  <span class="ml10">{{ deviceInfo.dock.working_current === str ? str : deviceInfo.dock.working_current + ' mA' }}</span>
+                  <span class="ml10">{{ (deviceInfo.dock.work_osd?.working_current ?? str) + ' mA' }}</span>
+                </a-tooltip>
+              </a-col>
+              <a-col span="6">
+                <a-tooltip title="Drone in dock">
+                  <span><RocketOutlined /></span>
+                  <span class="ml10">{{ DroneInDockEnum[deviceInfo.dock.basic_osd?.drone_in_dock] }}</span>
                 </a-tooltip>
               </a-col>
             </a-row>
@@ -292,19 +298,32 @@
               <a-col span="6">
                 <a-tooltip title="Upward Quality">
                   <span><SignalFilled /><ArrowUpOutlined style="font-size: 9px; vertical-align: top;" /></span>
-                  <span class="ml10">{{ deviceInfo.dock.sdr?.up_quality }}</span>
+                  <span class="ml10">{{ deviceInfo.dock.link_osd?.sdr?.up_quality }}</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
                 <a-tooltip title="Downward Quality">
                   <span><SignalFilled /><ArrowDownOutlined style="font-size: 9px; vertical-align: top;" /></span>
-                  <span class="ml10">{{ deviceInfo.dock.sdr?.down_quality }}</span>
+                  <span class="ml10">{{ deviceInfo.dock.link_osd?.sdr?.down_quality }}</span>
                 </a-tooltip>
               </a-col>
               <a-col span="6">
                 <a-tooltip title="Drone Battery Level">
                   <span><ThunderboltOutlined class="fz14"/></span>
                   <span class="ml10">{{ deviceInfo.device && deviceInfo.device.battery.capacity_percent !== str ? deviceInfo.device?.battery.capacity_percent + ' %' : str }}</span>
+                </a-tooltip>
+              </a-col>
+              <a-col span="6">
+                <a-tooltip>
+                  <template #title>
+                    <p>total: {{ deviceInfo.device?.storage?.total }}</p>
+                    <p>used: {{ deviceInfo.device?.storage?.used  }}</p>
+                  </template>
+                  <span><FolderOpenOutlined /></span>
+                  <span class="ml10" v-if="deviceInfo.device?.storage?.total > 0">
+                    <a-progress type="circle" :width="20" :percent="deviceInfo.device?.storage?.used * 100/ deviceInfo.device?.storage?.total"
+                      :strokeWidth="20" :showInfo="false" :strokeColor="deviceInfo.device?.storage?.used * 100 / deviceInfo.device?.storage?.total > 80 ? 'red' : '#00ee8b' "/>
+                  </span>
                 </a-tooltip>
               </a-col>
             </a-row>
@@ -404,7 +423,7 @@ import { MapDoodleType, MapElementEnum } from '/@/constants/map'
 import { useGMapManage } from '/@/hooks/use-g-map'
 import { useGMapCover } from '/@/hooks/use-g-map-cover'
 import { useMouseTool } from '/@/hooks/use-mouse-tool'
-import { getApp } from '/@/root'
+import { getApp, getRoot } from '/@/root'
 import { useMyStore } from '/@/store'
 import { GeojsonCoordinate } from '/@/types/map'
 import { MapDoodleEnum } from '/@/types/map-enum'
@@ -412,13 +431,16 @@ import { PostElementsBody } from '/@/types/mapLayer'
 import { uuidv4 } from '/@/utils/uuid'
 import { gcj02towgs84, wgs84togcj02 } from '/@/vendors/coordtransform'
 import { deviceTsaUpdate } from '/@/hooks/use-g-map-tsa'
-import { DeviceOsd, DeviceStatus, DockOsd, EGear, EModeCode, GatewayOsd, EDockModeCode } from '/@/types/device'
+import {
+  DeviceOsd, DeviceStatus, DockOsd, EGear, EModeCode, GatewayOsd, EDockModeCode,
+  NetworkStateQualityEnum, NetworkStateTypeEnum, RainfallEnum, DroneInDockEnum
+} from '/@/types/device'
 import pin from '/@/assets/icons/pin-2d8cf0.svg'
 import M30 from '/@/assets/icons/m30.png'
 import {
   BorderOutlined, LineOutlined, CloseOutlined, ControlOutlined, TrademarkOutlined, ArrowDownOutlined,
-  ThunderboltOutlined, SignalFilled, GlobalOutlined, HistoryOutlined, CloudUploadOutlined,
-  FieldTimeOutlined, CloudOutlined, CloudFilled, FolderOpenOutlined, RobotFilled, ArrowUpOutlined
+  ThunderboltOutlined, SignalFilled, GlobalOutlined, HistoryOutlined, CloudUploadOutlined, RocketOutlined,
+  FieldTimeOutlined, CloudOutlined, CloudFilled, FolderOpenOutlined, RobotFilled, ArrowUpOutlined, CarryOutOutlined
 } from '@ant-design/icons-vue'
 import { EDeviceTypeName } from '../types'
 import DockControlPanel from './g-map/DockControlPanel.vue'
@@ -443,7 +465,9 @@ export default defineComponent({
     RobotFilled,
     ArrowUpOutlined,
     ArrowDownOutlined,
-    DockControlPanel
+    DockControlPanel,
+    CarryOutOutlined,
+    RocketOutlined
   },
   name: 'GMap',
   props: {},
@@ -451,6 +475,7 @@ export default defineComponent({
     const useMouseToolHook = useMouseTool()
     const useGMapManageHook = useGMapManage()
     const deviceTsaUpdateHook = ref()
+    const root = getRoot()
 
     const mouseMode = ref(false)
     const store = useMyStore()
@@ -465,52 +490,6 @@ export default defineComponent({
         transmission_signal_quality: str,
       } as GatewayOsd,
       dock: {
-        media_file_detail: {
-          remain_upload: 0
-        },
-        sdr: {
-          up_quality: str,
-          down_quality: str,
-          frequency_band: -1,
-        },
-        network_state: {
-          type: 0,
-          quality: 0,
-          rate: 0,
-        },
-        drone_in_dock: 0,
-        drone_charge_state: {
-          state: 0,
-          capacity_percent: str,
-        },
-        rainfall: str,
-        wind_speed: str,
-        environment_temperature: str,
-        environment_humidity: str,
-        temperature: str,
-        humidity: str,
-        job_number: 0,
-        acc_time: 0,
-        first_power_on: 0,
-        positionState: {
-          gps_number: str,
-          is_fixed: 0,
-          rtk_number: str,
-          is_calibration: 0,
-          quality: 0,
-        },
-        storage: {
-          total: 0,
-          used: 0,
-        },
-        electric_supply_voltage: 0,
-        working_voltage: str,
-        working_current: str,
-        backup_battery_voltage: 0,
-        mode_code: -1,
-        cover_state: -1,
-        supplement_light_state: -1,
-        putter_state: -1,
 
       } as DockOsd,
       device: {
@@ -553,6 +532,9 @@ export default defineComponent({
 
     watch(() => store.state.deviceStatusEvent,
       data => {
+        if (root.$map === undefined) {
+          return
+        }
         deviceTsaUpdateHook.value = deviceTsaUpdate()
         if (Object.keys(data.deviceOnline).length !== 0) {
           deviceTsaUpdateHook.value.initMarker(data.deviceOnline.domain, data.deviceOnline.device_callsign, data.deviceOnline.sn)
@@ -573,6 +555,9 @@ export default defineComponent({
     )
 
     watch(() => store.state.deviceState, data => {
+      if (root.$aMap === undefined) {
+        return
+      }
       if (!deviceTsaUpdateHook.value) {
         deviceTsaUpdateHook.value = deviceTsaUpdate()
       }
@@ -589,10 +574,10 @@ export default defineComponent({
         }
       }
       if (data.currentType === EDeviceTypeName.Dock && data.dockInfo[data.currentSn]) {
-        deviceTsaUpdateHook.value.initMarker(EDeviceTypeName.Dock, EDeviceTypeName.Dock, data.currentSn, data.dockInfo[data.currentSn].longitude, data.dockInfo[data.currentSn].latitude)
+        deviceTsaUpdateHook.value.initMarker(EDeviceTypeName.Dock, [EDeviceTypeName.Dock], data.currentSn, data.dockInfo[data.currentSn].basic_osd?.longitude, data.dockInfo[data.currentSn].basic_osd?.latitude)
         if (osdVisible.value.visible && osdVisible.value.is_dock && osdVisible.value.gateway_sn !== '') {
           deviceInfo.dock = data.dockInfo[osdVisible.value.gateway_sn]
-          deviceInfo.device = data.deviceInfo[deviceInfo.dock.sub_device?.device_sn]
+          deviceInfo.device = data.deviceInfo[deviceInfo.dock.basic_osd.sub_device?.device_sn ?? osdVisible.value.sn]
         }
       }
     }, {
@@ -841,6 +826,10 @@ export default defineComponent({
       controlPanelVisible,
       dockDebugOnOff,
       setControlPanelVisible,
+      NetworkStateTypeEnum,
+      NetworkStateQualityEnum,
+      RainfallEnum,
+      DroneInDockEnum
     }
   }
 })
@@ -894,7 +883,7 @@ export default defineComponent({
   opacity: 0.7;
 }
 .osd > div {
-  padding-top: 5px;
+  margin-top: 5px;
   padding-left: 5px;
 }
 

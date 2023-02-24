@@ -39,7 +39,7 @@ import {
   CloseOutlined
 } from '@ant-design/icons-vue'
 import { useDockControl } from './useDockControl'
-import { DeviceInfoType } from '/@/types/device'
+import { DeviceInfoType, EDockModeCode } from '/@/types/device'
 import { cmdList as baseCmdList, DeviceCmdItem } from '/@/types/device-cmd'
 import { useMyStore } from '/@/store'
 import { updateDeviceCmdInfoByOsd, updateDeviceCmdInfoByExecuteInfo } from '/@/utils/device-cmd'
@@ -80,7 +80,7 @@ function closeControlPanel () {
 }
 
 // dock 控制指令
-const debugStatus = ref(false)
+const debugStatus = ref(props.deviceInfo.dock?.basic_osd.mode_code === EDockModeCode.Remote_Debugging)
 
 async function onDeviceStatusChange (status: boolean) {
   let result = false

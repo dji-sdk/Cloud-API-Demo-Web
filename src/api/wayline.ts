@@ -65,8 +65,10 @@ export interface Task {
   dock_name: string,
   workspace_id: string,
   username: string,
-  execute_time: string,
+  begin_time: string,
   end_time: string,
+  execute_time: string,
+  completed_time: string,
   status: TaskStatus, // 任务状态
   progress: number, // 执行进度
   code: number, // 错误码

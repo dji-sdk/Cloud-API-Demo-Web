@@ -25,7 +25,7 @@ export interface HmsQueryBody {
   begin_time: number,
   end_time: number,
   message: string,
-  domain: string,
+  domain: number,
 }
 
 export const login = async function (body: LoginBody): Promise<IWorkspaceResponse<any>> {
@@ -126,7 +126,7 @@ export const getDeviceBySn = async function (workspace_id: string, device_sn: st
  * @param domain
  * @returns
  */
-export const getBindingDevices = async function (workspace_id: string, body: IPage, domain: string): Promise<IListWorkspaceResponse<Device>> {
+export const getBindingDevices = async function (workspace_id: string, body: IPage, domain: number): Promise<IListWorkspaceResponse<Device>> {
   const url = `${HTTP_PREFIX}/devices/${workspace_id}/devices/bound?&page=${body.page}&page_size=${body.page_size}&domain=${domain}`
   const result = await request.get(url)
   return result.data

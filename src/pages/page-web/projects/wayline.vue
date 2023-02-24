@@ -1,5 +1,6 @@
 <template>
   <div class="project-wayline-wrapper height-100">
+    <a-spin :spinning="loading" :delay="300" tip="downloading" size="large">
     <div style="height: 50px; line-height: 50px; border-bottom: 1px solid #4f4f4f; font-weight: 450;">
       <a-row>
         <a-col :span="1"></a-col>
@@ -19,9 +20,8 @@
         </a-col>
       </a-row>
     </div>
-    <div class="height-100">
-    <a-spin :spinning="loading" :delay="300" tip="downloading" size="large">
-      <div class="scrollbar uranus-scrollbar" v-if="waylinesData.data.length !== 0" @scroll="onScroll">
+    <div :style="{ height : height + 'px'}" class="scrollbar">
+      <div id="data" class="height-100 uranus-scrollbar" v-if="waylinesData.data.length !== 0" @scroll="onScroll">
         <div v-for="wayline in waylinesData.data" :key="wayline.id">
           <div class="wayline-panel" style="padding-top: 5px;" @click="selectRoute(wayline)">
             <div class="title">
@@ -75,8 +75,8 @@
               </div>
           </template>
       </a-modal>
-    </a-spin>
     </div>
+    </a-spin>
   </div>
 </template>
 
@@ -100,7 +100,7 @@ const loading = ref(false)
 const store = useMyStore()
 const pagination :IPage = {
   page: 1,
-  total: 0,
+  total: -1,
   page_size: 10
 }
 
@@ -114,31 +114,22 @@ const deleteTip = ref(false)
 const deleteWaylineId = ref<string>('')
 const canRefresh = ref(true)
 const importVisible = ref<boolean>(root.$router.currentRoute.value.name === ERouterName.WAYLINE)
+const height = ref()
 
 onMounted(() => {
+  const parent = document.getElementsByClassName('scrollbar').item(0)?.parentNode as HTMLDivElement
+  height.value = document.body.clientHeight - parent.firstElementChild!.clientHeight
   getWaylines()
-  setTimeout(() => {
-    const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
-    const parent = element?.parentNode as HTMLDivElement
-    console.info(element, parent)
-    // console.info(element.scrollHeight, parent.clientHeight)
-  }, 1000)
-})
 
-onUpdated(() => {
-  const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
-  const parent = element?.parentNode as HTMLDivElement
-  setTimeout(() => {
-    console.info(element, parent)
-    if (element?.scrollHeight < parent?.clientHeight && pagination.total > waylinesData.data.length) {
-      if (canRefresh.value) {
-        pagination.page++
-        getWaylines()
-      }
-    } else if (element && element.className.indexOf('height-100') === -1) {
-      element.className = element.className + ' height-100'
+  const key = setInterval(() => {
+    const data = document.getElementById('data')?.lastElementChild as HTMLDivElement
+    if (pagination.total === 0 || Math.ceil(pagination.total / pagination.page_size) <= pagination.page || height.value <= data?.clientHeight + data?.offsetTop) {
+      clearInterval(key)
+      return
     }
-  }, 300)
+    pagination.page++
+    getWaylines()
+  }, 1000)
 })
 
 function getWaylines () {
@@ -154,8 +145,7 @@ function getWaylines () {
     if (res.code !== 0) {
       return
     }
-    waylinesData.data = []
-    res.data.list.forEach((wayline: WaylineFile) => waylinesData.data.push(wayline))
+    waylinesData.data = [...waylinesData.data, ...res.data.list]
     pagination.total = res.data.pagination.total
     pagination.page = res.data.pagination.page
   }).finally(() => {
@@ -175,7 +165,9 @@ function deleteWayline () {
     }
     deleteWaylineId.value = ''
     deleteTip.value = false
-    pagination.total--
+    pagination.total = 0
+    pagination.page = 1
+    waylinesData.data = []
     getWaylines()
   })
 }
@@ -199,8 +191,7 @@ function selectRoute (wayline: WaylineFile) {
 
 function onScroll (e: any) {
   const element = e.srcElement
-  console.info(element)
-  if (element.scrollTop + element.clientHeight === element.scrollHeight && Math.ceil(pagination.total / pagination.page_size) > pagination.page && canRefresh.value) {
+  if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5 && Math.ceil(pagination.total / pagination.page_size) > pagination.page && canRefresh.value) {
     pagination.page++
     getWaylines()
   }
@@ -233,6 +224,9 @@ const uploadFile = async () => {
       if (res.code === 0) {
         message.success(`${file.name} file uploaded successfully`)
         canRefresh.value = true
+        pagination.total = 0
+        pagination.page = 1
+        waylinesData.data = []
         getWaylines()
       }
     }).finally(() => {

@@ -174,7 +174,7 @@ const param = reactive<HmsQueryBody>({
   language: 'en',
   begin_time: new Date(new Date().setDate(new Date().getDate() - 7)).setHours(0, 0, 0, 0),
   end_time: new Date().setHours(23, 59, 59, 999),
-  domain: '',
+  domain: -1,
   level: '',
   message: ''
 })
@@ -198,12 +198,12 @@ const levels = [
 const deviceTypes = [
   {
     label: 'All',
-    value: ''
+    value: -1
   }, {
-    label: EDeviceTypeName.Aircraft,
+    label: EDeviceTypeName[EDeviceTypeName.Aircraft],
     value: EDeviceTypeName.Aircraft
   }, {
-    label: EDeviceTypeName.Dock,
+    label: EDeviceTypeName[EDeviceTypeName.Dock],
     value: EDeviceTypeName.Dock
   }
 ]
@@ -250,7 +250,7 @@ function onTimeChange (newTime: [Moment, Moment]) {
   getHms()
 }
 
-function onDeviceTypeSelect (val: string) {
+function onDeviceTypeSelect (val: number) {
   param.sns = [param.device_sn, param.children_sn]
   if (val === EDeviceTypeName.Dock) {
     param.sns = [param.device_sn, '']

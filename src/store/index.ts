@@ -65,7 +65,7 @@ const initStateFunc = () => ({
       [sn: string]: DockOsd
     },
     currentSn: '',
-    currentType: ''
+    currentType: -1
   },
   osdVisible: {
     sn: '',
@@ -112,31 +112,20 @@ const mutations: MutationTree<RootStateType> = {
       return
     }
     if (!state.deviceState.dockInfo[info.sn]) {
-      state.deviceState.dockInfo[info.sn] = info.host
-      return
+      state.deviceState.dockInfo[info.sn] = { } as DockOsd
     }
     state.deviceState.currentSn = info.sn
     state.deviceState.currentType = EDeviceTypeName.Dock
     const dock = state.deviceState.dockInfo[info.sn]
     if (info.host.sdr) {
-      dock.sdr = info.host.sdr
-      dock.media_file_detail = info.host.media_file_detail
-      dock.wireless_link = info.host.wireless_link
+      dock.link_osd = info.host
       return
     }
     if (info.host.job_number) {
-      if (info.host.drone_battery_maintenance_info) {
-        dock.drone_battery_maintenance_info = info.host.drone_battery_maintenance_info
-      }
+      dock.work_osd = info.host
       return
     }
-    const sdr = dock.sdr
-    const mediaFileDetail = dock.media_file_detail
-    const wireless = dock.wireless_link
-    state.deviceState.dockInfo[info.sn] = info.host
-    state.deviceState.dockInfo[info.sn].sdr = sdr
-    state.deviceState.dockInfo[info.sn].media_file_detail = mediaFileDetail
-    state.deviceState.dockInfo[info.sn].wireless_link = wireless
+    dock.basic_osd = info.host
   },
   SET_DRAW_VISIBLE_INFO (state, bool) {
     state.drawVisible = bool

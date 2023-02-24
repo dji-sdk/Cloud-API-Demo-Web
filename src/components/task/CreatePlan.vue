@@ -57,7 +57,7 @@
             </div>
             <div class="ml10 mt5" style="color: hsla(0,0%,100%,0.65);">
               <span><RocketOutlined /></span>
-              <span class="ml5">{{ dock.children?.nickname }}</span>
+              <span class="ml5">{{ dock.children?.nickname ?? 'No drone' }}</span>
             </div>
           </div>
         </a-form-item>

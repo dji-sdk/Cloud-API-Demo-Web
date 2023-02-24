@@ -1,5 +1,5 @@
 <template>
-  <div class="project-layer-wrapper">
+  <div class="project-layer-wrapper height-100">
     <div style="height: 50px; line-height: 50px; border-bottom: 1px solid #4f4f4f; font-weight: 450;">
       <a-row>
         <a-col :span="1"></a-col>
@@ -7,6 +7,7 @@
         <a-col :span="1"></a-col>
       </a-row>
     </div>
+    <div class="scrollbar" :style="{ height: scorllHeight + 'px'}">
     <LayersTree
       :layer-data="mapLayers"
       class="project-layer-content"
@@ -15,6 +16,7 @@
       v-model:selectedKeys="selectedKeys"
       v-model:checkedKeys="checkedKeys"
     />
+    </div>
     <a-drawer
       title="Map Element"
       placement="right"
@@ -128,6 +130,7 @@ const colors = ref<Color[]>([
   { id: 5, name: 'RED', color: '#E23C39', selected: false },
   { id: 6, name: 'NAME_DEFAULT', color: '#212121', selected: false }
 ])
+const scorllHeight = ref()
 
 async function getAllElement () {
   getElementGroups('init')
@@ -245,6 +248,9 @@ function setBaseInfo () {
   }
 }
 onMounted(() => {
+  const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
+  const parent = element?.parentNode as HTMLDivElement
+  scorllHeight.value = parent.clientHeight - parent.firstElementChild!.clientHeight
   getAllElement()
 })
 function closeDrawer () {
@@ -438,5 +444,8 @@ function updateCoordinates (transformType: string, element: LayerResource) {
   .element-item {
     margin-bottom: 10px;
   }
+}
+.scrollbar {
+  overflow: auto;
 }
 </style>

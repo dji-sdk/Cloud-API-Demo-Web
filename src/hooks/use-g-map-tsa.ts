@@ -6,21 +6,20 @@ import { message } from 'ant-design-vue'
 import dockIcon from '/@/assets/icons/dock.png'
 import rcIcon from '/@/assets/icons/rc.png'
 import droneIcon from '/@/assets/icons/drone.png'
+import { EDeviceTypeName } from '/@/types'
 
 export function deviceTsaUpdate () {
   const root = getRoot()
   const AMap = root.$aMap
 
   const icons = new Map([
-    ['sub-device', droneIcon],
-    ['gateway', rcIcon],
-    ['dock', dockIcon]
+    [EDeviceTypeName.Aircraft, droneIcon],
+    [EDeviceTypeName.Gateway, rcIcon],
+    [EDeviceTypeName.Dock, dockIcon]
   ])
   const markers = store.state.markerInfo.coverMap
   const paths = store.state.markerInfo.pathMap
 
-  // Fix: 航迹初始化报错
-  // TODO: 从时序上解决
   let trackLine = null as any
   function getTrackLineInstance () {
     if (!trackLine) {
@@ -32,7 +31,7 @@ export function deviceTsaUpdate () {
     return trackLine
   }
 
-  function initIcon (type: string) {
+  function initIcon (type: number) {
     return new AMap.Icon({
       image: icons.get(type),
       imageSize: new AMap.Size(40, 40),
@@ -40,11 +39,7 @@ export function deviceTsaUpdate () {
     })
   }
 
-  function initMarker (type: string, name: string, sn: string, lng?: number, lat?: number) {
-    if (AMap === undefined) {
-      location.reload()
-      return
-    }
+  function initMarker (type: number, name: string, sn: string, lng?: number, lat?: number) {
     if (markers[sn]) {
       return
     }

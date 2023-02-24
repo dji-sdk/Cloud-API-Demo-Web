@@ -182,7 +182,8 @@ export interface Device {
   bound_time: string,
   login_time: string,
   children?: Device[],
-  domain: string,
+  domain: number,
+  type: number,
   firmware_progress?: number, // 升级进度
 }
 
@@ -195,7 +196,7 @@ export interface DeviceStatus {
   bound_status: boolean,
   model: string,
   gateway_sn: string,
-  domain: string
+  domain: number
 }
 
 export interface OSDVisible {
@@ -243,7 +244,88 @@ export interface DeviceOsd {
   obstacle_avoidance?: ObstacleAvoidance;// 飞行器避障开关设置
 }
 
-export interface DockOsd {
+export enum NetworkStateTypeEnum {
+  FOUR_G = 1,
+  ETHERNET = 2,
+}
+
+export enum NetworkStateQualityEnum {
+  BAD = 0,
+  MEDIUM = 1,
+  GOOD = 2
+}
+
+export enum RainfallEnum {
+  NONE = 0,
+  LIGHT_RAIN = 1,
+  MODERATE_RAIN = 2,
+  HEAVY_RAIN = 3,
+}
+
+export enum DroneInDockEnum {
+  INSIDE, OUTSIDE
+}
+
+export interface DockBasicOsd {
+  network_state: {
+    type: NetworkStateTypeEnum,
+    quality: number,
+    rate: number,
+  },
+  drone_charge_state: {
+    state: number,
+    capacity_percent: number,
+  },
+  drone_in_dock: DroneInDockEnum,
+  rainfall: RainfallEnum,
+  wind_speed: number,
+  environment_temperature: number,
+  temperature: number,
+  humidity: number,
+  latitude: number,
+  longitude: number,
+  height: number,
+  alternate_land_point: {
+    latitude: number,
+    longitude: number,
+    height: number,
+    safe_land_height: number,
+    is_configured: number
+  }
+  first_power_on: number,
+  positionState: {
+    gps_number: number,
+    is_fixed: number,
+    rtk_number: number,
+    is_calibration: number,
+    quality: number,
+  },
+  storage: {
+    total: number,
+    used: number,
+  },
+  mode_code: number,
+  cover_state: number,
+  supplement_light_state: number,
+  emergency_stop_state: number,
+  air_conditioner: {
+    air_conditioner_state: number,
+    switch_time: number,
+  }
+  battery_store_mode?: BatteryStoreModeEnum; // 电池保养(存储)模式
+  alarm_state?: AlarmModeEnum; // 机场声光报警状态
+  putter_state: number,
+  sub_device: {
+    device_sn?: string,
+    device_model_key?: string,
+    device_online_status: number,
+    device_paired: number,
+  },
+}
+
+export interface DockLinkOsd {
+  flighttask_prepare_capacity: number,
+  flighttask_step_code: number,
   media_file_detail: {
     remain_upload: number
   },
@@ -252,59 +334,6 @@ export interface DockOsd {
     down_quality: string,
     frequency_band: number,
   },
-  network_state: {
-    type: number,
-    quality: number,
-    rate: number,
-  },
-  drone_in_dock: number,
-  drone_charge_state: {
-    state: number,
-    capacity_percent: string,
-  },
-  rainfall: string,
-  wind_speed: string,
-  environment_temperature: string,
-  environment_humidity: string
-  temperature: string,
-  humidity: string,
-  latitude: number,
-  longitude: number,
-  height: number,
-  job_number: number,
-  acc_time: number,
-  first_power_on: number,
-  positionState: {
-    gps_number: string,
-    is_fixed: number,
-    rtk_number: string,
-    is_calibration: number,
-    quality: number,
-  },
-  storage: {
-    total: number,
-    used: number,
-  },
-  electric_supply_voltage: number,
-  working_voltage: string,
-  working_current: string,
-  backup_battery_voltage: number,
-  mode_code: number,
-  cover_state: number,
-  supplement_light_state: number,
-  putter_state: number,
-  sub_device: {
-    device_sn: string,
-    device_model_key: string,
-    device_online_status: number,
-    device_paired: number,
-  },
-  alarm_state?: AlarmModeEnum; // 机场声光报警状态
-  battery_store_mode?: BatteryStoreModeEnum; // 电池保养(存储)模式
-  drone_battery_maintenance_info?: { // 飞行器电池保养信息
-    maintenance_state: DroneBatteryStateEnum, // 保养状态
-    maintenance_time_left: number, // 电池保养剩余时间(小时)
-  }
   wireless_link?:{
     dongle_number: number, // dongle 数量
     ['4g_link_state']: FourGLinkStateEnum, // 4g_link_state
@@ -312,7 +341,45 @@ export interface DockOsd {
     link_workmode: LinkWorkModeEnum, // 图传链路模式
     sdr_quality: number, // sdr信号质量 0-5
     ['4g_quality']: number, // 4G信号质量 0-5
+    ['4g_freq_band']: number,
+    ['4g_gnd_quality']: number,
+    ['4g_uav_quality']: number,
+    sdr_freq_band: number,
   }
+}
+
+export interface MaintainStatus {
+  state: number,
+  last_maintain_type: number,
+  last_maintain_time: number,
+  last_maintain_work_sorties: number,
+}
+
+export interface DockWorkOsd {
+  job_number: number,
+  acc_time: number,
+  activation_time: number,
+  maintain_status: {
+    maintain_status_array: MaintainStatus[]
+  }
+  electric_supply_voltage: number,
+  working_voltage: string,
+  working_current: string,
+  backup_battery: {
+    voltage: number,
+    temperature: number,
+    switch: number,
+  }
+  drone_battery_maintenance_info?: { // 飞行器电池保养信息
+    maintenance_state: DroneBatteryStateEnum, // 保养状态
+    maintenance_time_left: number, // 电池保养剩余时间(小时)
+  }
+}
+
+export interface DockOsd {
+  basic_osd: DockBasicOsd,
+  link_osd: DockLinkOsd,
+  work_osd: DockWorkOsd  
 }
 
 export enum EModeCode {
@@ -389,7 +456,7 @@ export interface DeviceHms {
   message_zh: string,
   create_time: string,
   update_time: string,
-  domain: string
+  domain: number
 }
 
 // TODO: 设备拓扑管理优化

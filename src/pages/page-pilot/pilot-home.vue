@@ -150,7 +150,7 @@ const wsId = ref(localStorage.getItem(ELocalStorageKey.WorkspaceId)!)
 const components = apiPilot.init()
 const exitVisible = ref(false)
 const drawerVisible = ref(false)
-let minitor = -1
+let minitor: any
 
 interface DeviceInfoData {
   data: DeviceStatus
@@ -165,7 +165,7 @@ const device = reactive<DeviceInfoData>({
     bound_status: false,
     model: '',
     gateway_sn: EStatusValue.DISCONNECT,
-    domain: ''
+    domain: -1
   }
 })
 const bindParam: BindBody = {
@@ -246,16 +246,16 @@ const messageHandler = async (payload: any) => {
 // 监听ws 消息
 useConnectWebSocket(messageHandler)
 
-let bindNum: number
+let bindNum: any
 
 onMounted(() => {
   apiPilot.onBackClickReg()
   apiPilot.onStopPlatform()
 
-  window.connectCallback = arg => {
+  window.connectCallback = (arg: any) => {
     connectCallback(arg)
   }
-  window.wsConnectCallback = arg => {
+  window.wsConnectCallback = (arg: any) => {
     wsConnectCallback(arg)
   }
   device.data.gateway_sn = apiPilot.getRemoteControllerSN()
@@ -331,6 +331,11 @@ const connectCallback = async (arg: any) => {
     apiPilot.loadComponent(EComponentName.Mission, {})
 
     bindNum = setInterval(() => {
+      if (!bindParam.device_sn) {
+        device.data.gateway_sn = apiPilot.getRemoteControllerSN()
+        bindParam.device_sn = device.data.gateway_sn
+        return
+      }
       bindDevice(bindParam).then(bindRes => {
         if (bindRes.code !== 0) {
           message.error(bindRes.message)

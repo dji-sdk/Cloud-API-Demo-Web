@@ -3,7 +3,7 @@ export interface Firmware {
   file_name: string
   product_version: string
   file_size: number
-  device_name: string
+  device_name: string[]
   username: string
   release_note: string
   released_time: string
@@ -23,12 +23,13 @@ export interface FirmwareQueryParam {
 }
 
 export interface FirmwareUploadParam {
-  device_name: string
+  device_name: string[]
   release_note: string
   status: boolean
 }
 
 export enum DeviceNameEnum {
   DJI_DOCK = 'DJI Dock',
-  MATRICE_30 = 'Matrice 30'
+  MATRICE_30 = 'Matrice 30',
+  MATRICE_30T = 'Matrice 30T'
 }

@@ -17,14 +17,16 @@
           </a-form-item>
           <a-form-item name="device_name" label="Device Name" required>
             <a-select
-              style="width: 150px"
+              style="width: 220px"
+              mode="multiple"
+              placeholder="can choose multiple"
               v-model:value="uploadParam.device_name">
               <a-select-option
-                v-for="item in deviceNameList"
-                :key="item.label"
-                :value="item.value"
+                v-for="k in DeviceNameEnum"
+                :key="k"
+                :value="k"
               >
-                {{ item.label }}
+                {{ k }}
               </a-select-option>
             </a-select>
           </a-form-item>
@@ -90,16 +92,9 @@
   <div class="table flex-display flex-column">
     <a-table :columns="columns" :data-source="data.firmware" :pagination="paginationProp" @change="refreshData" row-key="firmware_id"
      :rowClassName="(record, index) => ((index % 2) === 0 ? 'table-striped' : null)" :scroll="{ x: '100%', y: 600 }">
-      <template v-for="col in ['mqtt_username', 'mqtt_password']" #[col]="{ text, record }" :key="col">
-        <div>
-          <a-input
-            v-if="editableData[record.user_id]"
-            v-model:value="editableData[record.user_id][col]"
-            style="margin: -5px 0"
-          />
-          <template v-else>
-            {{ text }}
-          </template>
+      <template #device_name="{ record }">
+        <div v-for="text in record.device_name" :key="text">
+          {{ text }}
         </div>
       </template>
       <template #file_size="{ record }">
@@ -135,7 +130,7 @@ interface FirmwareData {
   firmware: Firmware[]
 }
 const columns = [
-  { title: 'Model', dataIndex: 'device_name', width: 120, className: 'titleStyle' },
+  { title: 'Model', dataIndex: 'device_name', width: 120, ellipsis: true, className: 'titleStyle', slots: { customRender: 'device_name' } },
   { title: 'File Name', dataIndex: 'file_name', width: 220, ellipsis: true, className: 'titleStyle', slots: { customRender: 'file_name' } },
   { title: 'Firmware Version', dataIndex: 'product_version', width: 180, className: 'titleStyle' },
   { title: 'File Size', dataIndex: 'file_size', width: 150, className: 'titleStyle', slots: { customRender: 'file_size' } },
@@ -200,7 +195,7 @@ function getAllFirmwares (page: IPage) {
 
 const sVisible = ref(false)
 const uploadParam = reactive<FirmwareUploadParam>({
-  device_name: '',
+  device_name: [],
   release_note: '',
   status: true
 })
@@ -208,7 +203,7 @@ const uploadParam = reactive<FirmwareUploadParam>({
 const rules = {
   status: [{ required: true }],
   release_note: [{ required: true, message: 'Please input release note.' }],
-  device_name: [{ required: true, message: 'Please select which model this firmware belongs to. Can not be [All].' }]
+  device_name: [{ required: true, message: 'Please select which models this firmware belongs to.' }]
 }
 interface FileItem {
   uid: string;
@@ -253,7 +248,14 @@ const uploadFile = async () => {
     const fileData = new FormData()
     fileData.append('file', file as any, file.name)
     Object.keys(uploadParam).forEach((key) => {
-      fileData.append(key, uploadParam[key as keyof FirmwareUploadParam].toString())
+      const val = uploadParam[key as keyof FirmwareUploadParam]
+      if (val instanceof Array) {
+        val.forEach((value) => {
+          fileData.append(key, value)
+        })
+      } else {
+        fileData.append(key, val.toString())
+      }
     })
     notification.open({
       key: uploading,

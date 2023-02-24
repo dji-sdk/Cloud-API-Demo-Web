@@ -290,7 +290,7 @@ function updateDevicesByWs (devices: Device[], payload: DeviceCmdExecuteInfo) {
 useDeviceUpgradeEvent(onDeviceUpgradeWs)
 
 // 获取设备列表信息
-function getDevices (domain: string, closeLoading?: boolean) {
+function getDevices (domain: number, closeLoading?: boolean) {
   if (!closeLoading) {
     loading.value = true
   }

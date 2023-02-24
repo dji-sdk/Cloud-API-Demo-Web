@@ -5,9 +5,15 @@
       :pagination="paginationProp" :scroll="{ x: '100%', y: 600 }" @change="refreshData">
       <!-- 执行时间 -->
       <template #duration="{ record }">
-        <div>
-          <div>{{ formatTaskTime(record.execute_time) }}</div>
-          <div>{{ formatTaskTime(record.end_time) }}</div>
+        <div class="flex-row">
+          <div>
+            <div>{{ formatTaskTime(record.begin_time) }}</div>
+            <div>{{ formatTaskTime(record.end_time) }}</div>
+          </div>
+          <div class="ml10">
+            <div>{{ formatTaskTime(record.execute_time) }}</div>
+            <div>{{ formatTaskTime(record.completed_time) }}</div>
+          </div>
         </div>
       </template>
       <!-- 状态 -->
@@ -109,7 +115,7 @@ const columns = [
   {
     title: 'Planned/Actual Time',
     dataIndex: 'duration',
-    width: 160,
+    width: 200,
     slots: { customRender: 'duration' },
   },
   {

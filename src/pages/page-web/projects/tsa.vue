@@ -8,7 +8,7 @@
         <a-col :span="1"></a-col>
       </a-row>
     </div>
-    <div>
+    <div class="scrollbar" :style="{ height: scorllHeight + 'px'}">
       <a-collapse :bordered="false" expandIconPosition="right" accordion style="background: #232323;">
         <a-collapse-panel :key="EDeviceTypeName.Dock" header="Dock" style="border-bottom: 1px solid #4f4f4f;">
           <div v-if="onlineDocks.data.length === 0" style="height: 150px; color: white;">
@@ -19,15 +19,15 @@
               <div style="border-radius: 2px; height: 100%; width: 100%;" class="flex-row flex-justify-between flex-align-center">
                 <div style="float: left; padding: 0px 5px 8px 8px; width: 88%">
                   <div style="width: 80%; height: 30px; line-height: 30px; font-size: 16px;">
-                    <a-tooltip :title="dock.gateway.callsign">
-                      <span class="text-hidden" style="max-width: 200px;">{{ dock.gateway.callsign }}</span>
+                    <a-tooltip :title="`${dock.gateway.callsign} - ${dock.callsign ?? 'No Drone'}`">
+                      <span class="text-hidden" style="max-width: 200px;">{{ dock.gateway.callsign }} - {{ dock.callsign ?? 'No Drone' }}</span>
                     </a-tooltip>
                   </div>
                   <div class="mt5 flex-align-center flex-row flex-justify-between" style="background: #595959;">
                     <div class="flex-align-center flex-row">
                       <span class="ml5 mr5"><RobotOutlined /></span>
-                      <span class="font-bold text-hidden" style="max-width: 80px;" :style="dockInfo[dock.gateway.sn] && dockInfo[dock.gateway.sn].mode_code !== EDockModeCode.Disconnected ? 'color: #00ee8b' :  'color: red;'">
-                        {{ dockInfo[dock.gateway.sn] ? EDockModeCode[dockInfo[dock.gateway.sn].mode_code] : EDockModeCode[EDockModeCode.Disconnected] }}
+                      <span class="font-bold text-hidden" style="max-width: 80px;" :style="dockInfo[dock.gateway.sn] && dockInfo[dock.gateway.sn].basic_osd?.mode_code !== EDockModeCode.Disconnected ? 'color: #00ee8b' :  'color: red;'">
+                        {{ dockInfo[dock.gateway.sn] ? EDockModeCode[dockInfo[dock.gateway.sn].basic_osd?.mode_code] : EDockModeCode[EDockModeCode.Disconnected] }}
                       </span>
                     </div>
                     <div class="mr5 flex-align-center flex-row" style="width: 85px; margin-right: 0; height: 18px;">
@@ -126,7 +126,7 @@
                   </div>
                 </div>
                 <div style="float: right; background: #595959; height: 100%; width: 40px;" class="flex-row flex-justify-center flex-align-center">
-                  <div class="fz16" @click="switchVisible($event, dock, true, dockInfo[dock.gateway.sn] && dockInfo[dock.gateway.sn].mode_code !== EDockModeCode.Disconnected)">
+                  <div class="fz16" @click="switchVisible($event, dock, true, dockInfo[dock.gateway.sn] && dockInfo[dock.gateway.sn].basic_osd?.mode_code !== EDockModeCode.Disconnected)">
                     <a v-if="osdVisible.gateway_sn === dock.gateway.sn && osdVisible.visible"><EyeOutlined /></a>
                     <a v-else><EyeInvisibleOutlined /></a>
                   </div>
@@ -154,8 +154,8 @@
                 <div style="float: left; padding: 5px 5px 8px 8px; width: 88%">
                   <div style="width: 100%; height: 100%;">
                     <a-tooltip>
-                      <template #title>{{ device.model }} - {{ device.callsign }}</template>
-                      <span class="text-hidden" style="max-width: 200px; display: block; height: 20px;">{{ device.model }} - {{ device.callsign }}</span>
+                      <template #title>{{ device.model ? `${device.model} - ${device.callsign}` : 'No Drone'}}</template>
+                      <span class="text-hidden" style="max-width: 200px; display: block; height: 20px;">{{ device.model ? `${device.model} - ${device.callsign}` : 'No Drone'}}</span>
                     </a-tooltip>
                   </div>
                   <div class="mt5" style="background: #595959;">
@@ -176,8 +176,8 @@
                 <div style="height: 20px; background: #595959; width: 94%;" >
                   <span class="mr5"><a-image style="margin-left: 2px; margin-top: -2px; height: 20px; width: 20px;" :src="rc" /></span>
                   <a-tooltip>
-                    <template #title>{{ device.gateway.callsign }} </template>
-                    <span>{{ device.gateway.callsign }}</span>
+                    <template #title>{{ device.gateway.model }} - {{ device.gateway.callsign }} </template>
+                    <span class="text-hidden" style="max-width: 200px;">{{ device.gateway.model }} - {{ device.gateway.callsign }}</span>
                   </a-tooltip>
                 </div>
               </div>
@@ -206,6 +206,7 @@ const username = ref(localStorage.getItem(ELocalStorageKey.Username))
 const workspaceId = ref(localStorage.getItem(ELocalStorageKey.WorkspaceId)!)
 const osdVisible = ref({} as OSDVisible)
 const hmsVisible = new Map<string, boolean>()
+const scorllHeight = ref()
 
 interface OnlineDevice {
   model: string,
@@ -256,6 +257,9 @@ onMounted(() => {
     )
     getOnlineDeviceHms()
   }, 3000)
+  const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
+  const parent = element?.parentNode as HTMLDivElement
+  scorllHeight.value = parent?.clientHeight - parent.firstElementChild!.clientHeight
 })
 
 function getOnlineTopo () {
@@ -265,12 +269,12 @@ function getOnlineTopo () {
     }
     onlineDevices.data = []
     onlineDocks.data = []
-    res.data.forEach((val: any) => {
-      const gateway = val.gateways_list.pop()
+    res.data.forEach((gateway: any) => {
+      const child = gateway.children
       const device: OnlineDevice = {
-        model: val.device_name,
-        callsign: val.nickname,
-        sn: val.device_sn,
+        model: child?.device_name,
+        callsign: child?.nickname,
+        sn: child?.device_sn,
         mode: EModeCode.Disconnected,
         gateway: {
           model: gateway?.device_name,
@@ -280,17 +284,17 @@ function getOnlineTopo () {
         },
         payload: []
       }
-      val.payloads_list.forEach((payload: any) => {
+      child?.payloads_list.forEach((payload: any) => {
         device.payload.push({
           model: payload.payload_name
         })
       })
-      if (gateway && EDeviceTypeName.Dock === gateway.domain) {
+      if (EDeviceTypeName.Dock === gateway.domain) {
         hmsVisible.set(device.sn, false)
         hmsVisible.set(device.gateway.sn, false)
         onlineDocks.data.push(device)
       }
-      if (val.status && EDeviceTypeName.Gateway === gateway.domain) {
+      if (gateway.status && EDeviceTypeName.Gateway === gateway.domain) {
         onlineDevices.data.push(device)
       }
     })
@@ -359,6 +363,15 @@ function readHms (visiable: boolean, sn: string) {
   line-height: 50px;
   align-items: center;
   border-bottom: 1px solid #4f4f4f;
+}
+.project-tsa-wrapper {
+  height: 100%;
+  .scrollbar {
+    overflow: auto;
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
 .ant-collapse > .ant-collapse-item > .ant-collapse-header {
   color: white;
