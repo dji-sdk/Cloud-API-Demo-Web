@@ -259,7 +259,7 @@ onMounted(() => {
   }, 3000)
   const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
   const parent = element?.parentNode as HTMLDivElement
-  scorllHeight.value = parent?.clientHeight - parent.firstElementChild!.clientHeight
+  scorllHeight.value = parent?.clientHeight - parent?.firstElementChild?.clientHeight
 })
 
 function getOnlineTopo () {

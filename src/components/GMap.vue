@@ -474,7 +474,7 @@ export default defineComponent({
   setup () {
     const useMouseToolHook = useMouseTool()
     const useGMapManageHook = useGMapManage()
-    const deviceTsaUpdateHook = ref()
+    const deviceTsaUpdateHook = deviceTsaUpdate()
     const root = getRoot()
 
     const mouseMode = ref(false)
@@ -532,16 +532,12 @@ export default defineComponent({
 
     watch(() => store.state.deviceStatusEvent,
       data => {
-        if (root.$map === undefined) {
-          return
-        }
-        deviceTsaUpdateHook.value = deviceTsaUpdate()
         if (Object.keys(data.deviceOnline).length !== 0) {
-          deviceTsaUpdateHook.value.initMarker(data.deviceOnline.domain, data.deviceOnline.device_callsign, data.deviceOnline.sn)
+          deviceTsaUpdateHook.initMarker(data.deviceOnline.domain, data.deviceOnline.device_callsign, data.deviceOnline.sn)
           store.state.deviceStatusEvent.deviceOnline = {} as DeviceStatus
         }
         if (Object.keys(data.deviceOffline).length !== 0) {
-          deviceTsaUpdateHook.value.removeMarker(data.deviceOffline.sn)
+          deviceTsaUpdateHook.removeMarker(data.deviceOffline.sn)
           if ((data.deviceOffline.sn === osdVisible.value.sn) || (osdVisible.value.is_dock && data.deviceOffline.sn === osdVisible.value.gateway_sn)) {
             osdVisible.value.visible = false
             store.commit('SET_OSD_VISIBLE_INFO', osdVisible)
@@ -555,29 +551,23 @@ export default defineComponent({
     )
 
     watch(() => store.state.deviceState, data => {
-      if (root.$aMap === undefined) {
-        return
-      }
-      if (!deviceTsaUpdateHook.value) {
-        deviceTsaUpdateHook.value = deviceTsaUpdate()
-      }
       if (data.currentType === EDeviceTypeName.Gateway && data.gatewayInfo[data.currentSn]) {
-        deviceTsaUpdateHook.value.moveTo(data.currentSn, data.gatewayInfo[data.currentSn].longitude, data.gatewayInfo[data.currentSn].latitude)
+        deviceTsaUpdateHook.moveTo(data.currentSn, data.gatewayInfo[data.currentSn].longitude, data.gatewayInfo[data.currentSn].latitude)
         if (osdVisible.value.visible && osdVisible.value.gateway_sn !== '') {
           deviceInfo.gateway = data.gatewayInfo[osdVisible.value.gateway_sn]
         }
       }
       if (data.currentType === EDeviceTypeName.Aircraft && data.deviceInfo[data.currentSn]) {
-        deviceTsaUpdateHook.value.moveTo(data.currentSn, data.deviceInfo[data.currentSn].longitude, data.deviceInfo[data.currentSn].latitude)
+        deviceTsaUpdateHook.moveTo(data.currentSn, data.deviceInfo[data.currentSn].longitude, data.deviceInfo[data.currentSn].latitude)
         if (osdVisible.value.visible && osdVisible.value.sn !== '') {
           deviceInfo.device = data.deviceInfo[osdVisible.value.sn]
         }
       }
       if (data.currentType === EDeviceTypeName.Dock && data.dockInfo[data.currentSn]) {
-        deviceTsaUpdateHook.value.initMarker(EDeviceTypeName.Dock, [EDeviceTypeName.Dock], data.currentSn, data.dockInfo[data.currentSn].basic_osd?.longitude, data.dockInfo[data.currentSn].basic_osd?.latitude)
+        deviceTsaUpdateHook.initMarker(EDeviceTypeName.Dock, [EDeviceTypeName.Dock], data.currentSn, data.dockInfo[data.currentSn].basic_osd?.longitude, data.dockInfo[data.currentSn].basic_osd?.latitude)
         if (osdVisible.value.visible && osdVisible.value.is_dock && osdVisible.value.gateway_sn !== '') {
           deviceInfo.dock = data.dockInfo[osdVisible.value.gateway_sn]
-          deviceInfo.device = data.deviceInfo[deviceInfo.dock.basic_osd.sub_device?.device_sn ?? osdVisible.value.sn]
+          deviceInfo.device = data.deviceInfo[deviceInfo.dock.basic_osd?.sub_device?.device_sn ?? osdVisible.value.sn]
         }
       }
     }, {
@@ -655,6 +645,9 @@ export default defineComponent({
     onMounted(() => {
       const app = getApp()
       useGMapManageHook.globalPropertiesConfig(app)
+      setInterval(() => {
+        console.info(deviceInfo.dock)
+      }, 1000)
     })
     function getDrawCallback ({ obj }) {
       switch (state.currentType) {

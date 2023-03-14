@@ -15,7 +15,7 @@ export function useGMapManage () {
     }).then((AMap) => {
       state.aMap = AMap
       state.map = new AMap.Map(container, {
-        center: [113.935913, 22.525335],
+        center: [113.943225499, 22.577673716],
         zoom: 15
       })
       state.mouseTool = new AMap.MouseTool(state.map)

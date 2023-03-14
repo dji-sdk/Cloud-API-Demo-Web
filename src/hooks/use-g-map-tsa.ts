@@ -10,7 +10,7 @@ import { EDeviceTypeName } from '/@/types'
 
 export function deviceTsaUpdate () {
   const root = getRoot()
-  const AMap = root.$aMap
+  let AMap = root.$aMap
 
   const icons = new Map([
     [EDeviceTypeName.Aircraft, droneIcon],
@@ -43,8 +43,12 @@ export function deviceTsaUpdate () {
     if (markers[sn]) {
       return
     }
+    if (root.$aMap === undefined) {
+      return
+    }
+    AMap = root.$aMap
     markers[sn] = new AMap.Marker({
-      position: new AMap.LngLat(lng || 113.935913, lat || 22.525335),
+      position: new AMap.LngLat(lng || 113.943225499, lat || 22.577673716),
       icon: initIcon(type),
       title: name,
       anchor: 'top-center',
