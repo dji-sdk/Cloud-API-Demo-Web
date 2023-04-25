@@ -242,7 +242,7 @@ const uploadFile = async () => {
   if (fileList.value.length === 0) {
     message.error('Please select at least one file.')
   }
-  const uploading: string = 'uploading'
+  let uploading: string
   formRef.value.validate().then(async () => {
     const file: FileItem = fileList.value[0]
     const fileData = new FormData()
@@ -257,6 +257,8 @@ const uploadFile = async () => {
         fileData.append(key, val.toString())
       }
     })
+    const timestamp = new Date().getTime()
+    uploading = (file.name ?? 'uploding') + timestamp
     notification.open({
       key: uploading,
       message: `Uploading  ${moment().format()}`,
@@ -267,7 +269,7 @@ const uploadFile = async () => {
       if (res.code === 0) {
         notification.success({
           message: `Uploaded  ${moment().format()}`,
-          description: `[${file.name}] file uploaded successfully.`,
+          description: `[${file.name}] file uploaded successfully. Duration: ${moment.duration(new Date().getTime() - timestamp).asSeconds()}`,
           duration: null
         })
         getAllFirmwares(pageParam)

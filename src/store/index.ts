@@ -67,13 +67,14 @@ const initStateFunc = () => ({
     currentSn: '',
     currentType: -1
   },
-  osdVisible: {
+  osdVisible: { // osd 显示设备相关信息
     sn: '',
     callsign: '',
     model: '',
     visible: false,
     gateway_sn: '',
     is_dock: false,
+    payloads: null
   } as OSDVisible,
   waylineInfo: {
 
@@ -86,7 +87,9 @@ const initStateFunc = () => ({
   },
   // 机场指令执行状态信息
   devicesCmdExecuteInfo: {
-  } as DevicesCmdExecuteInfo
+  } as DevicesCmdExecuteInfo,
+  mqttState: null as any, // mqtt 实例
+  clientId: '', // mqtt 连接 唯一客户端id
 })
 
 export type RootStateType = ReturnType<typeof initStateFunc>
@@ -117,15 +120,18 @@ const mutations: MutationTree<RootStateType> = {
     state.deviceState.currentSn = info.sn
     state.deviceState.currentType = EDeviceTypeName.Dock
     const dock = state.deviceState.dockInfo[info.sn]
+    if (info.host.mode_code !== undefined) {
+      dock.basic_osd = info.host
+      return
+    }
     if (info.host.sdr) {
       dock.link_osd = info.host
       return
     }
-    if (info.host.job_number) {
+    if (info.host.job_number !== undefined) {
       dock.work_osd = info.host
       return
     }
-    dock.basic_osd = info.host
   },
   SET_DRAW_VISIBLE_INFO (state, bool) {
     state.drawVisible = bool
@@ -182,7 +188,13 @@ const mutations: MutationTree<RootStateType> = {
     } else {
       state.devicesCmdExecuteInfo[info.sn] = [info]
     }
-  }
+  },
+  SET_MQTT_STATE (state, mqttState) {
+    state.mqttState = mqttState
+  },
+  SET_CLIENT_ID (state, clientId) {
+    state.clientId = clientId
+  },
 }
 
 const actions: ActionTree<RootStateType, RootStateType> = {

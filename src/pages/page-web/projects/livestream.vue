@@ -31,8 +31,8 @@ import { CloseOutlined } from '@ant-design/icons-vue'
 import { getRoot } from '/@/root'
 import { ERouterName } from '/@/types'
 const root = getRoot()
-const routeName = ref<string>()
-const showLive = ref<boolean>(false)
+const routeName = ref<string>('LiveOthers')
+const showLive = ref<boolean>(root.$route.name === ERouterName.LIVING)
 
 const options = [
   { key: 0, label: 'Agora Live', path: '/' + ERouterName.LIVESTREAM + '/' + ERouterName.LIVING, routeName: 'LiveAgora' },
@@ -40,6 +40,7 @@ const options = [
 ]
 
 const selectLivestream = (route: string) => {
+  showLive.value = root.$route.name === ERouterName.LIVING
   routeName.value = route
 }
 

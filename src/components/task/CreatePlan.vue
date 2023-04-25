@@ -182,7 +182,8 @@ function onSubmit () {
     disabled.value = true
     const createPlanBody = { ...planBody } as unknown as CreatePlan
     if (planBody.select_execute_time) {
-      createPlanBody.execute_time = moment(planBody.select_execute_time).valueOf()
+      createPlanBody.task_days = [moment(planBody.select_execute_time).unix()]
+      createPlanBody.task_periods = [createPlanBody.task_days]
     }
     createPlanBody.rth_altitude = Number(createPlanBody.rth_altitude)
     if (wayline.value && wayline.value.template_types && wayline.value.template_types.length > 0) {

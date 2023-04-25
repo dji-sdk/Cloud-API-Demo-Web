@@ -2,7 +2,7 @@
 <div class="dock-control-panel">
   <!-- title -->
   <div class="dock-control-panel-header fz16 pl5 pr5 flex-align-center flex-row flex-justify-between">
-    <span>设备操作 {{ props.sn}}</span>
+    <span>Device Control<span class="fz12 pl15">{{ props.sn}}</span></span>
     <span @click="closeControlPanel">
     <CloseOutlined />
     </span>
@@ -12,7 +12,7 @@
   <!-- cmd -->
   <div class="control-cmd-wrapper">
     <div class="control-cmd-header">
-      远程调试
+      Device Remote Debug
       <a-switch class="debug-btn" checked-children="开" un-checked-children="关" v-model:checked="debugStatus" @change="onDeviceStatusChange"/>
     </div>
     <div class="control-cmd-box">
@@ -28,7 +28,7 @@
         </div>
       </div>
     </div>
- </div>
+  </div>
 </div>
 
 </template>
@@ -38,7 +38,7 @@ import { defineProps, defineEmits, ref, watch } from 'vue'
 import {
   CloseOutlined
 } from '@ant-design/icons-vue'
-import { useDockControl } from './useDockControl'
+import { useDockControl } from './use-dock-control'
 import { DeviceInfoType, EDockModeCode } from '/@/types/device'
 import { cmdList as baseCmdList, DeviceCmdItem } from '/@/types/device-cmd'
 import { useMyStore } from '/@/store'
@@ -76,7 +76,7 @@ watch(() => props.deviceInfo, (value) => {
 const emit = defineEmits(['close-control-panel'])
 
 function closeControlPanel () {
-  emit('close-control-panel', props.sn, false)
+  emit('close-control-panel', props.sn)
 }
 
 // dock 控制指令

@@ -115,7 +115,14 @@ export enum EBizCode {
     DeviceUpgrade = 'ota_progress', // 设备升级
 
     // 设备日志
-    DeviceLogUploadProgress = 'fileupload_progress' // 设备日志上传上传
+    DeviceLogUploadProgress = 'fileupload_progress', // 设备日志上传
+
+    // 飞行指令消息
+    ControlSourceChange = 'control_source_change', // 控制权更新
+    FlyToPointProgress = 'fly_to_point_progress', // 飞向目标点
+    TakeoffToPointProgress = 'takeoff_to_point_progress', // 一键起飞
+    JoystickInvalidNotify = 'joystick_invalid_notify', // 设备端退出drc模式
+    DrcStatusNotify = 'drc_status_notify', // 飞行控制模式状态
 }
 
 export enum EDeviceTypeName {

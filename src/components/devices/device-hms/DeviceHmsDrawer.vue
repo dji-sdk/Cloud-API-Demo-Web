@@ -67,7 +67,12 @@
         </template>
         <template v-for="col in ['code', 'message']" #[col]="{ text }" :key="col">
           <a-tooltip :title="text">
-              <span>{{ text }}</span>
+              <div >{{ text }}</div>
+          </a-tooltip>
+        </template>
+        <template #domain="{text}">
+          <a-tooltip :title="EDeviceTypeName[text]">
+              <div >{{ EDeviceTypeName[text] }}</div>
           </a-tooltip>
         </template>
       </a-table>
@@ -77,7 +82,7 @@
 
 <!-- 暂时只抽取该组件 -->
 <script lang="ts" setup>
-import { watchEffect, reactive, ref, defineProps, defineEmits } from 'vue'
+import { watchEffect, reactive, ref, defineProps, defineEmits, watch } from 'vue'
 import { getDeviceHms, HmsQueryBody } from '/@/api/manage'
 import moment, { Moment } from 'moment'
 import { ColumnProps, TableState } from 'ant-design-vue/lib/table/interface'
@@ -95,7 +100,7 @@ const workspaceId: string = localStorage.getItem(ELocalStorageKey.WorkspaceId) |
 // 健康状态
 const sVisible = ref(false)
 
-watchEffect(() => {
+watch(props, () => {
   sVisible.value = props.visible
   // 显示弹框时，获取设备hms信息
   if (props.visible) {
@@ -117,9 +122,10 @@ const loading = ref(false)
 const hmsColumns: ColumnProps[] = [
   { title: 'Alarm Begin | End Time', dataIndex: 'create_time', width: '25%', className: 'titleStyle', slots: { customRender: 'time' } },
   { title: 'Level', dataIndex: 'level', width: '120px', className: 'titleStyle', slots: { customRender: 'level' } },
-  { title: 'Device', dataIndex: 'domain', width: '12%', className: 'titleStyle' },
-  { title: 'Error Code', dataIndex: 'key', width: '20%', className: 'titleStyle', slots: { customRender: 'code' } },
+  { title: 'Device', dataIndex: 'domain', width: '12%', className: 'titleStyle', slots: { customRender: 'domain' } },
+  { title: 'Error Code', dataIndex: 'key', width: '20%', className: 'titleStyle', ellipsis: true, slots: { customRender: 'code' } },
   { title: 'Hms Message', dataIndex: 'message_en', className: 'titleStyle', ellipsis: true, slots: { customRender: 'message' } },
+  { title: 'Hms Message', dataIndex: 'message_zh', className: 'titleStyle', ellipsis: true, slots: { customRender: 'message' } },
 ]
 
 interface DeviceHmsData {

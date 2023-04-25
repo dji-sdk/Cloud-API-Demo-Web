@@ -1,12 +1,11 @@
 import store from '/@/store'
 import { getRoot } from '/@/root'
-import { ELocalStorageKey } from '/@/types'
+import { ELocalStorageKey, EDeviceTypeName } from '/@/types'
 import { getDeviceBySn } from '/@/api/manage'
 import { message } from 'ant-design-vue'
 import dockIcon from '/@/assets/icons/dock.png'
 import rcIcon from '/@/assets/icons/rc.png'
 import droneIcon from '/@/assets/icons/drone.png'
-import { EDeviceTypeName } from '/@/types'
 
 export function deviceTsaUpdate () {
   const root = getRoot()

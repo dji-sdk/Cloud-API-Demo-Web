@@ -1,6 +1,8 @@
 import { commonColor } from '/@/utils/color'
 import { NightLightsStateEnum, DistanceLimitStatus, ObstacleAvoidance } from './device-setting'
 import { AlarmModeEnum, BatteryStoreModeEnum, DroneBatteryStateEnum, FourGLinkStateEnum, SdrLinkStateEnum, LinkWorkModeEnum } from './airport-tsa'
+import { CameraMode } from '/@/types/live-stream'
+
 export interface DeviceValue {
   key: string; // 'domain-type-subtype'
   domain: string; // 表示一个领域，作为一个命名空间，暂时分 飞机类-0, 负载类-1,RC类-2,机场类-3 4种
@@ -20,10 +22,6 @@ export enum DOMAIN {
 export enum DRONE_TYPE {
   M30 = 67,
   M300 = 60,
-  Phantom4 = 11,
-  Phantom4Pro = 18,
-  Phantom4RTK = 59,
-  Phantom4Advanced = 27,
   Mavic3EnterpriseAdvanced= 77,
 }
 
@@ -76,10 +74,6 @@ export const DEVICE_MODEL_KEY = {
   M3T: `${DOMAIN.DRONE}-${DRONE_TYPE.Mavic3EnterpriseAdvanced}-${DEVICE_SUB_TYPE.ONE}`,
 
   M300: `${DOMAIN.DRONE}-${DRONE_TYPE.M300}-${DEVICE_SUB_TYPE.ZERO}`,
-  Phantom4: `${DOMAIN.DRONE}-${DRONE_TYPE.Phantom4}-${DEVICE_SUB_TYPE.ZERO}`,
-  Phantom4Pro: `${DOMAIN.DRONE}-${DRONE_TYPE.Phantom4Pro}-${DEVICE_SUB_TYPE.ZERO}`,
-  Phantom4RTK: `${DOMAIN.DRONE}-${DRONE_TYPE.Phantom4RTK}-${DEVICE_SUB_TYPE.ZERO}`,
-  Phantom4Advanced: `${DOMAIN.DRONE}-${DRONE_TYPE.Phantom4Advanced}-${DEVICE_SUB_TYPE.ZERO}`,
 
   FPV: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.FPV}-${DEVICE_SUB_TYPE.ZERO}`,
   H20: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.H20}-${DEVICE_SUB_TYPE.ZERO}`,
@@ -113,10 +107,6 @@ export const DEVICE_NAME = {
   [DEVICE_MODEL_KEY.M3T]: 'Mavic 3T',
   // [DEVICE_MODEL_KEY.M3M]: 'Mavic 3M',
   [DEVICE_MODEL_KEY.M300]: 'M300 RTK',
-  [DEVICE_MODEL_KEY.Phantom4]: 'Phantom 4',
-  [DEVICE_MODEL_KEY.Phantom4Pro]: 'Phantom 4 Pro',
-  [DEVICE_MODEL_KEY.Phantom4RTK]: 'Phantom 4 RTK',
-  [DEVICE_MODEL_KEY.Phantom4Advanced]: 'Phantom 4 Advanced',
 
   // payload
   [DEVICE_MODEL_KEY.FPV]: 'FPV',
@@ -141,6 +131,36 @@ export const DEVICE_NAME = {
 
   // dock
   [DEVICE_MODEL_KEY.Dock]: 'Dock',
+}
+
+// 控制权
+export enum ControlSource {
+  A = 'A',
+  B = 'B'
+}
+
+export interface PayloadInfo {
+  index: number,
+  model: string,
+  control_source?: ControlSource,
+  payload_sn?: string,
+  payload_index?: string,
+  payload_name?: string,
+}
+
+// 设备信息
+export interface OnlineDevice {
+  model: string,
+  callsign: string,
+  sn: string,
+  mode: number,
+  gateway: {
+    model: string,
+    callsign: string,
+    sn: string,
+    domain: string,
+  },
+  payload: PayloadInfo[]
 }
 
 // 固件升级类型
@@ -184,7 +204,7 @@ export interface Device {
   children?: Device[],
   domain: number,
   type: number,
-  firmware_progress?: number, // 升级进度
+  firmware_progress?: string, // 升级进度
 }
 
 export interface DeviceStatus {
@@ -207,6 +227,7 @@ export interface OSDVisible {
   is_dock: boolean,
   gateway_sn: string,
   gateway_callsign: string,
+  payloads: null | PayloadInfo [],
 }
 
 export interface GatewayOsd {
@@ -215,6 +236,24 @@ export interface GatewayOsd {
   longitude: number,
   latitude: number,
 }
+
+export interface OsdCameraLiveview {
+  bottom: number,
+  left: number,
+  right: number,
+  top: number,
+}
+export interface DeviceOsdCamera {
+  camera_mode: CameraMode,
+  payload_index: string,
+  photo_state: number,
+  record_time: number,
+  recording_state: number,
+  remain_photo_num: number,
+  remain_record_duration: number,
+  liveview_world_region: OsdCameraLiveview
+}
+
 export interface DeviceOsd {
   longitude: number,
   latitude: number,
@@ -242,6 +281,7 @@ export interface DeviceOsd {
   height_limit?: number;// 限高设置
   distance_limit_status?: DistanceLimitStatus;// 限远开关
   obstacle_avoidance?: ObstacleAvoidance;// 飞行器避障开关设置
+  cameras?: DeviceOsdCamera[]
 }
 
 export enum NetworkStateTypeEnum {
@@ -263,16 +303,16 @@ export enum RainfallEnum {
 }
 
 export enum DroneInDockEnum {
-  INSIDE, OUTSIDE
+  OUTSIDE, INSIDE
 }
 
 export interface DockBasicOsd {
-  network_state: {
+  network_state?: {
     type: NetworkStateTypeEnum,
     quality: number,
     rate: number,
   },
-  drone_charge_state: {
+  drone_charge_state?: {
     state: number,
     capacity_percent: number,
   },
@@ -285,7 +325,7 @@ export interface DockBasicOsd {
   latitude: number,
   longitude: number,
   height: number,
-  alternate_land_point: {
+  alternate_land_point?: {
     latitude: number,
     longitude: number,
     height: number,
@@ -293,14 +333,14 @@ export interface DockBasicOsd {
     is_configured: number
   }
   first_power_on: number,
-  positionState: {
+  positionState?: {
     gps_number: number,
     is_fixed: number,
     rtk_number: number,
     is_calibration: number,
     quality: number,
   },
-  storage: {
+  storage?: {
     total: number,
     used: number,
   },
@@ -308,25 +348,32 @@ export interface DockBasicOsd {
   cover_state: number,
   supplement_light_state: number,
   emergency_stop_state: number,
-  air_conditioner: {
+  air_conditioner?: {
     air_conditioner_state: number,
     switch_time: number,
   }
   battery_store_mode?: BatteryStoreModeEnum; // 电池保养(存储)模式
   alarm_state?: AlarmModeEnum; // 机场声光报警状态
   putter_state: number,
-  sub_device: {
+  sub_device?: {
     device_sn?: string,
     device_model_key?: string,
     device_online_status: number,
     device_paired: number,
   },
+  // live_capacity?: LiveCapacity; // 直播能力
+  // live_status?: Array<LiveStatus>; // 直播状态
 }
-
+export enum DrcStateEnum {
+  DISCONNECT = 0,
+  CONNECTING = 1,
+  CONNECTED = 2
+}
 export interface DockLinkOsd {
+  drc_state: DrcStateEnum,
   flighttask_prepare_capacity: number,
   flighttask_step_code: number,
-  media_file_detail: {
+  media_file_detail?: {
     remain_upload: number
   },
   sdr: {
@@ -334,7 +381,7 @@ export interface DockLinkOsd {
     down_quality: string,
     frequency_band: number,
   },
-  wireless_link?:{
+  wireless_link?:{ // 图传链路<会包括4G和sdr信息
     dongle_number: number, // dongle 数量
     ['4g_link_state']: FourGLinkStateEnum, // 4g_link_state
     sdr_link_state: SdrLinkStateEnum, // sdr链路连接状态
@@ -359,13 +406,13 @@ export interface DockWorkOsd {
   job_number: number,
   acc_time: number,
   activation_time: number,
-  maintain_status: {
+  maintain_status?: {
     maintain_status_array: MaintainStatus[]
   }
   electric_supply_voltage: number,
   working_voltage: string,
   working_current: string,
-  backup_battery: {
+  backup_battery?: {
     voltage: number,
     temperature: number,
     switch: number,
@@ -379,7 +426,7 @@ export interface DockWorkOsd {
 export interface DockOsd {
   basic_osd: DockBasicOsd,
   link_osd: DockLinkOsd,
-  work_osd: DockWorkOsd  
+  work_osd: DockWorkOsd
 }
 
 export enum EModeCode {
@@ -460,7 +507,7 @@ export interface DeviceHms {
 }
 
 // TODO: 设备拓扑管理优化
-// 设备信息
+// 设备osd信息
 export interface DeviceInfoType {
   gateway: GatewayOsd, // 遥控器
   dock: DockOsd, // 机场

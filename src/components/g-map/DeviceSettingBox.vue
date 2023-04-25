@@ -1,6 +1,6 @@
 <template>
   <div class="device-setting-wrapper">
-    <div class="device-setting-header">设备属性设置</div>
+    <div class="device-setting-header">Device Property Set</div>
     <div class="device-setting-box">
       <!-- 飞行器夜航灯 -->
       <div class="control-setting-item">
@@ -154,7 +154,7 @@ import { useMyStore } from '/@/store'
 import { cloneDeep } from 'lodash'
 import { initDeviceSetting, initDeviceSettingFormModel, DeviceSettingKeyEnum } from '/@/types/device-setting'
 import { updateDeviceSettingInfoByOsd, updateDeviceSettingFormModelByOsd } from '/@/utils/device-setting'
-import { useDeviceSetting } from './useDeviceSetting'
+import { useDeviceSetting } from './use-device-setting'
 import DeviceSettingPopover from './DeviceSettingPopover.vue'
 
 const props = defineProps<{

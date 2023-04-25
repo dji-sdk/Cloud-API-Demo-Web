@@ -58,7 +58,7 @@ onMounted(() => {
   getDocks()
   const key = setInterval(() => {
     const data = document.getElementById('data')?.lastElementChild as HTMLDivElement
-    if (body.total === 0 || Math.ceil(body.total / body.page_size) <= body.page || scorllHeight.value <= data?.clientHeight + data?.offsetTop) {
+    if (body.total === 0 || Math.ceil(body.total / body.page_size) <= body.page || scorllHeight.value + 50 <= data?.clientHeight + data?.offsetTop) {
       clearInterval(key)
       return
     }

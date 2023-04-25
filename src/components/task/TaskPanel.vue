@@ -5,7 +5,7 @@
       :pagination="paginationProp" :scroll="{ x: '100%', y: 600 }" @change="refreshData">
       <!-- 执行时间 -->
       <template #duration="{ record }">
-        <div class="flex-row">
+        <div class="flex-row" style="white-space: pre-wrap">
           <div>
             <div>{{ formatTaskTime(record.begin_time) }}</div>
             <div>{{ formatTaskTime(record.end_time) }}</div>
@@ -62,7 +62,7 @@
       </template>
       <!-- 操作 -->
       <template #action="{ record }">
-        <span class="action-area">
+        <div class="action-area">
           <a-popconfirm
             v-if="record.status === TaskStatus.Wait"
             title="Are you sure you want to delete flight task?"
@@ -72,7 +72,25 @@
           >
             <a-button type="primary" size="small">Delete</a-button>
           </a-popconfirm>
-        </span>
+          <a-popconfirm
+            v-if="record.status === TaskStatus.Carrying"
+            title="Are you sure you want to suspend?"
+            ok-text="Yes"
+            cancel-text="No"
+            @confirm="onSuspendTask(record.job_id)"
+          >
+            <a-button type="primary" size="small">Suspend</a-button>
+          </a-popconfirm>
+          <a-popconfirm
+            v-if="record.status === TaskStatus.Paused"
+            title="Are you sure you want to resume?"
+            ok-text="Yes"
+            cancel-text="No"
+            @confirm="onResumeTask(record.job_id)"
+          >
+            <a-button type="primary" size="small">Resume</a-button>
+          </a-popconfirm>
+        </div>
       </template>
     </a-table>
   </div>
@@ -84,7 +102,7 @@ import { message } from 'ant-design-vue'
 import { TableState } from 'ant-design-vue/lib/table/interface'
 import { onMounted } from 'vue'
 import { IPage } from '/@/api/http/type'
-import { deleteTask, getWaylineJobs, Task, uploadMediaFileNow } from '/@/api/wayline'
+import { deleteTask, updateTaskStatus, UpdateTaskStatus, getWaylineJobs, Task, uploadMediaFileNow } from '/@/api/wayline'
 import { useMyStore } from '/@/store'
 import { ELocalStorageKey } from '/@/types/enums'
 import { useFormatTask } from './use-format-task'
@@ -272,6 +290,30 @@ async function onDeleteTask (jobId: string) {
   }
 }
 
+// 挂起任务
+async function onSuspendTask (jobId: string) {
+  const { code } = await updateTaskStatus(workspaceId, {
+    job_id: jobId,
+    status: UpdateTaskStatus.Suspend
+  })
+  if (code === 0) {
+    message.success('Suspended successfully')
+    getPlans()
+  }
+}
+
+// 解除挂起任务
+async function onResumeTask (jobId: string) {
+  const { code } = await updateTaskStatus(workspaceId, {
+    job_id: jobId,
+    status: UpdateTaskStatus.Resume
+  })
+  if (code === 0) {
+    message.success('Resumed successfully')
+    getPlans()
+  }
+}
+
 // 立即上传媒体
 async function onUploadMediaFileNow (jobId: string) {
   const { code } = await uploadMediaFileNow(workspaceId, jobId)
@@ -291,8 +333,13 @@ async function onUploadMediaFileNow (jobId: string) {
     margin-top: 10px;
   }
   .action-area {
-    color: $primary;
-    cursor: pointer;
+
+    &::v-deep {
+      .ant-btn {
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+    }
   }
 
   .circle-icon {

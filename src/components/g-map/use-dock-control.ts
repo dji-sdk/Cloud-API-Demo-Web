@@ -4,10 +4,10 @@ import { postSendCmd } from '/@/api/device-cmd'
 import { DeviceCmd, DeviceCmdItemAction } from '/@/types/device-cmd'
 
 export function useDockControl () {
-  const controlPanelVisible = ref(false)
+  const dockControlPanelVisible = ref(false)
 
-  function setControlPanelVisible (visible: boolean) {
-    controlPanelVisible.value = visible
+  function setDockControlPanelVisible (visible: boolean) {
+    dockControlPanelVisible.value = visible
   }
 
   // 远程调试开关
@@ -16,9 +16,6 @@ export function useDockControl () {
       sn: sn,
       cmd: on ? DeviceCmd.DebugModeOpen : DeviceCmd.DebugModeClose
     }, false)
-    if (result) {
-      setControlPanelVisible(on)
-    }
     return result
   }
 
@@ -47,10 +44,17 @@ export function useDockControl () {
     }
   }
 
+  // 控制面板关闭
+  async function onCloseControlPanel (sn: string) {
+    await dockDebugOnOff(sn, false)
+    setDockControlPanelVisible(false)
+  }
+
   return {
-    controlPanelVisible,
-    setControlPanelVisible,
+    dockControlPanelVisible,
+    setDockControlPanelVisible,
     sendDockControlCmd,
     dockDebugOnOff,
+    onCloseControlPanel,
   }
 }

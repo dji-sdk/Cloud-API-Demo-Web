@@ -39,6 +39,16 @@ export interface DeviceCmdItem{
   loading: boolean // 按钮loading
   disabled?: boolean // 按钮disabled
 }
+export const noDebugCmdList: DeviceCmdItem[] = [
+  {
+    label: 'Return Home',
+    status: '--',
+    operateText: 'Return Home',
+    cmdKey: DeviceCmd.ReturnHome,
+    func: 'returnHome',
+    loading: false,
+  },
+]
 
 // 机场指令
 export const cmdList: DeviceCmdItem[] = [
@@ -88,14 +98,6 @@ export const cmdList: DeviceCmdItem[] = [
     cmdKey: DeviceCmd.ChargeOpen,
     oppositeCmdKey: DeviceCmd.ChargeClose,
     func: 'chargeStatus',
-    loading: false,
-  },
-  {
-    label: '一键返航',
-    status: '--',
-    operateText: '返航',
-    cmdKey: DeviceCmd.ReturnHome,
-    func: 'returnHome',
     loading: false,
   },
   {
@@ -281,6 +283,9 @@ export interface DeviceCmdExecuteInfo {
       percent: number,
       step_key: string,
       step_result: number
+    },
+    ext?: {
+      rate?: number
     }
   }
   result: number,

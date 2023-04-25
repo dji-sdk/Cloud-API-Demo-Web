@@ -100,6 +100,15 @@ const messageHandler = async (payload: any) => {
       })
       break
     }
+    case EBizCode.ControlSourceChange:
+    case EBizCode.FlyToPointProgress:
+    case EBizCode.TakeoffToPointProgress:
+    case EBizCode.JoystickInvalidNotify:
+    case EBizCode.DrcStatusNotify:
+    {
+      EventBus.emit('droneControlWs', payload)
+      break
+    }
     default:
       break
   }

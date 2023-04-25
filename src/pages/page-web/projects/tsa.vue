@@ -20,15 +20,15 @@
                 <div style="float: left; padding: 0px 5px 8px 8px; width: 88%">
                   <div style="width: 80%; height: 30px; line-height: 30px; font-size: 16px;">
                     <a-tooltip :title="`${dock.gateway.callsign} - ${dock.callsign ?? 'No Drone'}`">
-                      <span class="text-hidden" style="max-width: 200px;">{{ dock.gateway.callsign }} - {{ dock.callsign ?? 'No Drone' }}</span>
+                      <div class="text-hidden" style="max-width: 200px;">{{ dock.gateway.callsign }} - {{ dock.callsign ?? 'No Drone' }}</div>
                     </a-tooltip>
                   </div>
                   <div class="mt5 flex-align-center flex-row flex-justify-between" style="background: #595959;">
                     <div class="flex-align-center flex-row">
                       <span class="ml5 mr5"><RobotOutlined /></span>
-                      <span class="font-bold text-hidden" style="max-width: 80px;" :style="dockInfo[dock.gateway.sn] && dockInfo[dock.gateway.sn].basic_osd?.mode_code !== EDockModeCode.Disconnected ? 'color: #00ee8b' :  'color: red;'">
+                      <div class="font-bold text-hidden" style="max-width: 80px;" :style="dockInfo[dock.gateway.sn] && dockInfo[dock.gateway.sn].basic_osd?.mode_code !== EDockModeCode.Disconnected ? 'color: #00ee8b' :  'color: red;'">
                         {{ dockInfo[dock.gateway.sn] ? EDockModeCode[dockInfo[dock.gateway.sn].basic_osd?.mode_code] : EDockModeCode[EDockModeCode.Disconnected] }}
-                      </span>
+                      </div>
                     </div>
                     <div class="mr5 flex-align-center flex-row" style="width: 85px; margin-right: 0; height: 18px;">
                       <div v-if="hmsInfo[dock.gateway.sn]" class="flex-align-center flex-row">
@@ -75,11 +75,11 @@
                     </div>
                   </div>
                   <div class="mt5 flex-align-center flex-row flex-justify-between" style="background: #595959;">
-                    <div>
+                    <div class="flex-row">
                       <span class="ml5 mr5"><RocketOutlined /></span>
-                      <span class="font-bold" :style="deviceInfo[dock.sn] && deviceInfo[dock.sn].mode_code !== EModeCode.Disconnected ? 'color: #00ee8b' :  'color: red;'">
+                      <div class="font-bold text-hidden" style="max-width: 80px" :style="deviceInfo[dock.sn] && deviceInfo[dock.sn].mode_code !== EModeCode.Disconnected ? 'color: #00ee8b' :  'color: red;'">
                         {{ deviceInfo[dock.sn] ? EModeCode[deviceInfo[dock.sn].mode_code] : EModeCode[EModeCode.Disconnected] }}
-                      </span>
+                      </div>
                     </div>
                     <div class="mr5 flex-align-center flex-row" style="width: 85px; margin-right: 0; height: 18px;">
                       <div v-if="hmsInfo[dock.sn]" class="flex-align-center flex-row">
@@ -173,11 +173,11 @@
                 </div>
               </div>
               <div class="flex-row flex-justify-center flex-align-center" style="height: 40px;">
-                <div style="height: 20px; background: #595959; width: 94%;" >
+                <div class="flex-row" style="height: 20px; background: #595959; width: 94%;" >
                   <span class="mr5"><a-image style="margin-left: 2px; margin-top: -2px; height: 20px; width: 20px;" :src="rc" /></span>
                   <a-tooltip>
                     <template #title>{{ device.gateway.model }} - {{ device.gateway.callsign }} </template>
-                    <span class="text-hidden" style="max-width: 200px;">{{ device.gateway.model }} - {{ device.gateway.callsign }}</span>
+                    <div class="text-hidden" style="max-width: 200px;">{{ device.gateway.model }} - {{ device.gateway.callsign }}</div>
                   </a-tooltip>
                 </div>
               </div>
@@ -194,10 +194,9 @@ import { computed, onMounted, reactive, ref, watch, WritableComputedRef } from '
 import { EDeviceTypeName, ELocalStorageKey } from '/@/types'
 import noData from '/@/assets/icons/no-data.png'
 import rc from '/@/assets/icons/rc.png'
-import { DeviceStatus, EModeCode, OSDVisible, EDockModeCode, DeviceOsd } from '/@/types/device'
+import { OnlineDevice, EModeCode, OSDVisible, EDockModeCode, DeviceOsd } from '/@/types/device'
 import { useMyStore } from '/@/store'
 import { getDeviceTopo, getUnreadDeviceHms, updateDeviceHms } from '/@/api/manage'
-import { message } from 'ant-design-vue'
 import { RocketOutlined, EyeInvisibleOutlined, EyeOutlined, RobotOutlined, DoubleRightOutlined } from '@ant-design/icons-vue'
 import { EHmsLevel } from '/@/types/enums'
 
@@ -207,22 +206,6 @@ const workspaceId = ref(localStorage.getItem(ELocalStorageKey.WorkspaceId)!)
 const osdVisible = ref({} as OSDVisible)
 const hmsVisible = new Map<string, boolean>()
 const scorllHeight = ref()
-
-interface OnlineDevice {
-  model: string,
-  callsign: string,
-  sn: string,
-  mode: number,
-  gateway: {
-    model: string,
-    callsign: string,
-    sn: string,
-    domain: string,
-  },
-  payload: {
-    model: string
-  }[]
-}
 
 const onlineDevices = reactive({
   data: [] as OnlineDevice[]
@@ -286,7 +269,12 @@ function getOnlineTopo () {
       }
       child?.payloads_list.forEach((payload: any) => {
         device.payload.push({
-          model: payload.payload_name
+          index: payload.index,
+          model: payload.model,
+          payload_name: payload.payload_name,
+          payload_sn: payload.payload_sn,
+          control_source: payload.control_source,
+          payload_index: payload.payload_index
         })
       })
       if (EDeviceTypeName.Dock === gateway.domain) {
@@ -316,6 +304,7 @@ function switchVisible (e: any, device: OnlineDevice, isDock: boolean, isClick: 
     osdVisible.value.gateway_sn = device.gateway.sn
     osdVisible.value.is_dock = isDock
     osdVisible.value.gateway_callsign = device.gateway.callsign
+    osdVisible.value.payloads = device.payload
   }
   store.commit('SET_OSD_VISIBLE_INFO', osdVisible)
 }

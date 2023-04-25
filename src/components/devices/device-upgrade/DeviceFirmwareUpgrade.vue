@@ -13,7 +13,7 @@
   </span>
   <!-- 进度 -->
   <span v-if="device.firmware_status === DeviceFirmwareStatusEnum.DuringUpgrade">
-  {{ `${device.firmware_progress}%`}}
+  {{ `${device.firmware_progress}`}}
   </span>
 </div>
 </template>

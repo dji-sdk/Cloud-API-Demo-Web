@@ -42,7 +42,8 @@ export interface CreatePlan {
   dock_sn: string,
   task_type: TaskType, // 任务类型
   wayline_type: WaylineType, // 航线类型
-  execute_time?: number // 执行时间（毫秒）
+  task_days?: number[] // 执行任务的日期（秒）
+  task_periods?: number[][] // 执行任务的时间点（秒）
   rth_altitude: number // 相对机场返航高度 20 - 500
   out_of_control_action: OutOfControlAction // 失控动作
 }
@@ -90,11 +91,29 @@ export interface DeleteTaskParams {
   job_id: string
 }
 
-// 取消机场任务
+//  删除机场任务
 export async function deleteTask (workspaceId: string, params: DeleteTaskParams): Promise<IWorkspaceResponse<{}>> {
   const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/jobs`
   const result = await request.delete(url, {
     params: params
+  })
+  return result.data
+}
+
+export enum UpdateTaskStatus {
+  Suspend = 0, // 暂停
+  Resume = 1, // 恢复
+}
+export interface UpdateTaskStatusBody {
+  job_id: string
+  status: UpdateTaskStatus
+}
+
+// 更新机场任务状态
+export async function updateTaskStatus (workspaceId: string, body: UpdateTaskStatusBody): Promise<IWorkspaceResponse<{}>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/jobs/${body.job_id}`
+  const result = await request.put(url, {
+    status: body.status
   })
   return result.data
 }

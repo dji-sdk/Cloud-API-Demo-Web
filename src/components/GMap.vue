@@ -1,8 +1,10 @@
 <template>
   <div class="g-map-wrapper">
+    <!-- 地图区域 -->
     <div id="g-container" :style="{ width: '100%', height: '100%' }" />
+    <!-- 绘制面板 -->
     <div
-      class="g-action-panle"
+      class="g-action-panel"
       :style="{ right: drawVisible ? '316px' : '16px' }"
     >
       <div :class="state.currentType === 'pin' ? 'g-action-item selection' : 'g-action-item'" @click="draw('pin', true)">
@@ -18,6 +20,7 @@
         <a style="color: red;"><CloseOutlined /></a>
       </div>
     </div>
+    <!-- 飞机OSD -->
     <div v-if="osdVisible.visible && !osdVisible.is_dock" class="osd-panel fz12">
       <div class="pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 18%;">
         <span>{{ osdVisible.callsign }}</span>
@@ -270,12 +273,13 @@
             </a-row>
             <a-row class="p5">
               <a-col span="24">
-                <a-button type="primary" :disabled="controlPanelVisible" size="small" @click="setControlPanelVisible(true)">
-                  设备操作
+                <a-button type="primary" :disabled="dockControlPanelVisible" size="small" @click="setDockControlPanelVisible(true)">
+                  Actions
                 </a-button>
               </a-col>
             </a-row>
-            <DockControlPanel v-if="controlPanelVisible" :sn="osdVisible.gateway_sn"  :deviceInfo="deviceInfo" @close-control-panel="dockDebugOnOff">
+            <!-- 机场控制面板 -->
+            <DockControlPanel v-if="dockControlPanelVisible" :sn="osdVisible.gateway_sn"  :deviceInfo="deviceInfo" @close-control-panel="onCloseControlPanel">
             </DockControlPanel>
         </div>
       </div>
@@ -406,7 +410,8 @@
           {{ 10 > (deviceInfo.device.battery.remain_flight_time % 60) ? '0' : ''}}{{deviceInfo.device.battery.remain_flight_time % 60 }}
         </div>
       </div>
-
+      <!-- 飞行指令 -->
+      <DroneControlPanel :sn="osdVisible.gateway_sn" :deviceInfo="deviceInfo" :payloads="osdVisible.payloads"></DroneControlPanel>
     </div>
   </div>
 </template>
@@ -444,7 +449,9 @@ import {
 } from '@ant-design/icons-vue'
 import { EDeviceTypeName } from '../types'
 import DockControlPanel from './g-map/DockControlPanel.vue'
-import { useDockControl } from './g-map/useDockControl'
+import { useDockControl } from './g-map/use-dock-control'
+import DroneControlPanel from './g-map/DroneControlPanel.vue'
+import { useConnectMqtt } from './g-map/use-connect-mqtt'
 
 export default defineComponent({
   components: {
@@ -466,6 +473,7 @@ export default defineComponent({
     ArrowUpOutlined,
     ArrowDownOutlined,
     DockControlPanel,
+    DroneControlPanel,
     CarryOutOutlined,
     RocketOutlined
   },
@@ -567,7 +575,7 @@ export default defineComponent({
         deviceTsaUpdateHook.initMarker(EDeviceTypeName.Dock, [EDeviceTypeName.Dock], data.currentSn, data.dockInfo[data.currentSn].basic_osd?.longitude, data.dockInfo[data.currentSn].basic_osd?.latitude)
         if (osdVisible.value.visible && osdVisible.value.is_dock && osdVisible.value.gateway_sn !== '') {
           deviceInfo.dock = data.dockInfo[osdVisible.value.gateway_sn]
-          deviceInfo.device = data.deviceInfo[deviceInfo.dock.basic_osd?.sub_device?.device_sn ?? osdVisible.value.sn]
+          deviceInfo.device = data.deviceInfo[deviceInfo.dock.basic_osd.sub_device?.device_sn ?? osdVisible.value.sn]
         }
       }
     }, {
@@ -634,21 +642,21 @@ export default defineComponent({
       mouseMode.value = bool
     }
 
-    // dock 控制指令
+    // dock 控制面板
     const {
-      controlPanelVisible,
-      setControlPanelVisible,
-      sendDockControlCmd,
-      dockDebugOnOff,
+      dockControlPanelVisible,
+      setDockControlPanelVisible,
+      onCloseControlPanel,
     } = useDockControl()
+
+    // 连接或断开drc
+    useConnectMqtt()
 
     onMounted(() => {
       const app = getApp()
       useGMapManageHook.globalPropertiesConfig(app)
-      setInterval(() => {
-        console.info(deviceInfo.dock)
-      }, 1000)
     })
+
     function getDrawCallback ({ obj }) {
       switch (state.currentType) {
         case MapDoodleEnum.PIN:
@@ -816,9 +824,9 @@ export default defineComponent({
       EModeCode,
       str,
       EDockModeCode,
-      controlPanelVisible,
-      dockDebugOnOff,
-      setControlPanelVisible,
+      dockControlPanelVisible,
+      setDockControlPanelVisible,
+      onCloseControlPanel,
       NetworkStateTypeEnum,
       NetworkStateQualityEnum,
       RainfallEnum,
@@ -834,7 +842,7 @@ export default defineComponent({
   height: 100%;
   width: 100%;
 
-  .g-action-panle {
+  .g-action-panel {
     position: absolute;
     top: 16px;
     right: 16px;
@@ -870,12 +878,12 @@ export default defineComponent({
   left: 10px;
   top: 10px;
   width: 480px;
-  background: black;
-  color: white;
+  background: #000;
+  color: #fff;
   border-radius: 2px;
-  opacity: 0.7;
+  opacity: 0.8;
 }
-.osd > div {
+.osd > div:not(.dock-control-panel) {
   margin-top: 5px;
   padding-left: 5px;
 }

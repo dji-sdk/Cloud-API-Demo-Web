@@ -20,7 +20,9 @@
             style="margin: -5px 0"
           />
           <template v-else>
-            {{ text }}
+            <a-tooltip :title="text">
+              {{ text }}
+            </a-tooltip>
           </template>
         </div>
       </template>
@@ -127,7 +129,7 @@ import { useDeviceUpgradeEvent } from '/@/components/devices/device-upgrade/use-
 import { DeviceCmdExecuteInfo, DeviceCmdExecuteStatus } from '/@/types/device-cmd'
 import DeviceLogUploadRecordDrawer from '/@/components/devices/device-log/DeviceLogUploadRecordDrawer.vue'
 import DeviceHmsDrawer from '/@/components/devices/device-hms/DeviceHmsDrawer.vue'
-import { message } from 'ant-design-vue'
+import { message, notification } from 'ant-design-vue'
 
 interface DeviceData {
   device: Device[]
@@ -268,13 +270,18 @@ function updateDevicesByWs (devices: Device[], payload: DeviceCmdExecuteInfo) {
   for (let i = 0; i < devices.length; i++) {
     if (devices[i].device_sn === payload.sn) {
       if (!payload.output) return
-      const { status, progress } = payload.output
+      const { status, progress, ext } = payload.output
       if (status === DeviceCmdExecuteStatus.Sent || status === DeviceCmdExecuteStatus.InProgress) { // 升级中
+        const rate = ext?.rate ? (ext.rate / 1024).toFixed(2) + 'kb/s' : ''
         devices[i].firmware_status = DeviceFirmwareStatusEnum.DuringUpgrade
-        devices[i].firmware_progress = progress?.percent || 0
+        devices[i].firmware_progress = (progress?.percent || 0) + '% ' + rate
       } else { // 终态：成功，失败，超时
         if (status === DeviceCmdExecuteStatus.Failed || status === DeviceCmdExecuteStatus.Timeout) {
-          message.error(`设备(${payload.sn}) 升级失败`)
+          notification.error({
+            message: `(${payload.sn}) Upgrade failed`,
+            description: `Error Code: ${payload.result}`,
+            duration: null
+          })
         }
         // 拉取列表
         getDevices(current.value[0], true)
