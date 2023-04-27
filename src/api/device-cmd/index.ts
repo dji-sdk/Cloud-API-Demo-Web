@@ -18,9 +18,6 @@ export interface PostSendCmdBody {
  */
 // /control/api/v1/devices/{dock_sn}/jobs/{service_identifier}
 export async function postSendCmd (params: SendCmdParams, body?: PostSendCmdBody): Promise<IWorkspaceResponse<{}>> {
-  const postBody = body || {}
-  const resp = await request.post(`${CMD_API_PREFIX}/devices/${params.dock_sn}/jobs/${params.device_cmd}`, {
-    ...postBody
-  })
+  const resp = await request.post(`${CMD_API_PREFIX}/devices/${params.dock_sn}/jobs/${params.device_cmd}`, body)
   return resp.data
 }
