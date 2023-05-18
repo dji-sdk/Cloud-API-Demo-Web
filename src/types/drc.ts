@@ -13,13 +13,7 @@ export interface DroneControlProtocol {
   y?: number; // 前进后退方向速度，正值为W指令  负值为S指令 单位：m/s
   h?: number;// 上下高度值，正值为上升指令  负值为下降指令 单位：m
   w?: number; // 机头角速度，正值为顺时针，负值为逆时针 单位：degree/s   （web端暂无此设计）
-  step_x?: number; // 水平方向步长
-  step_y?: number; // 前后方向步长
-  step_h?: number; // 高度方向步长
-  step_w?: number; // 机头转向步长
   seq?: number; // 从0计时
-  freq?: number; // 指令发送频率
-  delay_time?: number; // 指令从发送到设备端接收可容忍的时间 发送频率+链路传输时长
 }
 
 // 低延时osd
@@ -68,4 +62,11 @@ export interface LiveViewDelayItem {
 export interface DRCDelayTimeInfo {
   sdr_cmd_delay: number; // sdr链路命令延时，单位：ms
   liveview_delay_list: LiveViewDelayItem[];
+}
+
+export interface DrcResponseInfo {
+  result: number;
+  output: {
+    seq: number
+  }
 }

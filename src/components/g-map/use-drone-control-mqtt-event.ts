@@ -5,6 +5,7 @@ import {
   DRCHsiInfo,
   DRCOsdInfo,
   DRCDelayTimeInfo,
+  DrcResponseInfo,
 } from '/@/types/drc'
 
 export function useDroneControlMqttEvent (sn: string) {
@@ -12,6 +13,7 @@ export function useDroneControlMqttEvent (sn: string) {
   const hsiInfo = ref('')
   const osdInfo = ref('')
   const delayInfo = ref('')
+  const errorInfo = ref('')
 
   function handleHsiInfo (data: DRCHsiInfo) {
     hsiInfo.value = `method: ${DRC_METHOD.HSI_INFO_PUSH}\r\n ${JSON.stringify(data)}\r\n `
@@ -23,6 +25,13 @@ export function useDroneControlMqttEvent (sn: string) {
 
   function handleDelayTimeInfo (data: DRCDelayTimeInfo) {
     delayInfo.value = `method: ${DRC_METHOD.DELAY_TIME_INFO_PUSH}\r\n ${JSON.stringify(data)}\r\n `
+  }
+
+  function handleDroneControlErrorInfo (data: DrcResponseInfo) {
+    if (!data.result) {
+      return
+    }
+    errorInfo.value = `Drc error code: ${data.result}, seq: ${data.output?.seq}`
   }
 
   function handleDroneControlMqttEvent (payload: any) {
@@ -43,6 +52,11 @@ export function useDroneControlMqttEvent (sn: string) {
         handleDelayTimeInfo(payload.data)
         break
       }
+      case DRC_METHOD.DRONE_EMERGENCY_STOP:
+      case DRC_METHOD.DRONE_CONTROL: {
+        handleDroneControlErrorInfo(payload.data)
+        break
+      }
     }
     drcInfo.value = hsiInfo.value + osdInfo.value + delayInfo.value
   }
@@ -56,6 +70,7 @@ export function useDroneControlMqttEvent (sn: string) {
   })
 
   return {
-    drcInfo: drcInfo
+    drcInfo: drcInfo,
+    errorInfo: errorInfo
   }
 }

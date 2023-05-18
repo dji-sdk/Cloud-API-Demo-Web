@@ -130,7 +130,6 @@ const mutations: MutationTree<RootStateType> = {
     }
     if (info.host.job_number !== undefined) {
       dock.work_osd = info.host
-      return
     }
   },
   SET_DRAW_VISIBLE_INFO (state, bool) {

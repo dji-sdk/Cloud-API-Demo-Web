@@ -388,7 +388,7 @@ const onCameraSelect = (val: SelectOption) => {
   videoSelected.value = firstVideo.value
   lensList.value = firstVideo.more
   lensSelected.value = firstVideo.label
-  isDockLive.value = lensList.value.length > 0
+  isDockLive.value = lensList.value?.length > 0
 }
 const onVideoSelect = (val: SelectOption) => {
   videoSelected.value = val.value

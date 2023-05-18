@@ -118,7 +118,7 @@
               <span>Take off</span>
             </Button>
           </DroneControlPopover>
-          <Button :loading="cmdItem.loading" size="small" ghost @click="sendControlCmd(cmdItem, index)">
+          <Button :loading="cmdItem.loading" size="small" ghost @click="sendControlCmd(cmdItem, 0)">
           {{ cmdItem.operateText }}
           </Button>
         </div>
@@ -269,7 +269,7 @@ const clientId = computed(() => {
   return store.state.clientId
 })
 
-const initCmdList = baseCmdList.find(item => item.cmdKey === DeviceCmd.ReturnHome)
+const initCmdList = baseCmdList.find(item => item.cmdKey === DeviceCmd.ReturnHome) as DeviceCmdItem
 const cmdItem = ref(initCmdList)
 
 const {
@@ -284,7 +284,10 @@ async function sendControlCmd (cmdItem: DeviceCmdItem, index: number) {
     action: cmdItem.action
   }, false)
   if (result && flightController.value) {
+    message.success('Return home successful')
     exitFlightCOntrol()
+  } else {
+    message.error('Failed to return home')
   }
   cmdItem.loading = false
 }
@@ -346,7 +349,7 @@ const takeoffToPointPopoverData = reactive({
   maxSpeed: MAX_SPEED,
   rthAltitude: null as null | number,
   rcLostAction: LostControlActionInCommandFLight.RETURN_HOME,
-  exitWaylineWhenRcLost: WaylineLostControlActionInCommandFlight.RETURN_HOME
+  exitWaylineWhenRcLost: WaylineLostControlActionInCommandFlight.EXEC_LOST_ACTION
 })
 
 function onShowTakeoffToPointPopover () {
@@ -357,7 +360,7 @@ function onShowTakeoffToPointPopover () {
   takeoffToPointPopoverData.securityTakeoffHeight = null
   takeoffToPointPopoverData.rthAltitude = null
   takeoffToPointPopoverData.rcLostAction = LostControlActionInCommandFLight.RETURN_HOME
-  takeoffToPointPopoverData.exitWaylineWhenRcLost = WaylineLostControlActionInCommandFlight.RETURN_HOME
+  takeoffToPointPopoverData.exitWaylineWhenRcLost = WaylineLostControlActionInCommandFlight.EXEC_LOST_ACTION
 }
 
 async function onTakeoffToPointConfirm (confirm: boolean) {
@@ -396,10 +399,10 @@ const deviceTopicInfo: DeviceTopicInfo = reactive({
 useMqtt(deviceTopicInfo)
 
 // 飞行控制
-const drcState = computed(() => {
-  return store.state.deviceState?.dockInfo[props.sn]?.link_osd?.drc_state === DrcStateEnum.CONNECTED
-})
-const flightController = ref(drcState.value)
+// const drcState = computed(() => {
+//   return store.state.deviceState?.dockInfo[props.sn]?.link_osd?.drc_state === DrcStateEnum.CONNECTED
+// })
+const flightController = ref(false)
 
 async function onClickFightControl () {
   if (flightController.value) {
@@ -452,7 +455,7 @@ async function exitFlightCOntrol () {
 }
 
 // drc mqtt message
-const { drcInfo } = useDroneControlMqttEvent(props.sn)
+const { drcInfo, errorInfo } = useDroneControlMqttEvent(props.sn)
 
 const {
   handleKeyup,
@@ -688,6 +691,17 @@ async function onCameraAimConfirm (confirm: boolean) {
   }
   cameraAimPopoverData.visible = false
 }
+
+watch(() => errorInfo, (errorInfo) => {
+  if (errorInfo.value) {
+    message.error(errorInfo.value)
+    console.error(errorInfo.value)
+    errorInfo.value = ''
+  }
+}, {
+  immediate: true,
+  deep: true
+})
 </script>
 
 <style lang='scss' scoped>

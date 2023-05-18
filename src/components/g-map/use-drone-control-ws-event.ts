@@ -19,12 +19,11 @@ export function useDroneControlWsEvent (sn: string, payloadSn: string, funcs?: U
     }
     if (data.type === ControlSourceChangeType.Payload && data.sn === payloadSn) {
       payloadControlSource.value = data.control_source
-      message.info(`Payload control is changed to ${ payloadControlSource.value }.`)
-      return
+      message.info(`Payload control is changed to ${payloadControlSource.value}.`)
     }
   }
 
-  function handleProgress(key: string, message: string, error: number) {
+  function handleProgress (key: string, message: string, error: number) {
     if (error !== 0) {
       notification.error({
         key: key,
@@ -72,7 +71,6 @@ export function useDroneControlWsEvent (sn: string, payloadSn: string, funcs?: U
       }
       case EBizCode.DrcStatusNotify: {
         const { sn: deviceSn, result, message: msg } = payload.data as DrcStatusNotifyMessage
-        if (deviceSn !== sn) return
         // handleProgress(EBizCode.DrcStatusNotify, `device(sn: ${deviceSn}) ${msg}`, result)
 
         break

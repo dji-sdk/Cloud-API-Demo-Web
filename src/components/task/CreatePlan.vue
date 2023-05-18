@@ -4,8 +4,8 @@
       Create Plan
     </div>
     <div class="content">
-      <a-form ref="valueRef" layout="horizontal" :hideRequiredMark="true" :rules="rules" :model="planBody">
-        <a-form-item label="Plan Name" name="name" :labelCol="{span: 24}">
+      <a-form ref="valueRef" layout="horizontal" :hideRequiredMark="true" :rules="rules" :model="planBody" labelAlign="left">
+        <a-form-item label="Plan Name" name="name" :labelCol="{span: 23}">
           <a-input style="background: black;"  placeholder="Please enter plan name" v-model:value="planBody.name"/>
         </a-form-item>
         <!-- 航线 -->
@@ -62,31 +62,29 @@
           </div>
         </a-form-item>
         <!-- 任务类型 -->
-        <a-form-item label="Plan Timer" class="plan-timer-form-item">
+        <a-form-item label="Plan Timer" class="plan-timer-form-item" :labelCol="{span: 23}">
           <div style="white-space: nowrap;">
             <a-radio-group v-model:value="planBody.task_type" button-style="solid">
-              <a-radio-button :value="TaskType.Immediate">Immediate</a-radio-button>
-              <a-radio-button :value="TaskType.Single">Timed&One-Time</a-radio-button>
+              <a-radio-button v-for="type in TaskTypeOptions" :value="type.value" :key="type.value">{{ type.label }}</a-radio-button>
             </a-radio-group>
           </div>
         </a-form-item>
         <!-- 执行时间 -->
-        <a-form-item label="Start Time" v-if="planBody.task_type === TaskType.Single" name="select_execute_time">
+        <a-form-item label="Start Time" v-if="planBody.task_type === TaskType.Timed" name="select_execute_time" :labelCol="{span: 23}">
           <a-date-picker
             v-model:value="planBody.select_execute_time"
             format="YYYY-MM-DD HH:mm:ss"
-            show-time
+              show-time
             placeholder="Select Time"
-            style="width: 280px;"
-          />
+            />
         </a-form-item>
         <!-- RTH Altitude Relative to Dock -->
-        <a-form-item label="RTH Altitude Relative to Dock (m)" :labelCol="{span: 24}" name="rth_altitude">
-          <a-input v-model:value="planBody.rth_altitude" style="background: black !important;">
-          </a-input>
+        <a-form-item label="RTH Altitude Relative to Dock (m)" :labelCol="{span: 23}" name="rth_altitude">
+          <a-input-number v-model:value="planBody.rth_altitude" :min="20" :max="1500" class="width-100" required>
+          </a-input-number>
         </a-form-item>
         <!-- Lost Action -->
-        <a-form-item label="Lost Action" :labelCol="{span: 24}" name="out_of_control_action">
+        <a-form-item label="Lost Action" :labelCol="{span: 23}" name="out_of_control_action">
           <div style="white-space: nowrap;">
             <a-radio-group v-model:value="planBody.out_of_control_action" button-style="solid">
               <a-radio-button v-for="action in OutOfControlActionOptions" :value="action.value" :key="action.value">
@@ -95,7 +93,7 @@
             </a-radio-group>
           </div>
         </a-form-item>
-        <a-form-item style="width: 280px;">
+        <a-form-item class="width-100" style="margin-bottom: 40px;">
           <div class="footer">
             <a-button class="mr10" style="background: #3c3c3c;" @click="closePlan">Cancel
             </a-button>
@@ -106,7 +104,7 @@
       </a-form>
     </div>
   </div>
-  <div v-if="drawerVisible" style="position: absolute; left: 330px; width: 280px; height: 100vh; float: right; top: 0; z-index: 1000; color: white; background: #282828;">
+  <div v-if="drawerVisible" style="position: absolute; left: 335px; width: 280px; height: 100vh; float: right; top: 0; z-index: 1000; color: white; background: #282828;">
     <div>
       <router-view :name="routeName"/>
     </div>
@@ -118,14 +116,14 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, reactive, ref, toRaw, UnwrapRef } from 'vue'
-import { CloseOutlined, RocketOutlined, CameraFilled, UserOutlined } from '@ant-design/icons-vue'
+import { CloseOutlined, RocketOutlined, CameraFilled, UserOutlined, PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue'
 import { ELocalStorageKey, ERouterName } from '/@/types'
 import { useMyStore } from '/@/store'
 import { WaylineType, WaylineFile } from '/@/types/wayline'
 import { Device, EDeviceType } from '/@/types/device'
 import { createPlan, CreatePlan } from '/@/api/wayline'
 import { getRoot } from '/@/root'
-import { TaskType, OutOfControlActionOptions, OutOfControlAction } from '/@/types/task'
+import { TaskType, OutOfControlActionOptions, OutOfControlAction, TaskTypeOptions } from '/@/types/task'
 import moment, { Moment } from 'moment'
 import { RuleObject } from 'ant-design-vue/es/form/interface'
 
@@ -192,9 +190,7 @@ function onSubmit () {
     // console.log('planBody', createPlanBody)
     createPlan(workspaceId, createPlanBody)
       .then(res => {
-        setTimeout(() => {
-          disabled.value = false
-        }, 1500)
+        disabled.value = false
       }).finally(() => {
         closePlan()
       })
@@ -231,6 +227,7 @@ function selectDevice () {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 285px;
 
   .header {
     height: 52px;
@@ -242,6 +239,10 @@ function selectDevice () {
     align-items: center;
   }
 
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
   .content {
     height: calc(100% - 54px);
     overflow-y: auto;
@@ -250,7 +251,8 @@ function selectDevice () {
       margin: 10px;
     }
 
-    form label, input {
+    form label, input, .ant-input, .ant-calendar-range-picker-separator,
+    .ant-input:hover, .ant-time-picker .anticon, .ant-calendar-picker .anticon {
       background-color: #232323;
       color: #fff;
     }
@@ -260,12 +262,12 @@ function selectDevice () {
     }
 
     .plan-timer-form-item {
-      // flex-direction: column;
 
       .ant-radio-button-wrapper{
         background-color: #232323;
         color: #fff;
-
+        width: 80%;
+        text-align: center;
         &.ant-radio-button-wrapper-checked{
           background-color: #1890ff;
         }
