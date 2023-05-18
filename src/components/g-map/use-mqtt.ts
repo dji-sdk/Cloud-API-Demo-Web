@@ -60,6 +60,8 @@ export function useMqtt (deviceTopicInfo: DeviceTopicInfo) {
         case DRC_METHOD.DELAY_TIME_INFO_PUSH:
         case DRC_METHOD.HSI_INFO_PUSH:
         case DRC_METHOD.OSD_INFO_PUSH:
+        case DRC_METHOD.DRONE_CONTROL:
+        case DRC_METHOD.DRONE_EMERGENCY_STOP:
           EventBus.emit('droneControlMqttInfo', payloadObj)
           break
         default:

@@ -95,6 +95,7 @@
         "ant-design-vue/es/switch/style/css",
         "ant-design-vue/es/table/style/css",
         "ant-design-vue/es/tag/style/css",
+        "ant-design-vue/es/time-picker/style/css",
         "ant-design-vue/es/tooltip/style/css",
         "ant-design-vue/es/tree/style/css",
         "ant-design-vue/es/upload/style/css",

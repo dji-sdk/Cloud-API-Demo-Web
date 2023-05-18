@@ -30,7 +30,7 @@ export enum KeyCode {
 export function useManualControl (deviceTopicInfo: DeviceTopicInfo, isCurrentFlightController: Ref<boolean>) {
   const activeCodeKey = ref(null) as Ref<KeyCode | null>
   const mqttHooks = useMqtt(deviceTopicInfo)
-
+  let seq = 0
   function handlePublish (params: DroneControlProtocol) {
     const body = {
       method: DRC_METHOD.DRONE_CONTROL,
@@ -38,8 +38,9 @@ export function useManualControl (deviceTopicInfo: DeviceTopicInfo, isCurrentFli
     }
     handleClearInterval()
     myInterval = setInterval(() => {
+      body.data.seq = seq++
+      seq++
       window.console.log('keyCode>>>>', activeCodeKey.value, body)
-      body.data.seq = new Date().getTime()
       mqttHooks?.publishMqtt(deviceTopicInfo.pubTopic, body, { qos: 0 })
     }, 50)
   }
@@ -52,6 +53,7 @@ export function useManualControl (deviceTopicInfo: DeviceTopicInfo, isCurrentFli
     const SPEED = 5 //  check
     const HEIGHT = 5 //  check
     const W_SPEED = 20 // 机头角速度
+    seq = 0
     switch (keyCode) {
       case 'KeyA':
         if (activeCodeKey.value === keyCode) return
@@ -105,6 +107,7 @@ export function useManualControl (deviceTopicInfo: DeviceTopicInfo, isCurrentFli
 
   function resetControlState () {
     activeCodeKey.value = null
+    seq = 0
     handleClearInterval()
   }
 

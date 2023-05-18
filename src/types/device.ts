@@ -23,6 +23,7 @@ export enum DRONE_TYPE {
   M30 = 67,
   M300 = 60,
   Mavic3EnterpriseAdvanced= 77,
+  M350 = 89,
 }
 
 // DJI负载类型枚举值
@@ -74,6 +75,7 @@ export const DEVICE_MODEL_KEY = {
   M3T: `${DOMAIN.DRONE}-${DRONE_TYPE.Mavic3EnterpriseAdvanced}-${DEVICE_SUB_TYPE.ONE}`,
 
   M300: `${DOMAIN.DRONE}-${DRONE_TYPE.M300}-${DEVICE_SUB_TYPE.ZERO}`,
+  M350: `${DOMAIN.DRONE}-${DRONE_TYPE.M350}-${DEVICE_SUB_TYPE.ZERO}`,
 
   FPV: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.FPV}-${DEVICE_SUB_TYPE.ZERO}`,
   H20: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.H20}-${DEVICE_SUB_TYPE.ZERO}`,
@@ -107,6 +109,7 @@ export const DEVICE_NAME = {
   [DEVICE_MODEL_KEY.M3T]: 'Mavic 3T',
   // [DEVICE_MODEL_KEY.M3M]: 'Mavic 3M',
   [DEVICE_MODEL_KEY.M300]: 'M300 RTK',
+  [DEVICE_MODEL_KEY.M350]: 'M350 RTK',
 
   // payload
   [DEVICE_MODEL_KEY.FPV]: 'FPV',
@@ -464,6 +467,7 @@ export enum EDeviceType {
   M30 = '0-67-0' as any,
   M30T = '0-67-1' as any,
   M300 = '0-60-0' as any,
+  M350 = DEVICE_MODEL_KEY.M350 as any,
   Z30 = '1-20-0' as any,
   XT2 = '1-26-0' as any,
   FPV = '1-39-0' as any,

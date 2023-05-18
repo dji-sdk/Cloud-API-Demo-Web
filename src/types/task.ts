@@ -3,13 +3,18 @@ import { commonColor } from '/@/utils/color'
 // 任务类型
 export enum TaskType {
   Immediate = 0, // 立即执行
-  Single = 1, // 单次定时任务
+  Timed = 1, // 单次定时任务
 }
 
 export const TaskTypeMap = {
   [TaskType.Immediate]: 'Immediate',
-  [TaskType.Single]: 'Timed & One-Time',
+  [TaskType.Timed]: 'Timed',
 }
+
+export const TaskTypeOptions = [
+  { value: TaskType.Immediate, label: TaskTypeMap[TaskType.Immediate] },
+  { value: TaskType.Timed, label: TaskTypeMap[TaskType.Timed] },
+]
 
 // 失控动作
 export enum OutOfControlAction {

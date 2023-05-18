@@ -67,7 +67,7 @@
             <span style="color: #737373">{{ device.data.gateway_sn }}</span>
           </a-col>
         </a-row>
-        <a-row style="border-bottom: 1px solid #f4f8f9; height: 45px;" align="middle" v-if="device.data.online_status">
+        <a-row style="border-bottom: 1px solid #f4f8f9; height: 45px;" align="middle" v-if="device.data.online_status && device.data.sn">
           <a-col :span="1"></a-col>
           <a-col :span="9">Aircraft Sn</a-col>
           <a-col :span="13" class="flex-align-end flex-column" >
@@ -79,7 +79,7 @@
         <span class="ml5" style="color: #939393;">Settings</span>
       </div>
       <div class="fz16" style="background-color: white; border-radius: 4px;">
-        <a-row v-if="device.data.online_status" style="border-bottom: 1px solid #f4f8f9; height: 45px;" align="middle" @click="bindingDevice">
+        <a-row v-if="device.data.online_status && device.data.sn" style="border-bottom: 1px solid #f4f8f9; height: 45px;" align="middle" @click="bindingDevice">
           <a-col :span="1"></a-col>
           <a-col :span="11">
             Device Binding
@@ -251,6 +251,10 @@ let bindNum: any
 onMounted(() => {
   apiPilot.onBackClickReg()
   apiPilot.onStopPlatform()
+  const oldDevice = localStorage.getItem(ELocalStorageKey.Device)
+  if (oldDevice) {
+    device.data = JSON.parse(oldDevice)
+  }
 
   window.connectCallback = (arg: any) => {
     connectCallback(arg)
@@ -263,10 +267,7 @@ onMounted(() => {
     message.warn('Data is not available, please restart the remote control.')
     return
   }
-  const oldDevice = localStorage.getItem(ELocalStorageKey.Device)
-  if (oldDevice) {
-    device.data = JSON.parse(oldDevice)
-  }
+
   device.data.sn = apiPilot.getAircraftSN()
   getDeviceInfo()
 
@@ -486,7 +487,7 @@ function moduleUninstall (m: any) {
 }
 
 function getDeviceInfo () {
-  if (device.data.sn === EStatusValue.DISCONNECT) {
+  if (!device.data.sn || device.data.sn === EStatusValue.DISCONNECT) {
     return
   }
   getDeviceBySn(bindParam.workspace_id, device.data.sn).then(res => {

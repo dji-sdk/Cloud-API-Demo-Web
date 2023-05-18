@@ -76,7 +76,6 @@
         class="ml10"
         v-model:value="agoraPara.token"
         placeholder="Token"
-        @change="encodeToken"
       ></a-input>
       <span class="ml10">Channel:</span>
       <a-input
@@ -169,7 +168,6 @@ const livePara = reactive({
   liveState: false
 })
 const nonSwitchable = 'normal'
-
 const onRefresh = async () => {
   dronePara.droneList = []
   dronePara.cameraList = []
@@ -204,8 +202,11 @@ const onRefresh = async () => {
 
 onMounted(() => {
   onRefresh()
-  agoraPara.token = encodeURIComponent(agoraPara.token)
   agoraClient = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' })
+  agoraClient.setClientRole('audience', { level: 2 })
+  if (agoraClient.connectionState === 'DISCONNECTED') {
+    agoraClient.join(agoraPara.appid, agoraPara.channel, agoraPara.token)
+  }
   // Subscribe when a remote user publishes a stream
   agoraClient.on('user-joined', async (user: IAgoraRTCRemoteUser) => {
     message.info('user[' + user.uid + '] join')
@@ -217,9 +218,7 @@ onMounted(() => {
       // Get `RemoteVideoTrack` in the `user` object.
       const remoteVideoTrack = user.videoTrack!
       // Dynamically create a container in the form of a DIV element for playing the remote video track.
-      const remotePlayerContainer: any = document.getElementById('player')
-      remotePlayerContainer.id = user.uid.toString()
-      remoteVideoTrack.play(remotePlayerContainer)
+      remoteVideoTrack.play(document.getElementById('player') as HTMLElement)
     }
   })
   agoraClient.on('user-unpublished', async (user: any) => {
@@ -231,15 +230,11 @@ onMounted(() => {
     message.error(e.msg)
   })
 })
-
 const handleError = (err: any) => {
   console.error(err)
 }
 const handleJoinChannel = (uid: any) => {
   agoraPara.uid = uid
-}
-const encodeToken = (e: any) => {
-  agoraPara.token = encodeURIComponent(agoraPara.token)
 }
 const onStart = async () => {
   const that = this
@@ -262,8 +257,7 @@ const onStart = async () => {
   }
   agoraClient.setClientRole('audience', { level: 2 })
   if (agoraClient.connectionState === 'DISCONNECTED') {
-    agoraClient
-      .join(agoraPara.appid, agoraPara.channel, agoraPara.token)
+    await agoraClient.join(agoraPara.appid, agoraPara.channel, agoraPara.token)
   }
   livePara.videoId =
     dronePara.droneSelected +
@@ -277,7 +271,7 @@ const onStart = async () => {
     '&sn=' +
     dronePara.droneSelected +
     '&token=' +
-    agoraPara.token +
+    encodeURIComponent(agoraPara.token) +
     '&uid=' +
     agoraPara.uid
 
@@ -298,6 +292,14 @@ const onStart = async () => {
     })
 }
 const onStop = async () => {
+  if (
+    dronePara.droneSelected == null ||
+    dronePara.cameraSelected == null ||
+    dronePara.claritySelected == null
+  ) {
+    message.warn('waring: not select live para!!!')
+    return
+  }
   livePara.videoId =
     dronePara.droneSelected +
     '/' +
@@ -308,10 +310,10 @@ const onStop = async () => {
   }).then(res => {
     if (res.code === 0) {
       message.success(res.message)
+      livePara.liveState = false
+      dronePara.lensSelected = ''
+      console.log('stop play livestream')
     }
-    livePara.liveState = false
-    dronePara.lensSelected = ''
-    console.log('stop play livestream')
   })
 }
 const onDroneSelect = (val: SelectOption) => {
@@ -350,7 +352,7 @@ const onCameraSelect = (val: SelectOption) => {
   dronePara.videoSelected = firstVideo.value
   dronePara.lensList = firstVideo.more
   dronePara.lensSelected = firstVideo.label
-  dronePara.isDockLive = dronePara.lensList.length > 0
+  dronePara.isDockLive = dronePara.lensList?.length > 0
 }
 const onVideoSelect = (val: SelectOption) => {
   dronePara.videoSelected = val.value

@@ -136,6 +136,7 @@ useConnectWebSocket(messageHandler)
     .main-content {
       flex: 1;
       color: $text-white-basic;
+      width: 285px;
     }
   }
 
