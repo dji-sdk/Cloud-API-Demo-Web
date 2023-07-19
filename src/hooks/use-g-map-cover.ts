@@ -53,6 +53,17 @@ export function useGMapCover () {
       // fillColor: color || normalColor,
       extData: data
     })
+
+    // 点击触发
+    pin.on('click', function(e) {
+      store.commit('SET_LAYER_ID', data.id)
+      const infoWindow = new AMap.InfoWindow({
+        content: data.name,
+        offset: new AMap.Pixel(0, -10) // 左上角
+      })
+      root.$map.setFitView([ pin ])
+      infoWindow.open(root.$map, [coordinates[0], coordinates[1]])
+    })
     // console.log('coordinates pin', pin)
     AddCoverToMap(pin)
   }
@@ -75,6 +86,17 @@ export function useGMapCover () {
       extData: data
       // draggable: true,
     })
+
+    // 点击触发
+    polyline.on('click', function(e) {
+      store.commit('SET_LAYER_ID', data.id)
+      const infoWindow = new AMap.InfoWindow({
+        content: data.name,
+        offset: new AMap.Pixel(0, -10) // 左上角
+      })
+      root.$map.setFitView([ polyline ])
+      infoWindow.open(root.$map, [coordinates[0][0], coordinates[0][1]])
+    })
     AddOverlayGroup(polyline)
   }
 
@@ -93,6 +115,17 @@ export function useGMapCover () {
       // draggable: true,
       strokeColor: color || normalColor,
       extData: data
+    })
+
+    // 点击触发
+    Polygon.on('click', function(e) {
+      store.commit('SET_LAYER_ID', data.id)
+      const infoWindow = new AMap.InfoWindow({
+        content: data.name,
+        offset: new AMap.Pixel(0, -10) // 左上角
+      })
+      root.$map.setFitView([ Polygon ])
+      infoWindow.open(root.$map, [coordinates[0][0], coordinates[0][1]])
     })
     AddOverlayGroup(Polygon)
   }

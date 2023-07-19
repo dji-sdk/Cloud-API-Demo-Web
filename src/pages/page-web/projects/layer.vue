@@ -155,6 +155,20 @@ watch(
     deep: true
   }
 )
+
+watch(
+  () => store.state.layerId,
+  newLayerId => {
+    selectedKey.value = 'resource__' + newLayerId
+    selectedLayer.value = getCurrentLayer(selectedKey.value)
+    setBaseInfo()
+    visible.value = true
+    store.commit('SET_DRAW_VISIBLE_INFO', visible.value)
+  },
+  {
+    deep: true // 监听属性变化
+  }
+)
 function setMapCoverByElement (elements: LayerResource[]) {
   elements.forEach(element => {
     const name = element.name

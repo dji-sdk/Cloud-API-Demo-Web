@@ -28,6 +28,7 @@ const initStateFunc = () => ({
       type: 2
     }
   ],
+  layerId: '', // 当前标注id
   layerBaseInfo: {} as {
     [key:string]:string
   },
@@ -97,6 +98,10 @@ export type RootStateType = ReturnType<typeof initStateFunc>
 const getters: GetterTree<RootStateType, RootStateType> = {
 }
 const mutations: MutationTree<RootStateType> = {
+  SET_LAYER_ID (state, info) {
+    console.log(info)
+    state.layerId = info
+  },
   SET_LAYER_INFO (state, info) {
     state.Layers = info
   },
