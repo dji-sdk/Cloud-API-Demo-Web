@@ -3,8 +3,8 @@ import request, { IPage, IWorkspaceResponse } from '/@/api/http/request'
 const HTTP_PREFIX = '/media/api/v1'
 
 // Get Media Files
-export const getMediaFiles = async function (wid: string, pagination: IPage): Promise<IWorkspaceResponse<any>> {
-  const url = `${HTTP_PREFIX}/files/${wid}/files?page=${pagination.page}&page_size=${pagination.page_size}`
+export const getMediaFiles = async function (wid: string, pagination: IPage, pathId: string): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/files/${wid}/files?page=${pagination.page}&page_size=${pagination.page_size}&path_id=${pathId}`
   const result = await request.get(url)
   return result.data
 }
@@ -23,4 +23,11 @@ export const downloadMediaFile = async function (workspaceId: string, fileId: st
   } else {
     return result.data
   }
+}
+
+// Get Media getFolder
+export const getFolder = async function (workspaceId: string, type: boolean): Promise<IWorkspaceResponse<any>> {
+  const url = `${HTTP_PREFIX}/files/${workspaceId}/folder/${type}`
+  const result = await request.get(url)
+  return result.data
 }

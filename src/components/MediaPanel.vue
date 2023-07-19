@@ -34,9 +34,11 @@ import { downloadMediaFile, getMediaFiles } from '/@/api/media'
 import { DownloadOutlined } from '@ant-design/icons-vue'
 import { message, Pagination } from 'ant-design-vue'
 import { load } from '@amap/amap-jsapi-loader'
+import EventBus from '/@/event-bus'
 
 const workspaceId = localStorage.getItem(ELocalStorageKey.WorkspaceId)!
 const loading = ref(false)
+const pathId = ref('')
 
 const columns = [
   {
@@ -109,11 +111,16 @@ const mediaData = reactive({
 })
 
 onMounted(() => {
-  getFiles()
+  // 订阅消息
+  EventBus.on('getFolderFiles', (val) => {
+    pathId.value = val
+
+    getFiles()
+  })
 })
 
 function getFiles () {
-  getMediaFiles(workspaceId, body).then(res => {
+  getMediaFiles(workspaceId, body, pathId.value).then(res => {
     mediaData.data = res.data.list
     paginationProp.total = res.data.pagination.total
     paginationProp.current = res.data.pagination.page

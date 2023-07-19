@@ -33,6 +33,7 @@ import EventBus from '/@/event-bus'
 const root = getRoot()
 const store = useMyStore()
 
+// 处理飞行器返回消息
 const messageHandler = async (payload: any) => {
   if (!payload) {
     return
