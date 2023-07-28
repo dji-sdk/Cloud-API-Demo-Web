@@ -37,6 +37,26 @@
             @change="changeLayer"
           />
         </div>
+        <div class="name element-item" v-if="layerState.currentType === geoType.Polygon">
+          <span class="title">水平面积:</span>
+          <span class="title">{{layerState.laterArea}} m²</span>
+        </div>
+        <div class="name element-item" v-if="layerState.currentType === geoType.Polygon">
+          <span class="title">水平周长:</span>
+          <span class="title">{{layerState.laterRound}} m</span>
+        </div>
+        <div class="name element-item" v-if="layerState.currentType === geoType.Polygon">
+          <span class="title">高度差:</span>
+          <span class="title">0</span>
+        </div>
+        <div class="name element-item" v-if="layerState.currentType === geoType.LineString">
+          <span class="title">水平距离:</span>
+          <span class="title">{{layerState.laterRound}} m</span>
+        </div>
+        <div class="name element-item" v-if="layerState.currentType === geoType.LineString">
+          <span class="title">直线距离:</span>
+          <span class="title">{{layerState.laterRound}} m</span>
+        </div>
         <div
           class="longitude element-item"
           v-if="layerState.currentType === geoType.Point"
@@ -117,6 +137,9 @@ const geoType = GeoType
 const layerState = reactive({
   layerName: '',
   layerId: '',
+  laterArea: '',
+  laterRound: '',
+  laterRound2: 276.7,
   longitude: 0,
   latitude: 0,
   currentType: '', // “LineString”,"Polygon","Point"
@@ -202,7 +225,7 @@ function updateMapElement (
       .coordinates[0] as GeojsonCoordinate[]
     useGMapCoverHook.initPolygon(name, coordinates, color, {
       id: id,
-      name: name
+      name: name,
     })
   }
 }
@@ -249,6 +272,10 @@ function setBaseInfo () {
     layerState.layerName = layer.name
     layerState.layerId = layer.id
     layerState.color = layer.resource?.content.properties.color
+    // 水平面积
+    layerState.laterArea = layer.area
+    // 水平周长
+    layerState.laterRound = layer.around
     switch (geoType) {
       case GeoType.Point:
         layerState.longitude = layer.resource?.content.geometry.coordinates[0]
@@ -257,6 +284,7 @@ function setBaseInfo () {
       case GeoType.LineString:
         break
       case GeoType.Polygon:
+
         break
     }
   }
@@ -300,6 +328,7 @@ async function getElementGroups (type?: string) {
     isDistributed: true
   })
   mapLayers.value = result.data
+  console.log('lizhao2', result)
   mapLayers.value = updateWgs84togcj02()
   if (type && type === 'init') {
     store.dispatch('setLayerInfo', mapLayers.value)

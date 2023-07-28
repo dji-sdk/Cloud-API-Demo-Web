@@ -43,7 +43,7 @@ export function useMouseTool () {
       fillColor: '#1791fc',
       fillOpacity: 0.4,
       draggable: true,
-      title: type + state.PolygonNum++
+      title: type + state.PolygonNum++,
     })
     root?.$mouseTool.on('draw', getDrawCallback)
   }

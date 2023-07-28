@@ -29,10 +29,10 @@ export function useGMapCover () {
     } = {
       '2d8cf0': pin2d8cf0,
       '19be6b': pin19be6b,
-      '212121': pin212121,
-      'b620e0': pinb620e0,
-      'e23c39': pine23c39,
-      'ffbb00': pineffbb00,
+      212121: pin212121,
+      b620e0: pinb620e0,
+      e23c39: pine23c39,
+      ffbb00: pineffbb00,
     }
     const iconName = (color?.replaceAll('#', '') || '').toLocaleLowerCase()
     return new AMap.Icon({
@@ -53,15 +53,14 @@ export function useGMapCover () {
       // fillColor: color || normalColor,
       extData: data
     })
-
     // 点击触发
-    pin.on('click', function(e) {
+    pin.on('click', function (e) {
       store.commit('SET_LAYER_ID', data.id)
       const infoWindow = new AMap.InfoWindow({
         content: data.name,
         offset: new AMap.Pixel(0, -10) // 左上角
       })
-      root.$map.setFitView([ pin ])
+      root.$map.setFitView([pin])
       infoWindow.open(root.$map, [coordinates[0], coordinates[1]])
     })
     // console.log('coordinates pin', pin)
@@ -87,14 +86,28 @@ export function useGMapCover () {
       // draggable: true,
     })
 
+    // 计算线段长度距离
+    const p1 = coordinates[0]
+    const p2 = coordinates[1]
+    // 返回 p1 到 p2 间的地面距离，单位：米
+    const dis = AMap.GeometryUtil.distance(p1, p2).toFixed(1)
+    // console.log(dis)
+    store.state.Layers.forEach(item => {
+      item.elements.forEach(item2 => {
+        if (item2.id == data.id) {
+          item2.around = around
+        }
+      })
+    })
+
     // 点击触发
-    polyline.on('click', function(e) {
+    polyline.on('click', function (e) {
       store.commit('SET_LAYER_ID', data.id)
       const infoWindow = new AMap.InfoWindow({
-        content: data.name,
+        content: '<div>' + '名称：' + data.name + '</div>' + '直线距离：' + dis + 'm',
         offset: new AMap.Pixel(0, -10) // 左上角
       })
-      root.$map.setFitView([ polyline ])
+      root.$map.setFitView([polyline])
       infoWindow.open(root.$map, [coordinates[0][0], coordinates[0][1]])
     })
     AddOverlayGroup(polyline)
@@ -108,6 +121,7 @@ export function useGMapCover () {
     // console.log('Polygon', path)
     const Polygon = new AMap.Polygon({
       path: path,
+      area: 'lizhao',
       strokeOpacity: 1,
       strokeWeight: 2,
       fillColor: color || normalColor,
@@ -116,16 +130,39 @@ export function useGMapCover () {
       strokeColor: color || normalColor,
       extData: data
     })
-
+    // 计算多边形面积
+    const area = Math.round(AMap.GeometryUtil.ringArea(coordinates))
+    // 计算多边形周长 返回线段 p0-p1-p2 的实际长度，单位：米
+    const aroundList = coordinates
+    aroundList.push(coordinates[0])
+    const around = AMap.GeometryUtil.distanceOfLine(aroundList).toFixed(1)
+    // console.log(around)
     // 点击触发
-    Polygon.on('click', function(e) {
+    Polygon.on('click', function (e) {
+      // console.log(coordinates)
       store.commit('SET_LAYER_ID', data.id)
-      const infoWindow = new AMap.InfoWindow({
-        content: data.name,
-        offset: new AMap.Pixel(0, -10) // 左上角
-      })
-      root.$map.setFitView([ Polygon ])
+    })
+    // 鼠标移入
+    const infoWindow = new AMap.InfoWindow({
+      content: '<div>' + '名称：' + data.name + '</div>' + '<div>' + '水平面积：' + area + 'm²' + '</div>' + '水平周长：' + around + 'm',
+      offset: new AMap.Pixel(0, -10) // 左上角
+    })
+    root.$map.setFitView([Polygon])
+    Polygon.on('mouseover', function (e) {
       infoWindow.open(root.$map, [coordinates[0][0], coordinates[0][1]])
+    })
+    // 鼠标移出
+    Polygon.on('mouseout', function (e) {
+      infoWindow.close()
+    })
+    // console.log(store.state.Layers)
+    store.state.Layers.forEach(item => {
+      item.elements.forEach(item2 => {
+        if (item2.id == data.id) {
+          item2.area = area
+          item2.around = around
+        }
+      })
     })
     AddOverlayGroup(Polygon)
   }

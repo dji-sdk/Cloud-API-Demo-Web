@@ -603,7 +603,7 @@ export default defineComponent({
             setLayers({
               id: ele.id,
               name: ele.name,
-              resource: ele.resource
+              resource: ele.resource,
             })
 
             updateCoordinates('wgs84-gcj02', ele)
@@ -613,7 +613,7 @@ export default defineComponent({
               ele.resource.content.properties.color,
               {
                 id: ele.id,
-                name: ele.name
+                name: ele.name,
               }
             )
           }
@@ -658,6 +658,8 @@ export default defineComponent({
     })
 
     function getDrawCallback ({ obj }) {
+      console.log(333)
+      console.log(obj)
       switch (state.currentType) {
         case MapDoodleEnum.PIN:
           postPinPositionResource(obj)
@@ -697,7 +699,7 @@ export default defineComponent({
       setLayers(req)
       updateCoordinates('gcj02-wgs84', req)
       const result = await postElementsReq(shareId.value, req)
-      obj.setExtData({ id: req.id, name: req.name })
+      obj.setExtData({ id: req.id, name: req.name, area: 222 })
       store.state.coverList.push(obj)
       // console.log(store.state.coverList)
     }
@@ -746,8 +748,8 @@ export default defineComponent({
       if (layer?.elements) {
         ;(layer?.elements as any[]).push(resource)
       }
-      console.log('layers', layers)
-      store.commit('SET_LAYER_INFO', layers)
+      // console.log('layers', layers)
+      // store.commit('SET_LAYER_INFO', layers)
     }
     function updateCoordinates (transformType: string, element: any) {
       const geoType = element.resource?.content.geometry.type
