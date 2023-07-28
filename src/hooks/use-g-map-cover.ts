@@ -95,7 +95,7 @@ export function useGMapCover () {
     store.state.Layers.forEach(item => {
       item.elements.forEach(item2 => {
         if (item2.id == data.id) {
-          item2.around = around
+          item2.around = dis
         }
       })
     })
