@@ -139,6 +139,14 @@
           {{ 10 > (deviceInfo.device.battery.remain_flight_time % 60) ? '0' : ''}}{{deviceInfo.device.battery.remain_flight_time % 60 }}
         </div>
       </div>
+      <div class="fz14">
+        <div @click="play()">直播视频</div>
+      </div>
+      <div class="live" v-if="showLive">
+        <!-- <div>2222</div> -->
+        <!-- <router-view :name="routeName" /> -->
+        <LiveNewOthers></LiveNewOthers>
+      </div>
     </div>
     <!-- 机场OSD -->
     <div v-if="osdVisible.visible && osdVisible.is_dock" class="osd-panel fz12">
@@ -445,16 +453,19 @@ import M30 from '/@/assets/icons/m30.png'
 import {
   BorderOutlined, LineOutlined, CloseOutlined, ControlOutlined, TrademarkOutlined, ArrowDownOutlined,
   ThunderboltOutlined, SignalFilled, GlobalOutlined, HistoryOutlined, CloudUploadOutlined, RocketOutlined,
-  FieldTimeOutlined, CloudOutlined, CloudFilled, FolderOpenOutlined, RobotFilled, ArrowUpOutlined, CarryOutOutlined
+  FieldTimeOutlined, CloudOutlined, CloudFilled, FolderOpenOutlined, RobotFilled, ArrowUpOutlined, CarryOutOutlined,
+  EyeInvisibleOutlined
 } from '@ant-design/icons-vue'
 import { EDeviceTypeName } from '../types'
 import DockControlPanel from './g-map/DockControlPanel.vue'
 import { useDockControl } from './g-map/use-dock-control'
 import DroneControlPanel from './g-map/DroneControlPanel.vue'
 import { useConnectMqtt } from './g-map/use-connect-mqtt'
+import LiveNewOthers from '/@/components/livestream-newOthers.vue'
 
 export default defineComponent({
   components: {
+    LiveNewOthers,
     BorderOutlined,
     LineOutlined,
     CloseOutlined,
@@ -484,6 +495,8 @@ export default defineComponent({
     const useGMapManageHook = useGMapManage()
     const deviceTsaUpdateHook = deviceTsaUpdate()
     const root = getRoot()
+    // const routeName = ref<string>('LiveOthers')
+    const showLive = ref(false)
 
     const mouseMode = ref(false)
     const store = useMyStore()
@@ -640,6 +653,11 @@ export default defineComponent({
       state.currentType = type
       useMouseToolHook.mouseTool(type, getDrawCallback)
       mouseMode.value = bool
+    }
+    function play () {
+      console.log(222)
+      // routeName.value = 'LiveOthers'
+      showLive.value = true
     }
 
     // dock 控制面板
@@ -813,8 +831,12 @@ export default defineComponent({
         }
       }
     }
+
     return {
       draw,
+      play,
+      showLive,
+      // routeName,
       mouseMode,
       drawVisible,
       osdVisible,

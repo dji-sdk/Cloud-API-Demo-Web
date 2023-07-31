@@ -139,6 +139,7 @@
       <a-collapse :bordered="false" expandIconPosition="right" accordion style="background: #232323;">
         <a-collapse-panel :key="EDeviceTypeName.Aircraft" header="Online Devices" style="border-bottom: 1px solid #4f4f4f;">
           <div v-if="onlineDevices.data.length === 0" style="height: 150px; color: white;">
+            <div style="background: red;" @click="cheshi">设备测试</div>
             <a-empty :image="noData" :image-style="{ height: '60px' }" />
           </div>
           <div v-else class="fz12" style="color: white;">
@@ -343,6 +344,12 @@ function readHms (visiable: boolean, sn: string) {
       }
     })
   }
+}
+
+function cheshi () {
+  osdVisible.value.visible = true
+  store.commit('SET_OSD_VISIBLE_INFO', osdVisible)
+  console.log(osdVisible.value.visible)
 }
 </script>
 
