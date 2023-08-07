@@ -22,125 +22,127 @@
     </div>
     <!-- 飞机OSD -->
     <div v-if="osdVisible.visible && !osdVisible.is_dock" class="osd-panel fz12">
-      <div class="pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 18%;">
-        <span>{{ osdVisible.callsign }}</span>
-        <span><a class="fz16" style="color: white;" @click="() => osdVisible.visible = false"><CloseOutlined /></a></span>
-      </div>
-      <div style="height: 82%;">
-        <div class="flex-column flex-align-center flex-justify-center" style="margin-top: -5px; padding-top: 25px; float: left; width: 60px; background: #2d2d2d;">
-          <a-tooltip :title="osdVisible.model">
-            <div style="width: 90%;" class="flex-column flex-align-center flex-justify-center">
-              <span><a-image :src="M30" :preview="false"/></span>
-              <span>{{ osdVisible.model }}</span>
-            </div>
-          </a-tooltip>
+      <div style="opacity: 0.8;background: #000;">
+        <div class="pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 18%;">
+          <span>{{ osdVisible.callsign }}</span>
+          <span><a class="fz16" style="color: white;" @click="() => osdVisible.visible = false"><CloseOutlined /></a></span>
         </div>
-        <div class="osd">
-            <a-row>
-              <a-col span="16" :style="deviceInfo.device.mode_code === EModeCode.Disconnected ? 'color: red; font-weight: 700;': 'color: rgb(25,190,107)'">{{ EModeCode[deviceInfo.device.mode_code] }}</a-col>
-            </a-row>
-            <a-row>
-              <a-col span="6">
-                <a-tooltip title="Signal strength">
-                  <span>HD</span>
-                  <span class="ml10">{{ deviceInfo.gateway?.transmission_signal_quality }}</span>
-                </a-tooltip>
-              </a-col>
-              <a-col span="6">
-                <a-tooltip title="RC Battery Level">
-                  <span><ThunderboltOutlined class="fz14"/></span>
-                  <span class="ml10">{{ deviceInfo.gateway && deviceInfo.gateway.capacity_percent !== str ? deviceInfo.gateway.capacity_percent + ' %' : deviceInfo.gateway.capacity_percent }}</span>
-                </a-tooltip>
-              </a-col>
-
-              <a-col span="6">
-                <a-tooltip title="Drone Battery Level">
-                  <span><ThunderboltOutlined class="fz14"/></span>
-                  <span class="ml10">{{ deviceInfo.device.battery.capacity_percent !== str ? deviceInfo.device.battery.capacity_percent + ' %' : deviceInfo.device.battery.capacity_percent }}</span>
-                </a-tooltip>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-tooltip title="RTK Fixed">
-                <a-col span="6" class="flex-row flex-align-center flex-justify-start">
-                  <span>Fixed</span>
-                  <span class="ml10 circle" :style="deviceInfo.device.position_state.is_fixed === 1 ? 'backgroud: rgb(25,190,107);' : ' background: red;'"></span>
+        <div style="height: 82%;">
+          <div class="flex-column flex-align-center flex-justify-center" style="margin-top: -5px; padding-top: 25px; float: left; width: 60px; background: #2d2d2d;">
+            <a-tooltip :title="osdVisible.model">
+              <div style="width: 90%;" class="flex-column flex-align-center flex-justify-center">
+                <span><a-image :src="M30" :preview="false"/></span>
+                <span>{{ osdVisible.model }}</span>
+              </div>
+            </a-tooltip>
+          </div>
+          <div class="osd">
+              <a-row>
+                <a-col span="16" :style="deviceInfo.device.mode_code === EModeCode.Disconnected ? 'color: red; font-weight: 700;': 'color: rgb(25,190,107)'">{{ EModeCode[deviceInfo.device.mode_code] }}</a-col>
+              </a-row>
+              <a-row>
+                <a-col span="6">
+                  <a-tooltip title="Signal strength">
+                    <span>HD</span>
+                    <span class="ml10">{{ deviceInfo.gateway?.transmission_signal_quality }}</span>
+                  </a-tooltip>
                 </a-col>
-              </a-tooltip>
-              <a-col span="6">
-                <a-tooltip title="GPS">
-                  <span>GPS</span>
-                  <span class="ml10">{{ deviceInfo.device.position_state.gps_number }}</span>
+                <a-col span="6">
+                  <a-tooltip title="RC Battery Level">
+                    <span><ThunderboltOutlined class="fz14"/></span>
+                    <span class="ml10">{{ deviceInfo.gateway && deviceInfo.gateway.capacity_percent !== str ? deviceInfo.gateway.capacity_percent + ' %' : deviceInfo.gateway.capacity_percent }}</span>
+                  </a-tooltip>
+                </a-col>
+
+                <a-col span="6">
+                  <a-tooltip title="Drone Battery Level">
+                    <span><ThunderboltOutlined class="fz14"/></span>
+                    <span class="ml10">{{ deviceInfo.device.battery.capacity_percent !== str ? deviceInfo.device.battery.capacity_percent + ' %' : deviceInfo.device.battery.capacity_percent }}</span>
+                  </a-tooltip>
+                </a-col>
+              </a-row>
+              <a-row>
+                <a-tooltip title="RTK Fixed">
+                  <a-col span="6" class="flex-row flex-align-center flex-justify-start">
+                    <span>Fixed</span>
+                    <span class="ml10 circle" :style="deviceInfo.device.position_state.is_fixed === 1 ? 'backgroud: rgb(25,190,107);' : ' background: red;'"></span>
+                  </a-col>
                 </a-tooltip>
-              </a-col>
-              <a-col span="6">
-                <a-tooltip title="RTK">
-                  <span><TrademarkOutlined class="fz14"/></span>
-                  <span class="ml10">{{ deviceInfo.device.position_state.rtk_number }}</span>
-                </a-tooltip>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-col span="6">
-                <a-tooltip title="Flight Mode">
-                  <span><ControlOutlined class="fz16" /></span>
-                  <span class="ml10">{{ EGear[deviceInfo.device.gear] }}</span>
-                </a-tooltip>
-              </a-col>
-              <a-col span="6">
-                <a-tooltip title="Altitude above sea level">
-                  <span>ASL</span>
-                  <span class="ml10">{{ deviceInfo.device.height === str ? str : deviceInfo.device.height.toFixed(2) + ' m'}}</span>
-                </a-tooltip>
-              </a-col>
-              <a-col span="6">
-                <a-tooltip title="Altitude above takeoff level">
-                  <span>ALT</span>
-                  <span class="ml10">{{ deviceInfo.device.elevation === str ? str : deviceInfo.device.elevation.toFixed(2) + ' m' }}</span>
-                </a-tooltip>
-              </a-col>
-              <a-col span="6">
-                <a-tooltip title="Distance to Home Point">
-                  <span>H</span>
-                  <span class="ml10">{{ deviceInfo.device.home_distance === str ? str : deviceInfo.device.home_distance.toFixed(2) + ' m' }}</span>
-                </a-tooltip>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-col span="6">
-                <a-tooltip title="Horizontal Speed">
-                  <span>H.S</span>
-                  <span class="ml10">{{ deviceInfo.device.horizontal_speed === str ? str : deviceInfo.device.horizontal_speed.toFixed(2) + ' m/s'}}</span>
-                </a-tooltip>
-              </a-col>
-              <a-col span="6">
-                <a-tooltip title="Vertical Speed">
-                  <span>V.S</span>
-                  <span class="ml10">{{ deviceInfo.device.vertical_speed === str ? str : deviceInfo.device.vertical_speed.toFixed(2) + ' m/s'}}</span>
-                </a-tooltip>
-              </a-col>
-              <a-col span="6">
-                <a-tooltip title="Wind Speed">
-                  <span>W.S</span>
-                  <span class="ml10">{{ deviceInfo.device.wind_speed === str ? str : (deviceInfo.device.wind_speed / 10).toFixed(2) + ' m/s'}}</span>
-                </a-tooltip>
-              </a-col>
-            </a-row>
+                <a-col span="6">
+                  <a-tooltip title="GPS">
+                    <span>GPS</span>
+                    <span class="ml10">{{ deviceInfo.device.position_state.gps_number }}</span>
+                  </a-tooltip>
+                </a-col>
+                <a-col span="6">
+                  <a-tooltip title="RTK">
+                    <span><TrademarkOutlined class="fz14"/></span>
+                    <span class="ml10">{{ deviceInfo.device.position_state.rtk_number }}</span>
+                  </a-tooltip>
+                </a-col>
+              </a-row>
+              <a-row>
+                <a-col span="6">
+                  <a-tooltip title="Flight Mode">
+                    <span><ControlOutlined class="fz16" /></span>
+                    <span class="ml10">{{ EGear[deviceInfo.device.gear] }}</span>
+                  </a-tooltip>
+                </a-col>
+                <a-col span="6">
+                  <a-tooltip title="Altitude above sea level">
+                    <span>ASL</span>
+                    <span class="ml10">{{ deviceInfo.device.height === str ? str : deviceInfo.device.height.toFixed(2) + ' m'}}</span>
+                  </a-tooltip>
+                </a-col>
+                <a-col span="6">
+                  <a-tooltip title="Altitude above takeoff level">
+                    <span>ALT</span>
+                    <span class="ml10">{{ deviceInfo.device.elevation === str ? str : deviceInfo.device.elevation.toFixed(2) + ' m' }}</span>
+                  </a-tooltip>
+                </a-col>
+                <a-col span="6">
+                  <a-tooltip title="Distance to Home Point">
+                    <span>H</span>
+                    <span class="ml10">{{ deviceInfo.device.home_distance === str ? str : deviceInfo.device.home_distance.toFixed(2) + ' m' }}</span>
+                  </a-tooltip>
+                </a-col>
+              </a-row>
+              <a-row>
+                <a-col span="6">
+                  <a-tooltip title="Horizontal Speed">
+                    <span>H.S</span>
+                    <span class="ml10">{{ deviceInfo.device.horizontal_speed === str ? str : deviceInfo.device.horizontal_speed.toFixed(2) + ' m/s'}}</span>
+                  </a-tooltip>
+                </a-col>
+                <a-col span="6">
+                  <a-tooltip title="Vertical Speed">
+                    <span>V.S</span>
+                    <span class="ml10">{{ deviceInfo.device.vertical_speed === str ? str : deviceInfo.device.vertical_speed.toFixed(2) + ' m/s'}}</span>
+                  </a-tooltip>
+                </a-col>
+                <a-col span="6">
+                  <a-tooltip title="Wind Speed">
+                    <span>W.S</span>
+                    <span class="ml10">{{ deviceInfo.device.wind_speed === str ? str : (deviceInfo.device.wind_speed / 10).toFixed(2) + ' m/s'}}</span>
+                  </a-tooltip>
+                </a-col>
+              </a-row>
+          </div>
         </div>
-      </div>
-      <div class="battery-slide" v-if="deviceInfo.device.battery.remain_flight_time !== 0">
-        <div style="background: #535759;" class="width-100"></div>
-        <div class="capacity-percent" :style="{ width: deviceInfo.device.battery.capacity_percent + '%'}"></div>
-        <div class="return-home" :style="{ width: deviceInfo.device.battery.return_home_power + '%'}"></div>
-        <div class="landing" :style="{ width: deviceInfo.device.battery.landing_power + '%'}"></div>
-        <div class="white-point" :style="{ left: deviceInfo.device.battery.landing_power + '%'}"></div>
-        <div class="battery" :style="{ left: deviceInfo.device.battery.capacity_percent + '%' }">
-          {{ Math.floor(deviceInfo.device.battery.remain_flight_time / 60) }}:
-          {{ 10 > (deviceInfo.device.battery.remain_flight_time % 60) ? '0' : ''}}{{deviceInfo.device.battery.remain_flight_time % 60 }}
+        <div class="battery-slide" v-if="deviceInfo.device.battery.remain_flight_time !== 0">
+          <div style="background: #535759;" class="width-100"></div>
+          <div class="capacity-percent" :style="{ width: deviceInfo.device.battery.capacity_percent + '%'}"></div>
+          <div class="return-home" :style="{ width: deviceInfo.device.battery.return_home_power + '%'}"></div>
+          <div class="landing" :style="{ width: deviceInfo.device.battery.landing_power + '%'}"></div>
+          <div class="white-point" :style="{ left: deviceInfo.device.battery.landing_power + '%'}"></div>
+          <div class="battery" :style="{ left: deviceInfo.device.battery.capacity_percent + '%' }">
+            {{ Math.floor(deviceInfo.device.battery.remain_flight_time / 60) }}:
+            {{ 10 > (deviceInfo.device.battery.remain_flight_time % 60) ? '0' : ''}}{{deviceInfo.device.battery.remain_flight_time % 60 }}
+          </div>
         </div>
-      </div>
-      <div class="fz14">
-        <div @click="play()">直播视频</div>
+        <div class="fz14">
+          <div @click="play()">直播视频</div>
+        </div>
       </div>
       <div class="live" v-if="showLive">
         <!-- <div>2222</div> -->
@@ -148,6 +150,9 @@
         <LiveNewOthers></LiveNewOthers>
       </div>
     </div>
+    <!-- <div class="osd-panel2 fz12">
+
+    </div> -->
     <!-- 机场OSD -->
     <div v-if="osdVisible.visible && osdVisible.is_dock" class="osd-panel fz12">
       <div class="fz16 pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 10%;">
@@ -902,10 +907,13 @@ export default defineComponent({
   left: 10px;
   top: 10px;
   width: 480px;
-  background: #000;
+  /* background: #000; */
   color: #fff;
   border-radius: 2px;
-  opacity: 0.8;
+  /* opacity: 0.8; */
+}
+.live{
+  background: #000;
 }
 .osd > div:not(.dock-control-panel) {
   margin-top: 5px;

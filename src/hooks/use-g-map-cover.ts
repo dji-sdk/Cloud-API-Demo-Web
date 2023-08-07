@@ -94,7 +94,7 @@ export function useGMapCover () {
     // console.log(dis)
     store.state.Layers.forEach(item => {
       item.elements.forEach(item2 => {
-        if (item2.id == data.id) {
+        if (item2.id === data.id) {
           item2.around = dis
         }
       })
@@ -158,7 +158,7 @@ export function useGMapCover () {
     // console.log(store.state.Layers)
     store.state.Layers.forEach(item => {
       item.elements.forEach(item2 => {
-        if (item2.id == data.id) {
+        if (item2.id === data.id) {
           item2.area = area
           item2.around = around
         }
