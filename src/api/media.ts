@@ -1,5 +1,5 @@
 import { message } from 'ant-design-vue'
-import request, { IPage, IWorkspaceResponse } from '/@/api/http/request'
+import request, { IPage, IWorkspaceResponse, idData } from '/@/api/http/request'
 const HTTP_PREFIX = '/media/api/v1'
 
 // Get Media Files
@@ -29,10 +29,21 @@ export const downloadMediaFile = async function (workspaceId: string, fileId: st
     return result.data
   }
 }
-
-// Get Media getFolder
-// export const getFolder = async function (workspaceId: string): Promise<IWorkspaceResponse<any>> {
-//   const url = `${HTTP_PREFIX}/files/${workspaceId}/folder/2`
-//   const result = await request.get(url)
-//   return result.data
-// }
+// 新增或修改文件夹
+export const operateFile = async (wid: string, body:idData): Promise<IWorkspaceResponse<{ id: string }>> => {
+  const url = `${HTTP_PREFIX}/files/${wid}/folder`
+  const result = await request.post(url, body)
+  return result.data
+}
+// 删除文件
+export const deleteFile = async (wid: string, id:any): Promise<IWorkspaceResponse<{ id: string }>> => {
+  const url = `${HTTP_PREFIX}/files/${wid}/folder`
+  const result = await request.delete(url + '?id_arr=' + id)
+  return result.data
+}
+// 文件数
+export const floderTreeData = async (wid: string): Promise<IWorkspaceResponse<{ id: string }>> => {
+  const url = `${HTTP_PREFIX}/files/${wid}/folder/tree`
+  const result = await request.get(url)
+  return result.data
+}
