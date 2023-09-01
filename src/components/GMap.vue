@@ -140,14 +140,14 @@
             {{ 10 > (deviceInfo.device.battery.remain_flight_time % 60) ? '0' : ''}}{{deviceInfo.device.battery.remain_flight_time % 60 }}
           </div>
         </div>
-        <div class="fz14">
-          <div @click="play()">直播视频</div>
+        <div class="fz14 content-padding">
+          <div @click="play()" class="video-btn"><a style="color: white;"><VideoCameraOutlined /></a>直播视频</div>
         </div>
       </div>
       <div class="live" v-if="showLive">
         <!-- <div>2222</div> -->
         <!-- <router-view :name="routeName" /> -->
-        <LiveNewOthers></LiveNewOthers>
+        <LiveNewOthers ref="liveStreamRef"></LiveNewOthers>
       </div>
     </div>
     <!-- <div class="osd-panel2 fz12">
@@ -430,7 +430,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, onMounted, reactive, ref, watch, nextTick } from 'vue'
 import {
   generateLineContent,
   generatePointContent,
@@ -459,7 +459,7 @@ import {
   BorderOutlined, LineOutlined, CloseOutlined, ControlOutlined, TrademarkOutlined, ArrowDownOutlined,
   ThunderboltOutlined, SignalFilled, GlobalOutlined, HistoryOutlined, CloudUploadOutlined, RocketOutlined,
   FieldTimeOutlined, CloudOutlined, CloudFilled, FolderOpenOutlined, RobotFilled, ArrowUpOutlined, CarryOutOutlined,
-  EyeInvisibleOutlined
+  EyeInvisibleOutlined, VideoCameraOutlined
 } from '@ant-design/icons-vue'
 import { EDeviceTypeName } from '../types'
 import DockControlPanel from './g-map/DockControlPanel.vue'
@@ -485,6 +485,7 @@ export default defineComponent({
     CloudOutlined,
     CloudFilled,
     FolderOpenOutlined,
+    VideoCameraOutlined,
     RobotFilled,
     ArrowUpOutlined,
     ArrowDownOutlined,
@@ -502,7 +503,7 @@ export default defineComponent({
     const root = getRoot()
     // const routeName = ref<string>('LiveOthers')
     const showLive = ref(false)
-
+    const liveStreamRef = ref()
     const mouseMode = ref(false)
     const store = useMyStore()
     const state = reactive({
@@ -660,9 +661,11 @@ export default defineComponent({
       mouseMode.value = bool
     }
     function play () {
-      console.log(222)
       // routeName.value = 'LiveOthers'
-      showLive.value = true
+      showLive.value = !showLive.value
+      nextTick(() => {
+        showLive.value ? liveStreamRef.value.onStart() : liveStreamRef.value.onStop()
+      })
     }
 
     // dock 控制面板
@@ -769,7 +772,7 @@ export default defineComponent({
       // layer.id = 'private_layer' + uuidv4()
       // layer?.elements.push(resource)
       if (layer?.elements) {
-        ;(layer?.elements as any[]).push(resource)
+        (layer?.elements as any[]).push(resource)
       }
       // console.log('layers', layers)
       // store.commit('SET_LAYER_INFO', layers)
@@ -840,6 +843,7 @@ export default defineComponent({
     return {
       draw,
       play,
+      liveStreamRef,
       showLive,
       // routeName,
       mouseMode,
@@ -911,6 +915,17 @@ export default defineComponent({
   color: #fff;
   border-radius: 2px;
   /* opacity: 0.8; */
+  .content-padding{
+    padding:16px;
+    .video-btn{
+      cursor:pointer;
+      text-align: center;
+      padding:2px 16px;
+      width:160px;
+      background-color:#1fa3f6;
+
+    }
+  }
 }
 .live{
   background: #000;

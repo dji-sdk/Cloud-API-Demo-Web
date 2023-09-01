@@ -1,6 +1,8 @@
 <template>
   <div class="demo-app">
-    <router-view />
+    <a-locale-provider :locale="zhCN">
+      <router-view />
+    </a-locale-provider>
     <!-- <div class="map-wrapper">
       <GMap/>
     </div> -->
@@ -11,14 +13,14 @@
 import { computed, defineComponent, ref } from 'vue'
 import { useMyStore } from './store'
 import GMap from '/@/components/GMap.vue'
-
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
 export default defineComponent({
   name: 'App',
   components: { GMap },
 
   setup () {
     const store = useMyStore()
-    return {}
+    return { zhCN }
   }
 })
 </script>

@@ -23,6 +23,11 @@ export interface IWorkspaceResponse<T> {
  data: T;
  message: string;
 }
+export interface idData{
+  ids?:any,
+  file_name?:string,
+  father_id:string|number
+}
 
 export type IStatus = 'WAITING' | 'DOING' | 'SUCCESS' | 'FAILED';
 

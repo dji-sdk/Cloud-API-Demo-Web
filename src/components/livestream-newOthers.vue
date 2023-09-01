@@ -8,7 +8,6 @@
       class="mt20"
     ></video>
     <p class="fz24">Live streaming source selection</p>
-
     <div class="">
       <template v-if="liveState && isDockLive">
         <span class="mr10">Lens:</span>
@@ -17,7 +16,7 @@
         </a-radio-group>
       </template>
       <template v-else>
-      <a-select
+      <!-- <a-select
         style="width: 100px"
         placeholder="Select Live Type"
         @select="onLiveTypeSelect"
@@ -30,8 +29,8 @@
         >
           {{ item.label }}
         </a-select-option>
-      </a-select>
-      <a-select
+      </a-select> -->
+      <!-- <a-select
         class="ml10"
         style="width:100px"
         placeholder="Select Drone"
@@ -44,8 +43,8 @@
           @click="onDroneSelect(item)"
           >{{ item.label }}</a-select-option
         >
-      </a-select>
-      <a-select
+      </a-select> -->
+      <!-- <a-select
         class="ml10"
         style="width:100px"
         placeholder="Select Camera"
@@ -58,7 +57,7 @@
           @click="onCameraSelect(item)"
           >{{ item.label }}</a-select-option
         >
-      </a-select>
+      </a-select> -->
       <!-- <a-select
         class="ml10"
         style="width:150px"
@@ -99,10 +98,10 @@
     </div>
     <div class="flex-row flex-justify-center flex-align-center" style="margin-bottom: 20px;">
       <a-button v-if="liveState && isDockLive" type="primary" large @click="onSwitch">Switch Lens</a-button>
-      <a-button v-else type="primary" large @click="onStart">Play</a-button>
+      <!-- <a-button v-else type="primary" large @click="onStart">Play</a-button>
       <a-button class="ml20" type="primary" large @click="onStop"
         >Stop</a-button
-      >
+      > -->
       <!-- <a-button class="ml20" type="primary" large @click="onUpdateQuality"
         >Update Clarity</a-button
       >
@@ -115,11 +114,13 @@
 
 <script lang="ts" setup>
 import { message } from 'ant-design-vue'
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { CURRENT_CONFIG as config } from '/@/api/http/config'
-import { changeLivestreamLens, getLiveCapacity, setLivestreamQuality, startLivestream, stopLivestream } from '/@/api/manage'
+import { changeLivestreamLens, getLiveSnCapacity, setLivestreamQuality, startLivestream, stopLivestream } from '/@/api/manage'
 import { getRoot } from '/@/root'
+import { useMyStore } from '/@/store'
 import jswebrtc from '/@/vendors/jswebrtc.min.js'
+const store = useMyStore()
 const root = getRoot()
 
 interface SelectOption {
@@ -173,16 +174,18 @@ const videoList = ref()
 const droneSelected = ref()
 const cameraSelected = ref()
 const videoSelected = ref()
-const claritySelected = ref()
+const claritySelected = ref(0)
 const videoId = ref()
 const liveState = ref<boolean>(false)
-const livetypeSelected = ref()
+const livetypeSelected = ref(1)
 const rtspData = ref()
 const lensList = ref<string[]>([])
 const lensSelected = ref<String>()
 const isDockLive = ref(false)
 const nonSwitchable = 'normal'
-
+const osdVisible = computed(() => {
+  return store.state.osdVisible
+})
 const onRefresh = async () => {
   droneList.value = []
   cameraList.value = []
@@ -190,7 +193,7 @@ const onRefresh = async () => {
   droneSelected.value = null
   cameraSelected.value = null
   videoSelected.value = null
-  await getLiveCapacity({})
+  await getLiveSnCapacity(osdVisible.value.sn)
     .then(res => {
       console.log(res)
       if (res.code === 0) {
@@ -207,7 +210,7 @@ const onRefresh = async () => {
           livestreamSource.value.forEach((ele: any) => {
             temp.push({ label: ele.name + '-' + ele.sn, value: ele.sn, more: ele.cameras_list })
           })
-          droneList.value = temp
+          droneSelected.value = temp[0].value
         }
       }
     })
@@ -231,9 +234,6 @@ const onStart = async () => {
   )
   const timestamp = new Date().getTime().toString()
   if (
-    livetypeSelected.value == null ||
-    droneSelected.value == null ||
-    cameraSelected.value == null ||
     claritySelected.value == null
   ) {
     message.warn('waring: not select live para!!!')
@@ -366,6 +366,7 @@ const onDroneSelect = (val: SelectOption) => {
     temp.push({ label: ele.name, value: ele.index, more: ele.videos_list })
   })
   cameraList.value = temp
+  cameraSelected.value = cameraList.value[0].value
 }
 const onCameraSelect = (val: SelectOption) => {
   cameraSelected.value = val.value
@@ -412,6 +413,8 @@ const onSwitch = () => {
     }
   })
 }
+defineExpose({ onStart, onStop })
+
 </script>
 
 <style lang="scss" scoped>

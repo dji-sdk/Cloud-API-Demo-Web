@@ -137,12 +137,11 @@
         </a-collapse-panel>
       </a-collapse>
       <a-collapse :bordered="false" expandIconPosition="right" accordion style="background: #232323;">
-        <a-collapse-panel :key="EDeviceTypeName.Aircraft" header="Online Devices" style="border-bottom: 1px solid #4f4f4f;">
-          <div v-if="onlineDevices.data.length === 0" style="height: 150px; color: white;">
-            <div style="background: red;" @click="cheshi">设备测试</div>
+        <a-collapse-panel v-if='!onlineDevices.data.length' :key="EDeviceTypeName.Aircraft" header="Online Devices" style="border-bottom: 1px solid #4f4f4f;">
+          <div style="height: 150px; color: white;">
             <a-empty :image="noData" :image-style="{ height: '60px' }" />
           </div>
-          <div v-else class="fz12" style="color: white;">
+          <div   class="fz12" style="color: white;" v-else>
             <div v-for="device in onlineDevices.data" :key="device.sn" style="background: #3c3c3c; height: 90px; width: 250px; margin-bottom: 10px;">
               <div class="battery-slide" v-if="deviceInfo[device.sn]">
                 <div style="background: #535759; width: 100%;"></div>
