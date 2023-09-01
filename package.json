@@ -53,6 +53,7 @@
     "vite-plugin-style-import": "^1.0.1",
     "vite-plugin-svg-icons": "^1.0.5",
     "vite-plugin-vconsole": "^1.1.0",
+    "vue-eslint-parser": "^9.3.1",
     "vue-tsc": "^0.0.24"
   },
   "license": "ISC",
