@@ -195,7 +195,6 @@ const onRefresh = async () => {
   videoSelected.value = null
   await getLiveSnCapacity(osdVisible.value.sn)
     .then(res => {
-      console.log(res)
       if (res.code === 0) {
         if (res.data === null) {
           console.warn('warning: get live capacity is null!!!')
@@ -210,8 +209,9 @@ const onRefresh = async () => {
           livestreamSource.value.forEach((ele: any) => {
             temp.push({ label: ele.name + '-' + ele.sn, value: ele.sn, more: ele.cameras_list })
           })
-          droneSelected.value = temp[0].value
+          // droneSelected.value = temp[0].value
         }
+        onStart()
       }
     })
     .catch(error => {

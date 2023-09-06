@@ -4,7 +4,7 @@
     <div style="height: 50px; line-height: 50px; border-bottom: 1px solid #4f4f4f; font-weight: 450;">
       <a-row>
         <a-col :span="1"></a-col>
-        <a-col :span="15">Flight Route Library</a-col>
+        <a-col :span="15">航线库</a-col>
         <a-col :span="8" v-if="importVisible" class="flex-row flex-justify-end flex-align-center">
           <a-upload
             name="file"
@@ -22,8 +22,8 @@
     </div>
     <div :style="{ height : height + 'px'}" class="scrollbar">
       <div id="data" class="height-100 uranus-scrollbar" v-if="waylinesData.data.length !== 0" @scroll="onScroll">
-        <div v-for="wayline in waylinesData.data" :key="wayline.id">
-          <div class="wayline-panel" style="padding-top: 5px;" @click="selectRoute(wayline)">
+        <div v-for="(wayline,index) in waylinesData.data" :key="wayline.id">
+          <div style="padding-top: 5px;" @click="selectRoute(wayline,index)" :class="[chooseIndex === index ? 'wayline-panel wayline-border':'wayline-panel']">
             <div class="title">
               <a-tooltip :title="wayline.name">
                 <div class="pr10" style="width: 120px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ wayline.name }}</div>
@@ -40,10 +40,10 @@
                   <template #overlay>
                     <a-menu theme="dark" class="more" style="background: #3c3c3c;">
                       <a-menu-item @click="downloadWayline(wayline.id, wayline.name)">
-                        <span>Download</span>
+                        <span>下载</span>
                       </a-menu-item>
                       <a-menu-item @click="showWaylineTip(wayline.id)">
-                        <span>Delete</span>
+                        <span>删除</span>
                       </a-menu-item>
                     </a-menu>
                   </template>
@@ -58,8 +58,12 @@
                 {{ Object.keys(EDeviceType)[Object.values(EDeviceType).indexOf(payload)] }}
               </span>
             </div>
-            <div class="mt5 ml10" style="color: hsla(0,0%,100%,0.35);">
-              <span class="mr10">Update at {{ new Date(wayline.update_time).toLocaleString() }}</span>
+            <div class="mt5 ml10 line-position" style="color: hsla(0,0%,100%,0.35);">
+              <span class="mr10">更新时间 {{ new Date(wayline.update_time).toLocaleString() }}</span>
+              <a-tooltip>
+                <template #title>{{lineType[wayline.template_types[0]]}}</template>
+                <img class='line-img' :src="line" />
+              </a-tooltip>
             </div>
           </div>
         </div>
@@ -84,7 +88,8 @@
 import { reactive } from '@vue/reactivity'
 import { message } from 'ant-design-vue'
 import { onMounted, onUpdated, ref } from 'vue'
-import { deleteWaylineFile, downloadWaylineFile, getWaylineFiles, importKmzFile } from '/@/api/wayline'
+import { onBeforeRouteLeave } from 'vue-router'
+import { deleteWaylineFile, downloadWaylineFile, getWaylineFiles, importKmzFile, getNevigationLine } from '/@/api/wayline'
 import { ELocalStorageKey, ERouterName } from '/@/types'
 import { EllipsisOutlined, RocketOutlined, CameraFilled, UserOutlined, SelectOutlined } from '@ant-design/icons-vue'
 import { EDeviceType } from '/@/types/device'
@@ -95,7 +100,10 @@ import { IPage } from '/@/api/http/type'
 import { CURRENT_CONFIG } from '/@/api/http/config'
 import { load } from '@amap/amap-jsapi-loader'
 import { getRoot } from '/@/root'
-
+import { wgs84togcj02 } from '/@/vendors/coordtransform'
+import line from '/@/assets/icons/line.svg'
+const lineType = ref(['航点飞行', '航点飞行', '建图航拍', '倾斜摄影', '带状航线'])
+const polyline = ref()
 const loading = ref(false)
 const store = useMyStore()
 const pagination :IPage = {
@@ -107,7 +115,7 @@ const pagination :IPage = {
 const waylinesData = reactive({
   data: [] as WaylineFile[]
 })
-
+const chooseIndex = ref()
 const root = getRoot()
 const workspaceId = localStorage.getItem(ELocalStorageKey.WorkspaceId)!
 const deleteTip = ref(false)
@@ -184,9 +192,39 @@ function downloadWayline (waylineId: string, fileName: string) {
     loading.value = false
   })
 }
-
-function selectRoute (wayline: WaylineFile) {
+// 定位地图上对应的航线
+function selectRoute (wayline: WaylineFile, index:any) {
+  chooseIndex.value = index
   store.commit('SET_SELECT_WAYLINE_INFO', wayline)
+  const map = root.$map
+  if (polyline.value) {
+    map.remove(polyline.value)
+  }
+  getNevigationLine(workspaceId, wayline.id).then(res => {
+    if (res.code === 0) {
+      const path = res.data?.geometry.coordinates
+      path.forEach((item:any, index:any) => {
+        item = wgs84togcj02(
+          item[0],
+          item[1]
+        )
+      })
+      polyline.value = new root.$aMap.Polyline({
+        path: path,
+        strokeWeight: 10, // 线条宽度，默认为 1
+        strokeColor: '#3366bb', // 线条颜色
+        lineJoin: 'round',
+        lineCap: 'round',
+        showDir: true // 折线拐点连接处样式
+      })
+      map.add(polyline.value)
+      map.setCenter(path[0])
+      map.setZoom(12)
+      store.commit('SET_NEVIGATION_VISIBLE', true)
+      const { scheduled_time, line_length, geometry_point_size } = res.data
+      store.commit('SET_NEVIGATION_INFO', { scheduled_time, line_length, geometry_point_size })
+    }
+  })
 }
 
 function onScroll (e: any) {
@@ -235,10 +273,19 @@ const uploadFile = async () => {
     })
   })
 }
-
+// 离开该组件清除航线相关信息
+onBeforeRouteLeave(() => {
+  if (polyline.value) {
+    root.$map.remove(polyline.value)
+  }
+  store.commit('SET_NEVIGATION_VISIBLE', false)
+})
 </script>
 
 <style lang="scss" scoped>
+.wayline-border{
+  border:1px solid #2b85e4;
+}
 .wayline-panel {
   background: #3c3c3c;
   margin-left: auto;
@@ -249,6 +296,9 @@ const uploadFile = async () => {
   font-size: 13px;
   border-radius: 2px;
   cursor: pointer;
+  &:hover{
+  background: #666363;
+  }
   .title {
     display: flex;
     flex-direction: row;
@@ -262,5 +312,15 @@ const uploadFile = async () => {
   overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: #c5c8cc transparent;
+  .line-position{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .line-img{
+    width:20px;
+    margin-right: 10px;
+  }
+  }
+
 }
 </style>

@@ -3,18 +3,18 @@
     <div>
       <a-row>
         <a-col :span="1"></a-col>
-        <a-col :span="11">My Username</a-col>
+        <a-col :span="11">用户名</a-col>
         <a-col :span="11" align="right" style="font-weight: 700">{{ username }}</a-col>
         <a-col :span="1"></a-col>
       </a-row>
     </div>
     <div class="scrollbar" :style="{ height: scorllHeight + 'px'}">
       <a-collapse :bordered="false" expandIconPosition="right" accordion style="background: #232323;">
-        <a-collapse-panel :key="EDeviceTypeName.Dock" header="Dock" style="border-bottom: 1px solid #4f4f4f;">
+        <a-collapse-panel :key="EDeviceTypeName.Dock" header="机场" style="border-bottom: 1px solid #4f4f4f;">
           <div v-if="onlineDocks.data.length === 0" style="height: 150px; color: white;">
             <a-empty :image="noData" :image-style="{ height: '60px' }" />
           </div>
-          <div v-else class="fz12" style="color: white;">
+          <div  v-else class="fz12" style="color: white;">
             <div v-for="dock in onlineDocks.data" :key="dock.sn" style="background: #3c3c3c; height: 90px; width: 250px; margin-bottom: 10px;">
               <div style="border-radius: 2px; height: 100%; width: 100%;" class="flex-row flex-justify-between flex-align-center">
                 <div style="float: left; padding: 0px 5px 8px 8px; width: 88%">
@@ -137,11 +137,11 @@
         </a-collapse-panel>
       </a-collapse>
       <a-collapse :bordered="false" expandIconPosition="right" accordion style="background: #232323;">
-        <a-collapse-panel v-if='!onlineDevices.data.length' :key="EDeviceTypeName.Aircraft" header="Online Devices" style="border-bottom: 1px solid #4f4f4f;">
-          <div style="height: 150px; color: white;">
+        <a-collapse-panel  :key="EDeviceTypeName.Aircraft" header="在线设备" style="border-bottom: 1px solid #4f4f4f;">
+          <div style="height: 150px; color: white;" v-if='!onlineDevices.data.length' >
             <a-empty :image="noData" :image-style="{ height: '60px' }" />
           </div>
-          <div   class="fz12" style="color: white;" v-else>
+          <div   v-else class="fz12" style="color: white;" >
             <div v-for="device in onlineDevices.data" :key="device.sn" style="background: #3c3c3c; height: 90px; width: 250px; margin-bottom: 10px;">
               <div class="battery-slide" v-if="deviceInfo[device.sn]">
                 <div style="background: #535759; width: 100%;"></div>
@@ -155,7 +155,7 @@
                   <div style="width: 100%; height: 100%;">
                     <a-tooltip>
                       <template #title>{{ device.model ? `${device.model} - ${device.callsign}` : 'No Drone'}}</template>
-                      <span class="text-hidden" style="max-width: 200px; display: block; height: 20px;">{{ device.model ? `${device.model} - ${device.callsign}` : 'No Drone'}}</span>
+                      <span class="text-hidden" style="max-width: 200px; display: block; height: 20px;">{{ device.model ? `${device.model} - ${device.callsign}` : '暂无'}}</span>
                     </a-tooltip>
                   </div>
                   <div class="mt5" style="background: #595959;">

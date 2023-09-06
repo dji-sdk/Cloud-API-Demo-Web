@@ -1,5 +1,5 @@
 <template>
-  <div class="header">
+  <div class="header" ref="headerRef">
     <a-button  type="primary" large class="btn-primary" @click='openFileDialog'>创建文件夹</a-button>
     <div v-show="state.selectedRowIds.length" class="other-btn">
       <a-button   large class="btn-primary">压缩并下载</a-button>
@@ -56,7 +56,7 @@
       <div class="bread-content">
       <span v-for="(item,index) in breadList" :key="item" @click="jumpToPath(index)" :class="[index!=breadList.length-1?'tab-click':'']">{{ item }}<span v-if="index!=breadList.length-1" >/</span></span>
     </div>
-      <a-table :columns="columns" ref='tableRef' :data-source="mediaData.data" :scroll="{ x: '100%', y: 400 }" :row-selection="rowSelection">
+      <a-table :columns="columns" ref='tableRef' :data-source="mediaData.data" :scroll="{ x: '100%', y:`calc(100vh - ${otherHeight}px)` }" :row-selection="rowSelection" :pagination="false">
         <template v-for="col in ['file_name','payload','drone','create_time']" #[col]="{ text,index }" :key="col">
             <div @click="goDetail(mediaData.data[index],index)" v-if="col=='file_name'">
               <img src="../assets/icons/folder.svg" v-if='mediaData.data[index].file_type==0'>
@@ -76,10 +76,16 @@
             <div v-else>{{ text||'--' }}</div>
         </template>
         <template #action="{ record, index }">
-          <a-tooltip title="download">
+          <a-tooltip title="下载">
             <a class="fz18 space" @click="downloadMedia(record)"><DownloadOutlined /></a>
+          </a-tooltip>
+          <a-tooltip title="编辑">
             <a class="fz18 space" @click="editName(index)"><EditOutlined /></a>
+          </a-tooltip>
+          <a-tooltip title="删除">
             <a class="fz18 space" @click="deleteRow(index)"><DeleteOutlined /></a>
+          </a-tooltip>
+          <a-tooltip title="移入">
             <a class="fz18 space" @click="move(mediaData.data[index].id)"><LoginOutlined /></a>
           </a-tooltip>
     </template>
@@ -145,6 +151,7 @@ const loading = ref(false)
 const searchParam = reactive({ timestamp: [], type: [], name: '' })
 const state = reactive({ rowid: '', selectedRowIds: [], folderOpen: false, fileName: '新建文件夹', fatherId: 0, changeName: '', index: '', folderTree: false })
 const tableRef = ref()
+const headerRef = ref()
 // 面包屑对应的文件名
 const breadList = ref(['全部文件'])
 // 面包屑对应的父级id
@@ -195,6 +202,7 @@ const paginationProp = reactive({
   total: 0
 })
 const treeList = ref([])
+const otherHeight = ref(0)
 const fieldNames = reactive({
   children: 'children',
   title: 'file_name',
@@ -229,6 +237,7 @@ onMounted(() => {
       const tableContainer = tableRef.value.$el.querySelector('.ant-table-body')
       tableContainer.addEventListener('scroll', handleScroll)
     }
+    getHeight()
   })
   getFiles(workspaceId, paginationProp)
 })
@@ -362,7 +371,6 @@ const move = (id?:any) => {
   floderTreeData(workspaceId).then(res => {
     if (res.code === 0) {
       treeList.value = res.data
-      console.log(treeList.value, res.data, '1212')
       state.folderTree = true
     }
   })
@@ -370,7 +378,10 @@ const move = (id?:any) => {
 const selectTree = (seid:any, e:any) => {
   selectedKeys.value = e.node.dataRef.id
 }
-
+const getHeight = () => {
+  // 32表格padding值，60误差值
+  otherHeight.value = document.querySelector('.header').offsetHeight + 32 + 60 + document.querySelector('.bread-content').offsetHeight
+}
 </script>
 
 <style lang="scss" scoped>

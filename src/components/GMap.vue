@@ -20,6 +20,15 @@
         <a style="color: red;"><CloseOutlined /></a>
       </div>
     </div>
+    <!-- 航线信息 -->
+    <div class="g-nevigation" v-if="nevigationVisible">
+      <div class="nevigation-content">
+        <div><div>航线长度</div><div>{{(nevigationInformation.line_length/1).toFixed(0)}}m</div></div>
+        <div><div>预计执行时间</div><div>{{getTime(nevigationInformation.scheduled_time)}}</div></div>
+        <div><div>航点</div><div>{{nevigationInformation.geometry_point_size}}</div></div>
+        <!-- <div><div>照片</div><div>4</div></div> -->
+      </div>
+    </div>
     <!-- 飞机OSD -->
     <div v-if="osdVisible.visible && !osdVisible.is_dock" class="osd-panel fz12">
       <div style="opacity: 0.8;background: #000;">
@@ -556,7 +565,12 @@ export default defineComponent({
     const osdVisible = computed(() => {
       return store.state.osdVisible
     })
-
+    const nevigationVisible = computed(() => {
+      return store.state.nevigationVisible
+    })
+    const nevigationInformation = computed(() => {
+      return store.state.nevigationInformation
+    })
     watch(() => store.state.deviceStatusEvent,
       data => {
         if (Object.keys(data.deviceOnline).length !== 0) {
@@ -663,9 +677,9 @@ export default defineComponent({
     function play () {
       // routeName.value = 'LiveOthers'
       showLive.value = !showLive.value
-      nextTick(() => {
-        showLive.value ? liveStreamRef.value.onStart() : liveStreamRef.value.onStop()
-      })
+      if (!showLive.value) {
+        liveStreamRef.value.onStop()
+      }
     }
 
     // dock 控制面板
@@ -721,6 +735,7 @@ export default defineComponent({
       // console.log(store.state.coverList)
     }
     async function postPolygonResource (obj) {
+      console.log(obj, 'hafhhaf')
       const req = getPoygonResource(obj)
       setLayers(req)
       updateCoordinates('gcj02-wgs84', req)
@@ -839,7 +854,13 @@ export default defineComponent({
         }
       }
     }
-
+    function getTime (data:any) {
+      if (data >= 60) {
+        return `${(data / 60).toFixed()}m${(data % 60).toFixed()}s`
+      } else {
+        return `${data.toFixed()}s`
+      }
+    }
     return {
       draw,
       play,
@@ -848,7 +869,10 @@ export default defineComponent({
       // routeName,
       mouseMode,
       drawVisible,
+      nevigationInformation,
+      nevigationVisible,
       osdVisible,
+      getTime,
       pin,
       state,
       M30,
@@ -874,7 +898,21 @@ export default defineComponent({
 .g-map-wrapper {
   height: 100%;
   width: 100%;
-
+  .g-nevigation{
+    position: absolute;
+    bottom: 60px;
+    width: 100%;
+    .nevigation-content{
+      display:flex;
+      justify-content: center;
+      color:#666;
+      font-weight: 500;
+      font-size:26px;
+      &>div{
+        padding-right: 20px;
+      }
+    }
+  }
   .g-action-panel {
     position: absolute;
     top: 16px;
@@ -911,10 +949,10 @@ export default defineComponent({
   left: 10px;
   top: 10px;
   width: 480px;
-  /* background: #000; */
+  background: #000;
   color: #fff;
   border-radius: 2px;
-  /* opacity: 0.8; */
+  // opacity: 0.8;
   .content-padding{
     padding:16px;
     .video-btn{

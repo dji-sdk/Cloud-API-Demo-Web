@@ -135,3 +135,9 @@ export const uploadMediaFileNow = async function (workspaceId: string, jobId: st
   const result = await request.post(url)
   return result.data
 }
+// 获取指定航线
+export const getNevigationLine = async function (workspaceId: string, id: any): Promise<IWorkspaceResponse<{}>> {
+  const url = `${HTTP_PREFIX}/workspaces/${workspaceId}/waylines/get/${id}`
+  const result = await request.get(url)
+  return result.data
+}

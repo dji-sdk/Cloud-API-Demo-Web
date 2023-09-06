@@ -3,7 +3,7 @@
     <div style="height: 50px; line-height: 50px; border-bottom: 1px solid #4f4f4f; font-weight: 450;">
       <a-row>
         <a-col :span="1"></a-col>
-        <a-col :span="20">Task Plan Library</a-col>
+        <a-col :span="20">计划库</a-col>
         <a-col :span="2">
           <span v-if="taskRoute">
             <router-link :to="{ name: ERouterName.CREATE_PLAN}">
