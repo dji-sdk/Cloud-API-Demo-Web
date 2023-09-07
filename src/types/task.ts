@@ -7,8 +7,8 @@ export enum TaskType {
 }
 
 export const TaskTypeMap = {
-  [TaskType.Immediate]: 'Immediate',
-  [TaskType.Timed]: 'Timed',
+  [TaskType.Immediate]: '立即执行',
+  [TaskType.Timed]: '执行时间',
 }
 
 export const TaskTypeOptions = [
@@ -24,9 +24,9 @@ export enum OutOfControlAction {
 }
 
 export const OutOfControlActionMap = {
-  [OutOfControlAction.ReturnToHome]: 'Return to Home',
-  [OutOfControlAction.Hover]: 'Hover',
-  [OutOfControlAction.Land]: 'Land',
+  [OutOfControlAction.ReturnToHome]: '返航',
+  [OutOfControlAction.Hover]: '悬停',
+  [OutOfControlAction.Land]: '降落',
 }
 
 export const OutOfControlActionOptions = [

@@ -27,7 +27,7 @@
           <a-menu theme="dark" class="flex-column flex-justify-between flex-align-center">
             <a-menu-item>
               <span class="mr10" style="font-size: 16px;"><ExportOutlined /></span>
-              <span @click="logout">Log Out</span>
+              <span @click="logout">退出登录</span>
             </a-menu-item>
           </a-menu>
         </template>

@@ -53,12 +53,12 @@ export default defineComponent({
   setup () {
     const root = getRoot()
     const options = [
-      { key: 0, label: 'Tsa', path: '/' + ERouterName.TSA, icon: 'TeamOutlined' },
-      { key: 1, label: 'Livestream', path: '/' + ERouterName.LIVESTREAM, icon: 'VideoCameraOutlined' },
-      { key: 2, label: 'Annotations', path: '/' + ERouterName.LAYER, icon: 'EnvironmentOutlined' },
-      { key: 3, label: 'Media Files', path: '/' + ERouterName.MEDIA, icon: 'PictureOutlined' },
-      { key: 4, label: 'Flight Route Library', path: '/' + ERouterName.WAYLINE, icon: 'NodeIndexOutlined' },
-      { key: 5, label: 'Task Plan Library', path: '/' + ERouterName.TASK, icon: 'CalendarOutlined' }
+      { key: 0, label: '团队', path: '/' + ERouterName.TSA, icon: 'TeamOutlined' },
+      { key: 1, label: '直播', path: '/' + ERouterName.LIVESTREAM, icon: 'VideoCameraOutlined' },
+      { key: 2, label: '标注', path: '/' + ERouterName.LAYER, icon: 'EnvironmentOutlined' },
+      { key: 3, label: '媒体库', path: '/' + ERouterName.MEDIA, icon: 'PictureOutlined' },
+      { key: 4, label: '航线库', path: '/' + ERouterName.WAYLINE, icon: 'NodeIndexOutlined' },
+      { key: 5, label: '计划库', path: '/' + ERouterName.TASK, icon: 'CalendarOutlined' }
     ]
 
     function selectedRoute (item: IOptions) {

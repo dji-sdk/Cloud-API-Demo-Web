@@ -1,8 +1,8 @@
 <template>
-  <div class="header">Task Plan Library</div>
+  <div class="header">计划库</div>
   <div class="plan-panel-wrapper">
     <a-table class="plan-table" :columns="columns" :data-source="plansData.data" row-key="job_id"
-      :pagination="paginationProp" :scroll="{ x: '100%', y: 600 }" @change="refreshData">
+      :pagination="paginationProp" :scroll="{ x: true, y: `calc(100vh - 196px)`}" @change="refreshData">
       <!-- 执行时间 -->
       <template #duration="{ record }">
         <div class="flex-row" style="white-space: pre-wrap">
@@ -53,7 +53,7 @@
             {{ formatMediaTaskStatus(record).number }}
             <a-tooltip v-if="formatMediaTaskStatus(record).status === MediaStatus.ToUpload" placement="bottom" arrow-point-at-center >
               <template #title>
-              <div>Upload now</div>
+              <div>立即下载</div>
               </template>
               <UploadOutlined class="ml5" :style="{color: commonColor.BLUE, fontSize: '16px' }"  @click="onUploadMediaFileNow(record.job_id)"/>
             </a-tooltip>
@@ -70,7 +70,7 @@
             cancel-text="No"
             @confirm="onDeleteTask(record.job_id)"
           >
-            <a-button type="primary" size="small">Delete</a-button>
+            <a-button type="primary" size="small">删除</a-button>
           </a-popconfirm>
           <a-popconfirm
             v-if="record.status === TaskStatus.Carrying"
@@ -79,7 +79,7 @@
             cancel-text="No"
             @confirm="onSuspendTask(record.job_id)"
           >
-            <a-button type="primary" size="small">Suspend</a-button>
+            <a-button type="primary" size="small">暂停</a-button>
           </a-popconfirm>
           <a-popconfirm
             v-if="record.status === TaskStatus.Paused"
@@ -88,7 +88,7 @@
             cancel-text="No"
             @confirm="onResumeTask(record.job_id)"
           >
-            <a-button type="primary" size="small">Resume</a-button>
+            <a-button type="primary" size="small">开始</a-button>
           </a-popconfirm>
         </div>
       </template>
@@ -131,63 +131,63 @@ const paginationProp = reactive({
 
 const columns = [
   {
-    title: 'Planned/Actual Time',
+    title: '计划|实际时间',
     dataIndex: 'duration',
     width: 200,
     slots: { customRender: 'duration' },
   },
   {
-    title: 'Status',
+    title: '执行状态',
     key: 'status',
     width: 150,
     slots: { customRender: 'status' }
   },
   {
-    title: 'Plan Name',
+    title: '计划名称',
     dataIndex: 'job_name',
     width: 100,
   },
   {
-    title: 'Type',
+    title: '类型',
     dataIndex: 'taskType',
     width: 100,
     slots: { customRender: 'taskType' },
   },
   {
-    title: 'Flight Route Name',
+    title: '航线名称',
     dataIndex: 'file_name',
     width: 100,
   },
   {
-    title: 'Dock Name',
+    title: '机场名称',
     dataIndex: 'dock_name',
     width: 100,
     ellipsis: true
   },
   {
-    title: 'RTH Altitude Relative to Dock (m)',
+    title: '返航高度(m)',
     dataIndex: 'rth_altitude',
     width: 120,
   },
   {
-    title: 'Lost Action',
+    title: '失联动作',
     dataIndex: 'out_of_control_action',
     width: 120,
     slots: { customRender: 'lostAction' },
   },
   {
-    title: 'Creator',
+    title: '创建者',
     dataIndex: 'username',
     width: 120,
   },
   {
-    title: 'Media File Upload',
+    title: '媒体文件下载',
     key: 'media_upload',
     width: 160,
     slots: { customRender: 'media_upload' }
   },
   {
-    title: 'Action',
+    title: '操作',
     width: 120,
     slots: { customRender: 'action' }
   }
@@ -331,6 +331,7 @@ async function onUploadMediaFileNow (jobId: string) {
   .plan-table {
     background: #fff;
     margin-top: 10px;
+    width:100%;
   }
   .action-area {
 

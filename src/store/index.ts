@@ -32,6 +32,8 @@ const initStateFunc = () => ({
   layerBaseInfo: {} as {
     [key:string]:string
   },
+  nevigationVisible: false,
+  nevigationInformation: {}, // 航线信息
   drawVisible: false,
   coverList: [
 
@@ -139,6 +141,13 @@ const mutations: MutationTree<RootStateType> = {
   },
   SET_DRAW_VISIBLE_INFO (state, bool) {
     state.drawVisible = bool
+  },
+  SET_NEVIGATION_INFO (state, bool) {
+    console.log(bool, 'bool')
+    Object.assign(state.nevigationInformation, bool)
+  },
+  SET_NEVIGATION_VISIBLE (state, bool) {
+    state.nevigationVisible = bool
   },
   SET_MAP_ELEMENT_CREATE (state, info) {
     state.wsEvent.mapElementCreat = info

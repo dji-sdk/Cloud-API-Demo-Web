@@ -3,7 +3,7 @@
     <div style="height: 50px; line-height: 50px; border-bottom: 1px solid #4f4f4f; font-weight: 450;">
       <a-row>
         <a-col :span="1"></a-col>
-        <a-col :span="22">Annotations</a-col>
+        <a-col :span="22">标注</a-col>
         <a-col :span="1"></a-col>
       </a-row>
     </div>
@@ -18,7 +18,7 @@
     />
     </div>
     <a-drawer
-      title="Map Element"
+      title="标注信息"
       placement="right"
       :closable="true"
       v-model:visible="visible"
@@ -29,7 +29,7 @@
     >
       <div class="drawer-element-content">
         <div class="name element-item">
-          <span class="title">Name:</span>
+          <span class="title">名称:</span>
           <a-input
             v-model:value="layerState.layerName"
             style="width:120px"
@@ -82,7 +82,7 @@
           />
         </div>
         <div class="color-content">
-          <span class="mr30">Color: </span>
+          <span class="mr30">颜色: </span>
           <div
             v-for="item in colors"
             :key="item.id"
@@ -99,7 +99,7 @@
         </div>
       </div>
       <div class="flex-row flex-justify-around flex-align-center mt20">
-        <a-button type="primary" @click="deleteElement">Delete</a-button>
+        <a-button type="primary" @click="deleteElement">删除</a-button>
       </div>
     </a-drawer>
   </div>
