@@ -74,7 +74,7 @@ export const getLiveSnCapacity = async function (id:any): Promise<IWorkspaceResp
   const url = `${HTTP_PREFIX}/live/capacity?sn=${id}`
   const result = await request.get(url)
   return result.data
-} 
+}
 
 // Start Livestream
 export const startLivestream = async function (body: {}): Promise<IWorkspaceResponse<any>> {

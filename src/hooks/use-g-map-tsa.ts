@@ -6,6 +6,8 @@ import { message } from 'ant-design-vue'
 import dockIcon from '/@/assets/icons/dock.png'
 import rcIcon from '/@/assets/icons/rc.png'
 import droneIcon from '/@/assets/icons/drone.png'
+import { wgs84togcj02 } from '/@/vendors/coordtransform'
+import { GeojsonCoordinate } from '../types/map'
 
 export function deviceTsaUpdate () {
   const root = getRoot()
@@ -38,6 +40,14 @@ export function deviceTsaUpdate () {
     })
   }
 
+  function wgs84togcj02Fn (lng?: number, lat?: number) {
+    if (lng !== undefined) {
+      return wgs84togcj02(lng, lat) as GeojsonCoordinate
+    } else {
+      return [121.376134, 31.084440]
+    }
+  }
+
   function initMarker (type: number, name: string, sn: string, lng?: number, lat?: number) {
     if (markers[sn]) {
       return
@@ -45,14 +55,17 @@ export function deviceTsaUpdate () {
     if (root.$aMap === undefined) {
       return
     }
+    // 121.376134, 31.084440
+    const transFn = wgs84togcj02Fn(lng, lat)
     AMap = root.$aMap
     markers[sn] = new AMap.Marker({
-      position: new AMap.LngLat(lng || 113.943225499, lat || 22.577673716),
+      position: new AMap.LngLat(transFn[0], transFn[1]),
       icon: initIcon(type),
       title: name,
       anchor: 'top-center',
       offset: [0, -20],
     })
+    console.log('initMarker', name)
     root.$map.add(markers[sn])
     // markers[sn].on('moving', function (e: any) {
     //   let path = paths[sn]
@@ -83,6 +96,7 @@ export function deviceTsaUpdate () {
           message.error(data.message)
           return
         }
+        console.log('addMarker', data.data)
         initMarker(data.data.domain, data.data.nickname, sn, lng, lat)
       })
   }
@@ -94,7 +108,9 @@ export function deviceTsaUpdate () {
       marker = markers[sn]
       return
     }
-    marker.moveTo([lng, lat], {
+
+    const transFn = wgs84togcj02Fn(lng, lat)
+    marker.moveTo([transFn[0], transFn[1]], {
       duration: 1800,
       autoRotation: true
     })

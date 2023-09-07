@@ -101,7 +101,6 @@ const getters: GetterTree<RootStateType, RootStateType> = {
 }
 const mutations: MutationTree<RootStateType> = {
   SET_LAYER_ID (state, info) {
-    console.log(info)
     state.layerId = info
   },
   SET_LAYER_INFO (state, info) {

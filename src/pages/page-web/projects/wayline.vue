@@ -204,7 +204,7 @@ function selectRoute (wayline: WaylineFile, index:any) {
     if (res.code === 0) {
       const path = res.data?.geometry.coordinates
       path.forEach((item:any, index:any) => {
-        item = wgs84togcj02(
+        path[index] = wgs84togcj02(
           item[0],
           item[1]
         )
