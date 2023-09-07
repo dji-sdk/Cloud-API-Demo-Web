@@ -136,3 +136,9 @@ export enum EHmsLevel {
     CAUTION,
     WARN,
 }
+export enum TabName {
+    WORKSPACE = '工作区',
+    MEMBERS = '人员管理',
+    DEVICES = '设备管理',
+    FIRMWARES='固件管理'
+}

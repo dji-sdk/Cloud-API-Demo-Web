@@ -41,7 +41,7 @@ import { message } from 'ant-design-vue'
 import { defineComponent, onMounted, ref } from 'vue'
 import { getRoot } from '/@/root'
 import { getPlatformInfo } from '/@/api/manage'
-import { ELocalStorageKey, ERouterName } from '/@/types'
+import { ELocalStorageKey, ERouterName, TabName } from '/@/types'
 import { UserOutlined, ExportOutlined } from '@ant-design/icons-vue'
 import cloudapi from '/@/assets/icons/cloudapi.png'
 
@@ -61,10 +61,10 @@ interface IOptions {
 const username = ref(localStorage.getItem(ELocalStorageKey.Username))
 const workspaceName = ref('')
 const options = [
-  { key: 0, label: ERouterName.WORKSPACE.charAt(0).toUpperCase() + ERouterName.WORKSPACE.substr(1), path: '/' + ERouterName.WORKSPACE },
-  { key: 1, label: ERouterName.MEMBERS.charAt(0).toUpperCase() + ERouterName.MEMBERS.substr(1), path: '/' + ERouterName.MEMBERS },
-  { key: 2, label: ERouterName.DEVICES.charAt(0).toUpperCase() + ERouterName.DEVICES.substr(1), path: '/' + ERouterName.DEVICES },
-  { key: 3, label: ERouterName.FIRMWARES.charAt(0).toUpperCase() + ERouterName.FIRMWARES.substr(1), path: '/' + ERouterName.FIRMWARES },
+  { key: 0, label: TabName.WORKSPACE, path: '/' + ERouterName.WORKSPACE },
+  { key: 1, label: TabName.MEMBERS, path: '/' + ERouterName.MEMBERS },
+  { key: 2, label: TabName.DEVICES, path: '/' + ERouterName.DEVICES },
+  { key: 3, label: TabName.FIRMWARES, path: '/' + ERouterName.FIRMWARES },
 ]
 
 const selected = ref<string>(root.$route.path)
