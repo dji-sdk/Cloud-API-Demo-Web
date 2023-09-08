@@ -108,15 +108,18 @@
     </a-drawer>
     <a-modal v-model:visible="importVisible" :closable="false"  :maskClosable="false" class="modal-layer-content">
       <template #title>
-        <div class="model-title">移动到</div>
+        <div class="model-title">导入</div>
       </template>
-      <a-form :model="state" class="form-content">
-        <a-form-item label="文件" style="color:#fff">
+      <a-form :model="state" :rules="rules" class="form-content" ref="fileModalRef">
+        <a-form-item label="文件" style="color:#fff" name="file">
           <a-upload
           accept=".kml"
           action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-          :file-list="fileList"
-          @change="handleChange"
+          :file-list="state.file"
+          :show-upload-list="true"
+          :before-upload="beforeUpload"
+          :remove="removeFile"
+
           >
             <a-button class="btn-color">
               <upload-outlined></upload-outlined>
@@ -124,14 +127,14 @@
             </a-button>
           </a-upload>
         </a-form-item>
-        <a-form-item label="文件夹" style="color:#fff">
+        <a-form-item label="文件夹" style="color:#fff" name="id">
           <a-tree-select
-          v-model:value="state.file"
+          v-model:value="state.id"
           style="width: 100%"
-          :tree-data="fileTree"
+          :tree-data="mapLayers"
+          :replace-fields="{children:'elements', label:'name', value: 'id' }"
           allow-clear
           placeholder="Please select"
-          tree-node-filter-prop="label"
           />
         </a-form-item>
       </a-form>
@@ -150,13 +153,15 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import {
   deleteElementReq,
   getElementGroupsReq,
-  updateElementsReq
+  updateElementsReq,
+  importKmlFile
 } from '/@/api/layer'
 import LayersTree from '/@/components/LayersTree.vue'
 import { MapDoodleColor, MapElementEnum } from '/@/constants/map'
 import { useGMapCover } from '/@/hooks/use-g-map-cover'
 import { getRoot } from '/@/root'
 import { useMyStore } from '/@/store'
+import { ELocalStorageKey } from '/@/types'
 import { GeojsonCoordinate, LayerResource } from '/@/types/map'
 import { Color, GeoType } from '/@/types/mapLayer'
 import { generatePoint } from '/@/utils/genjson'
@@ -369,7 +374,6 @@ async function getElementGroups (type?: string) {
     isDistributed: true
   })
   mapLayers.value = result.data
-  console.log('lizhao2', result)
   mapLayers.value = updateWgs84togcj02()
   if (type && type === 'init') {
     store.dispatch('setLayerInfo', mapLayers.value)
@@ -483,63 +487,57 @@ function updateCoordinates (transformType: string, element: LayerResource) {
   }
 }
 /** 导入文件--------------start */
+interface FileItem {
+  uid: string;
+  name?: string;
+  status?: string;
+  response?: string;
+  url?: string;
+}
+const fileModalRef = ref()
+const workspaceId: string = localStorage.getItem(ELocalStorageKey.WorkspaceId) || ''
 const importVisible = ref(false)
-const state = reactive({ name: '', file: '' })
-const fileList = ref()
-const fileTree = [
-  {
-    label: 'Node1',
-    value: '0-0',
-    children: [
-      {
-        label: 'Child Node1',
-        value: '0-0-0',
-      },
-    ],
-  },
-  {
-    label: 'Node2',
-    value: '0-1',
-
-    children: [
-      {
-        label: 'Child Node3',
-        value: '0-1-0',
-        disabled: true,
-      },
-      {
-        label: 'Child Node4',
-        value: '0-1-1',
-      },
-      {
-        label: 'Child Node5',
-        value: '0-1-2',
-      },
-    ],
-  },
-]
-
+const state = reactive({ id: '', file: [] })
 // 打开文件导入弹框
 const openFileDialog = () => {
+  state.id = ''
+  state.file = []
   importVisible.value = true
 }
 // 确认导入操作
 const importSubmit = () => {
-
-}
-// const beforeUpload = (file:any) => {
-// //   fileList.value = [file]
-// // }
-const handleChange = (info: any) => {
-  let resFileList = [...info.fileList]
-  resFileList = resFileList.slice(-1)
-  resFileList = resFileList.map(file => {
-    if (file.response) {
-      file.url = file.response.url
-    }
-    return file
+  fileModalRef.value.validate().then(() => {
+    state.file.forEach(async (file: any) => {
+      const fileData = new FormData()
+      fileData.append('file', file, file.name)
+      await importKmlFile(workspaceId, fileData, state.id).then((res:any) => {
+        importVisible.value = false
+        getElementGroups()
+      })
+    })
   })
-  fileList.value = resFileList
+}
+function beforeUpload (file: FileItem) {
+  fileModalRef.value.validate()
+  state.file = [file]
+  return true
+}
+const rules = {
+  id: [{ required: true, message: '请选择文件夹', trigger: 'change' }],
+  file: [
+    {
+      required: true,
+      trigger: 'change',
+      validator: async (rule: any, value: string) => {
+        if (!value.length) {
+          throw new Error('请上传文件')
+        }
+      },
+    }
+  ],
+}
+const removeFile = () => {
+  state.file = []
 }
 
 /** 导入文件--------------end */
@@ -568,6 +566,19 @@ const handleChange = (info: any) => {
   ::v-deep(.ant-select-selector){
     background-color:#3c3c3c !important;
     border:none !important;
+  }
+  ::v-deep{
+    .ant-upload-list-item-name{
+      color:#fff;
+    }
+    .anticon-paper-clip,.ant-upload-list-item-card-actions .anticon{
+      color: #fff;
+    }
+    .ant-upload-list-item-info{
+      &:hover{
+        background: #1c1c1c;
+      }
+    }
   }
 }
 .img-icon{

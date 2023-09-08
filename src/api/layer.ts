@@ -51,3 +51,12 @@ export const deleteLayerEleReq = async (id: string, body: {}): Promise<any> => {
   const result = await request.delete(url, body)
   return result.data
 }
+export const importKmlFile = async function (workspaceId: string, file: {}, id:any): Promise<IWorkspaceResponse<any>> {
+  const url = `${PREFIX}/workspaces/${workspaceId}/elements/file/upload/${id}`
+  const result = await request.post(url, file, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    }
+  })
+  return result.data
+}
