@@ -3,8 +3,12 @@
     <div style="height: 50px; line-height: 50px; border-bottom: 1px solid #4f4f4f; font-weight: 450;">
       <a-row>
         <a-col :span="1"></a-col>
-        <a-col :span="22">标注</a-col>
-        <a-col :span="1"></a-col>
+        <a-col :span="20">标注</a-col>
+        <a-col :span="1">
+          <a-tooltip title="导入">
+            <img :src="importImg" class="img-icon" @click="openFileDialog" />
+          </a-tooltip>
+        </a-col>
       </a-row>
     </div>
     <div class="scrollbar" :style="{ height: scorllHeight + 'px'}">
@@ -102,6 +106,42 @@
         <a-button type="primary" @click="deleteElement">删除</a-button>
       </div>
     </a-drawer>
+    <a-modal v-model:visible="importVisible" :closable="false"  :maskClosable="false" class="modal-layer-content">
+      <template #title>
+        <div class="model-title">移动到</div>
+      </template>
+      <a-form :model="state" class="form-content">
+        <a-form-item label="文件" style="color:#fff">
+          <a-upload
+          accept=".kml"
+          action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+          :file-list="fileList"
+          @change="handleChange"
+          >
+            <a-button class="btn-color">
+              <upload-outlined></upload-outlined>
+              上传文件
+            </a-button>
+          </a-upload>
+        </a-form-item>
+        <a-form-item label="文件夹" style="color:#fff">
+          <a-tree-select
+          v-model:value="state.file"
+          style="width: 100%"
+          :tree-data="fileTree"
+          allow-clear
+          placeholder="Please select"
+          tree-node-filter-prop="label"
+          />
+        </a-form-item>
+      </a-form>
+      <template #footer>
+        <div>
+          <a-button  large class="btn-primary btn-color" @click='importVisible=false'>取消</a-button>
+          <a-button  type="primary" large class="btn-primary" @click='importSubmit()'>确定</a-button>
+        </div>
+      </template>
+    </a-modal>
   </div>
 </template>
 
@@ -121,12 +161,13 @@ import { GeojsonCoordinate, LayerResource } from '/@/types/map'
 import { Color, GeoType } from '/@/types/mapLayer'
 import { generatePoint } from '/@/utils/genjson'
 import { gcj02towgs84, wgs84togcj02 } from '/@/vendors/coordtransform'
+import importImg from '/@/assets/icons/import.svg'
 
 const root = getRoot()
 const store = useMyStore()
 let useGMapCoverHook = useGMapCover(store)
 console.log('store', store)
-const mapLayers = ref(store.state.Layers)
+const mapLayers = ref(store?.state?.Layers)
 const checkedKeys = ref<string[]>([])
 const selectedKeys = ref<string[]>([])
 const selectedKey = ref<string>('')
@@ -441,12 +482,121 @@ function updateCoordinates (transformType: string, element: LayerResource) {
     }
   }
 }
+/** 导入文件--------------start */
+const importVisible = ref(false)
+const state = reactive({ name: '', file: '' })
+const fileList = ref()
+const fileTree = [
+  {
+    label: 'Node1',
+    value: '0-0',
+    children: [
+      {
+        label: 'Child Node1',
+        value: '0-0-0',
+      },
+    ],
+  },
+  {
+    label: 'Node2',
+    value: '0-1',
+
+    children: [
+      {
+        label: 'Child Node3',
+        value: '0-1-0',
+        disabled: true,
+      },
+      {
+        label: 'Child Node4',
+        value: '0-1-1',
+      },
+      {
+        label: 'Child Node5',
+        value: '0-1-2',
+      },
+    ],
+  },
+]
+
+// 打开文件导入弹框
+const openFileDialog = () => {
+  importVisible.value = true
+}
+// 确认导入操作
+const importSubmit = () => {
+
+}
+// const beforeUpload = (file:any) => {
+// //   fileList.value = [file]
+// // }
+const handleChange = (info: any) => {
+  let resFileList = [...info.fileList]
+  resFileList = resFileList.slice(-1)
+  resFileList = resFileList.map(file => {
+    if (file.response) {
+      file.url = file.response.url
+    }
+    return file
+  })
+  fileList.value = resFileList
+}
+
+/** 导入文件--------------end */
 </script>
 
 <style lang="scss" scoped>
+
 @import '/@/styles/index.scss';
+::v-deep(.ant-modal-content){
+  background-color: #1c1c1c;
+
+}
+.btn-color{
+    background-color: #3c3c3c;
+    border:none;
+    color:#fff;
+    &:hover{
+    background-color: #666;
+
+    }
+  }
+.form-content{
+  ::v-deep(.ant-form-item-label>label){
+    color:#ffffffa6
+  }
+  ::v-deep(.ant-select-selector){
+    background-color:#3c3c3c !important;
+    border:none !important;
+  }
+}
+.img-icon{
+  cursor: pointer;
+  width:22px;
+  height:22px;
+}
+
+.model-title{
+  cursor: move ;
+  text-align: center;
+  border: none;
+  color:#fff;
+  width:100%;
+}
 </style>
 <style lang="scss">
+.modal-layer-content{
+  .ant-modal-content{
+    background-color: #1c1c1c !important;
+  }
+  .ant-modal-header{
+    background-color: #282828;
+    border:none;
+  }
+  .ant-modal-footer{
+    border:none;
+  }
+}
 .drawer-element-wrapper {
   .ant-drawer-content {
     background-color: $dark-highlight;
@@ -491,4 +641,5 @@ function updateCoordinates (transformType: string, element: LayerResource) {
 .scrollbar {
   overflow: auto;
 }
+
 </style>
