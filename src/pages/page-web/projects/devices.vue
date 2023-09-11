@@ -2,10 +2,10 @@
 <template>
   <a-menu v-model:selectedKeys="current" mode="horizontal" @select="select">
     <a-menu-item :key="EDeviceTypeName.Aircraft" class="ml20">
-      Aircraft
+      飞行器
     </a-menu-item>
     <a-menu-item :key="EDeviceTypeName.Dock">
-      Dock
+      机场
     </a-menu-item>
   </a-menu>
   <div class="device-table-wrap table flex-display flex-column">
@@ -139,10 +139,10 @@ const loading = ref(true)
 const deleteTip = ref<boolean>(false)
 const deleteSn = ref<string>()
 const columns: ColumnProps[] = [
-  { title: 'Model', dataIndex: 'device_name', width: 100, className: 'titleStyle' },
-  { title: 'SN', dataIndex: 'device_sn', width: 100, className: 'titleStyle', ellipsis: true, slots: { customRender: 'sn' } },
+  { title: '设备型号', dataIndex: 'device_name', width: 100, className: 'titleStyle' },
+  { title: '设备SN', dataIndex: 'device_sn', width: 100, className: 'titleStyle', ellipsis: true, slots: { customRender: 'sn' } },
   {
-    title: 'Name',
+    title: '设备组织名称',
     dataIndex: 'nickname',
     width: 100,
     sorter: (a: Device, b: Device) => a.nickname.localeCompare(b.nickname),
@@ -150,10 +150,10 @@ const columns: ColumnProps[] = [
     ellipsis: true,
     slots: { customRender: 'nickname' }
   },
-  { title: 'Firmware Version', dataIndex: 'firmware_version', width: 150, className: 'titleStyle', slots: { customRender: 'firmware_version' } },
-  { title: 'Status', dataIndex: 'status', width: 100, className: 'titleStyle', slots: { customRender: 'status' } },
+  { title: '固件版本', dataIndex: 'firmware_version', width: 150, className: 'titleStyle', slots: { customRender: 'firmware_version' } },
+  { title: '在线状态', dataIndex: 'status', width: 100, className: 'titleStyle', slots: { customRender: 'status' } },
   {
-    title: 'Workspace',
+    title: '所属项目',
     dataIndex: 'workspace_name',
     width: 100,
     className: 'titleStyle',
@@ -172,10 +172,10 @@ const columns: ColumnProps[] = [
       return obj
     }
   },
-  { title: 'Joined', dataIndex: 'bound_time', width: 150, sorter: (a: Device, b: Device) => a.bound_time.localeCompare(b.bound_time), className: 'titleStyle' },
-  { title: 'Last Online', dataIndex: 'login_time', width: 150, sorter: (a: Device, b: Device) => a.login_time.localeCompare(b.login_time), className: 'titleStyle' },
+  { title: '加入组织时间', dataIndex: 'bound_time', width: 150, sorter: (a: Device, b: Device) => a.bound_time.localeCompare(b.bound_time), className: 'titleStyle' },
+  { title: '在线时间', dataIndex: 'login_time', width: 150, sorter: (a: Device, b: Device) => a.login_time.localeCompare(b.login_time), className: 'titleStyle' },
   {
-    title: 'Actions',
+    title: '操作',
     dataIndex: 'actions',
     width: 100,
     className: 'titleStyle',

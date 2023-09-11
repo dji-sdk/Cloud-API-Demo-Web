@@ -1,10 +1,10 @@
 <template>
   <div class="header" ref="headerRef">
-    <a-button  type="primary" large class="btn-primary" @click='openFileDialog'>创建文件夹</a-button>
+    <a-button  type="primary" large class="btn-primary btn-primary" @click='openFileDialog'>创建文件夹</a-button>
     <div v-show="state.selectedRowIds.length" class="other-btn">
-      <a-button   large class="btn-primary">压缩并下载</a-button>
-      <a-button   large class="btn-primary" @click="move()">移动</a-button>
-      <a-button   large class="btn-primary" @click="deleteRow()">删除</a-button>
+      <a-button   large class="btn-primary btn-primary">压缩并下载</a-button>
+      <a-button   large class="btn-primary btn-primary" @click="move()">移动</a-button>
+      <a-button   large class="btn-primary btn-primary" @click="deleteRow()">删除</a-button>
     </div>
 
     <div class="search-content">
@@ -42,7 +42,7 @@
                 <a-form-item name="name">
                   <a-input v-model:value="searchParam.name" placeholder="按文件名称搜索">
                     <template #addonAfter>
-                      <ZoomInOutlined />
+                      <img src="../assets/icons/search-icon.svg" class="search-icon"/>
                     </template>
                   </a-input>
                 </a-form-item>
@@ -403,6 +403,17 @@ const getHeight = () => {
     color: $primary;
     cursor: pointer;
   }
+}
+::v-deep {
+  .ant-input{
+    border-right:none
+  }
+  .ant-input-group-addon{
+  background-color: #fff;
+}
+}
+.search-icon{
+  width:16px;
 }
 .video-img{
   width:25px;

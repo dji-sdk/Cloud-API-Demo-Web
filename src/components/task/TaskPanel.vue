@@ -1,5 +1,11 @@
 <template>
-  <div class="header">计划库</div>
+  <div class="header">
+    <template v-if="taskRoute">
+      <router-link :to="{ name: ERouterName.CREATE_PLAN}">
+        <a-button type="primary" class="bth-common">新建计划</a-button>
+      </router-link>
+    </template>
+  </div>
   <div class="plan-panel-wrapper">
     <a-table class="plan-table" :columns="columns" :data-source="plansData.data" row-key="job_id"
       :pagination="paginationProp" :scroll="{ x: true, y: `calc(100vh - 196px)`}" @change="refreshData">
@@ -97,14 +103,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from '@vue/reactivity'
+import { reactive, ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { ERouterName, ELocalStorageKey } from '/@/types/enums'
 import { message } from 'ant-design-vue'
 import { TableState } from 'ant-design-vue/lib/table/interface'
-import { onMounted } from 'vue'
+
 import { IPage } from '/@/api/http/type'
 import { deleteTask, updateTaskStatus, UpdateTaskStatus, getWaylineJobs, Task, uploadMediaFileNow } from '/@/api/wayline'
 import { useMyStore } from '/@/store'
-import { ELocalStorageKey } from '/@/types/enums'
+
 import { useFormatTask } from './use-format-task'
 import { TaskStatus, TaskProgressInfo, TaskProgressStatus, TaskProgressWsStatusMap, MediaStatus, MediaStatusProgressInfo, TaskMediaHighestPriorityProgressInfo } from '/@/types/task'
 import { useTaskWsEvent } from './use-task-ws-event'
@@ -112,6 +120,10 @@ import { getErrorMessage } from '/@/utils/error-code/index'
 import { commonColor } from '/@/utils/color'
 import { ExclamationCircleOutlined, UploadOutlined } from '@ant-design/icons-vue'
 
+const route = useRoute()
+const taskRoute = computed(() => {
+  return route.name === ERouterName.TASK
+})
 const store = useMyStore()
 const workspaceId = localStorage.getItem(ELocalStorageKey.WorkspaceId)!
 
@@ -329,6 +341,7 @@ async function onUploadMediaFileNow (jobId: string) {
   width: 100%;
   padding: 16px;
   .plan-table {
+    padding: 16px;
     background: #fff;
     margin-top: 10px;
     width:100%;
@@ -356,7 +369,6 @@ async function onUploadMediaFileNow (jobId: string) {
 .header {
   width: 100%;
   height: 60px;
-  background: #fff;
   padding: 16px;
   font-size: 20px;
   font-weight: bold;

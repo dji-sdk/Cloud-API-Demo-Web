@@ -4,18 +4,6 @@
       <a-row>
         <a-col :span="1"></a-col>
         <a-col :span="20">计划库</a-col>
-        <a-col :span="2">
-          <span v-if="taskRoute">
-            <router-link :to="{ name: ERouterName.CREATE_PLAN}">
-              <PlusOutlined class="route-icon"/>
-            </router-link>
-          </span>
-          <span v-else>
-            <router-link :to="{ name: ERouterName.TASK}">
-              <MinusOutlined class="route-icon"/>
-            </router-link>
-          </span>
-        </a-col>
         <a-col :span="1"></a-col>
       </a-row>
     </div>

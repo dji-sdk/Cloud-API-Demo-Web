@@ -11,9 +11,9 @@ export interface Firmware {
 }
 
 export enum FirmwareStatusEnum {
-  NONE = 'All',
-  FALSE = 'Disabled',
-  TRUE = 'Available'
+  NONE = '全部',
+  FALSE = '不可用',
+  TRUE = '可用'
 }
 
 export interface FirmwareQueryParam {

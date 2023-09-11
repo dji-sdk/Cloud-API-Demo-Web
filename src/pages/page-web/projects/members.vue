@@ -57,13 +57,13 @@ interface MemberData {
   member: Member[]
 }
 const columns = [
-  { title: 'Account', dataIndex: 'username', width: 150, sorter: (a: Member, b: Member) => a.username.localeCompare(b.username), className: 'titleStyle' },
-  { title: 'User Type', dataIndex: 'user_type', width: 150, className: 'titleStyle' },
-  { title: 'Workspace Name', dataIndex: 'workspace_name', width: 150, className: 'titleStyle' },
-  { title: 'Mqtt Username', dataIndex: 'mqtt_username', width: 150, className: 'titleStyle', slots: { customRender: 'mqtt_username' } },
-  { title: 'Mqtt Password', dataIndex: 'mqtt_password', width: 150, className: 'titleStyle', slots: { customRender: 'mqtt_password' } },
-  { title: 'Joined', dataIndex: 'create_time', width: 150, sorter: (a: Member, b: Member) => a.create_time.localeCompare(b.create_time), className: 'titleStyle' },
-  { title: 'Action', dataIndex: 'action', width: 100, className: 'titleStyle', slots: { customRender: 'action' } },
+  { title: '账号', dataIndex: 'username', width: 150, sorter: (a: Member, b: Member) => a.username.localeCompare(b.username), className: 'titleStyle' },
+  { title: '人员组织名称', dataIndex: 'user_type', width: 150, className: 'titleStyle' },
+  { title: '工作区名称', dataIndex: 'workspace_name', width: 150, className: 'titleStyle' },
+  { title: '用户名', dataIndex: 'mqtt_username', width: 150, className: 'titleStyle', slots: { customRender: 'mqtt_username' } },
+  { title: '密码', dataIndex: 'mqtt_password', width: 150, className: 'titleStyle', slots: { customRender: 'mqtt_password' } },
+  { title: '创建时间', dataIndex: 'create_time', width: 150, sorter: (a: Member, b: Member) => a.create_time.localeCompare(b.create_time), className: 'titleStyle' },
+  { title: '操作', dataIndex: 'action', width: 100, className: 'titleStyle', slots: { customRender: 'action' } },
 ]
 
 const data = reactive<MemberData>({
