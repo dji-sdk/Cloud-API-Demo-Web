@@ -16,6 +16,9 @@
       <div :class="state.currentType === 'polygon' ? 'g-action-item selection' : 'g-action-item'" @click="draw('polygon', true)">
         <a><BorderOutlined class="fz18" /></a>
       </div>
+      <div :class="state.currentType === 'circle' ? 'g-action-item selection' : 'g-action-item'" @click="draw('circle', true)">
+        <a><BorderOutlined class="fz18" /></a>
+      </div>
       <div v-if="mouseMode" class="g-action-item" @click="draw('off', false)">
         <a style="color: red;"><CloseOutlined /></a>
       </div>
@@ -443,7 +446,8 @@ import { computed, defineComponent, onMounted, reactive, ref, watch, nextTick } 
 import {
   generateLineContent,
   generatePointContent,
-  generatePolyContent
+  generatePolyContent,
+  generateCircleContent
 } from '../utils/map-layer-utils'
 import { postElementsReq } from '/@/api/layer'
 import { MapDoodleType, MapElementEnum } from '/@/constants/map'
@@ -554,24 +558,24 @@ export default defineComponent({
       } as DeviceOsd
     })
     const shareId = computed(() => {
-      return store.state.layerBaseInfo.share
+      return store?.state?.layerBaseInfo.share
     })
     const defaultId = computed(() => {
-      return store.state.layerBaseInfo.default
+      return store?.state?.layerBaseInfo.default
     })
     const drawVisible = computed(() => {
-      return store.state.drawVisible
+      return store?.state?.drawVisible
     })
     const osdVisible = computed(() => {
-      return store.state.osdVisible
+      return store?.state?.osdVisible
     })
     const nevigationVisible = computed(() => {
-      return store.state.nevigationVisible
+      return store?.state?.nevigationVisible
     })
     const nevigationInformation = computed(() => {
-      return store.state.nevigationInformation
+      return store?.state?.nevigationInformation
     })
-    watch(() => store.state.deviceStatusEvent,
+    watch(() => store?.state?.deviceStatusEvent,
       data => {
         if (Object.keys(data.deviceOnline).length !== 0) {
           deviceTsaUpdateHook.initMarker(data.deviceOnline.domain, data.deviceOnline.device_callsign, data.deviceOnline.sn)
@@ -591,7 +595,7 @@ export default defineComponent({
       }
     )
 
-    watch(() => store.state.deviceState, data => {
+    watch(() => store?.state?.deviceState, data => {
       if (data.currentType === EDeviceTypeName.Gateway && data.gatewayInfo[data.currentSn]) {
         deviceTsaUpdateHook.moveTo(data.currentSn, data.gatewayInfo[data.currentSn].longitude, data.gatewayInfo[data.currentSn].latitude)
         if (osdVisible.value.visible && osdVisible.value.gateway_sn !== '') {
@@ -616,7 +620,7 @@ export default defineComponent({
     })
 
     watch(
-      () => store.state.wsEvent,
+      () => store?.state?.wsEvent,
       newData => {
         const useGMapCoverHook = useGMapCover()
         const event = newData
@@ -624,7 +628,7 @@ export default defineComponent({
         if (Object.keys(event.mapElementCreat).length !== 0) {
           console.log(event.mapElementCreat)
           const ele = event.mapElementCreat
-          store.state.Layers.forEach(layer => {
+          store?.state?.Layers.forEach(layer => {
             layer.elements.forEach(e => {
               if (e.id === ele.id) {
                 exist = true
@@ -710,6 +714,9 @@ export default defineComponent({
         case MapDoodleEnum.POLYGON:
           postPolygonResource(obj)
           break
+        case MapDoodleEnum.CIRCLE:
+          postCircleResource(obj)
+          break
         default:
           break
       }
@@ -734,6 +741,14 @@ export default defineComponent({
       store.state.coverList.push(obj)
       // console.log(store.state.coverList)
     }
+    async function postCircleResource (obj) {
+      const req = getCircleResource(obj)
+      setLayers(req)
+      updateCoordinates('gcj02-wgs84', req)
+      const result = await postElementsReq(shareId.value, req)
+      obj.setExtData({ id: req.id, name: req.name, area: 222 })
+      store.state.coverList.push(obj)
+    }
     async function postPolygonResource (obj) {
       console.log(obj, 'hafhhaf')
       const req = getPoygonResource(obj)
@@ -743,6 +758,17 @@ export default defineComponent({
       obj.setExtData({ id: req.id, name: req.name, area: 222 })
       store.state.coverList.push(obj)
       // console.log(store.state.coverList)
+    }
+    function getCircleResource (obj) {
+    // name暂时写死，还在调试中
+      const name = '1212'
+      const resource = generateCircleContent([...obj.getCenter().pos, obj.getRadius()])
+      const id = uuidv4()
+      return {
+        id,
+        name,
+        resource
+      }
     }
 
     function getPinPositionResource (obj) {
@@ -851,6 +877,23 @@ export default defineComponent({
             })
           }
           element.resource.content.geometry.coordinates = [coordinates]
+        } else if (MapElementEnum.CIR === type && geoType === 'Circle') {
+          let position = element.resource?.content.geometry
+            .coordinates
+            // 半径
+          const radius = position[2]
+          if (transformType === 'wgs84-gcj02') {
+            position = wgs84togcj02(
+              position[0],
+              position[1]
+            ) as GeojsonCoordinate
+          } else if (transformType === 'gcj02-wgs84') {
+            position = gcj02towgs84(
+              position[0],
+              position[1]
+            ) as GeojsonCoordinate
+          }
+          element.resource.content.geometry.coordinates = [...position, radius]
         }
       }
     }

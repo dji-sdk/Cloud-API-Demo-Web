@@ -338,7 +338,7 @@ function setBaseInfo () {
 onMounted(() => {
   const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
   const parent = element?.parentNode as HTMLDivElement
-  scorllHeight.value = parent.clientHeight - parent.firstElementChild!.clientHeight
+  scorllHeight.value = parent?.clientHeight - parent?.firstElementChild!.clientHeight
   getAllElement()
 })
 function closeDrawer () {

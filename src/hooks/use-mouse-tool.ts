@@ -47,7 +47,18 @@ export function useMouseTool () {
     })
     root?.$mouseTool.on('draw', getDrawCallback)
   }
-
+  function drawCircle (type:MapDoodleType, getDrawCallback:Function) {
+    root?.$mouseTool.circle({
+      strokeColor: "#FF33FF",
+        strokeOpacity: 1,
+        strokeWeight: 6,
+        strokeOpacity: 0.2,
+        fillColor: '#1791fc',
+        fillOpacity: 0.4,
+        strokeStyle: 'solid',
+   })
+    root?.$mouseTool.on('draw', getDrawCallback)
+  }
   function drawOff (type:MapDoodleType) {
     root?.$mouseTool.close()
     root?.$mouseTool.off('draw')
@@ -64,6 +75,9 @@ export function useMouseTool () {
         break
       case MapDoodleEnum.POLYGON:
         drawPolygon(type, getDrawCallback)
+        break
+      case MapDoodleEnum.CIRCLE:
+        drawCircle(type, getDrawCallback)
         break
       case MapDoodleEnum.Close:
         drawOff(type)
