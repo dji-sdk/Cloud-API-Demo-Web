@@ -101,6 +101,7 @@ import { CURRENT_CONFIG } from '/@/api/http/config'
 import { load } from '@amap/amap-jsapi-loader'
 import { getRoot } from '/@/root'
 import { wgs84togcj02 } from '/@/vendors/coordtransform'
+import {initPloyline} from '/@/hooks/use-g-map-wayline.ts'
 import line from '/@/assets/icons/line.svg'
 const lineType = ref(['航点飞行', '航点飞行', '建图航拍', '倾斜摄影', '带状航线'])
 const polyline = ref()
@@ -209,17 +210,7 @@ function selectRoute (wayline: WaylineFile, index:any) {
           item[1]
         )
       })
-      polyline.value = new root.$aMap.Polyline({
-        path: path,
-        strokeWeight: 10, // 线条宽度，默认为 1
-        strokeColor: '#3366bb', // 线条颜色
-        lineJoin: 'round',
-        lineCap: 'round',
-        showDir: true // 折线拐点连接处样式
-      })
-      map.add(polyline.value)
-      map.setCenter(path[0])
-      map.setZoom(12)
+      polyline.value = initPloyline(path)
       store.commit('SET_NEVIGATION_VISIBLE', true)
       const { scheduled_time, line_length, geometry_point_size } = res.data
       store.commit('SET_NEVIGATION_INFO', { scheduled_time, line_length, geometry_point_size })
