@@ -78,9 +78,9 @@ export function useGMapCover () {
     AddOverlayGroup(polyline)
   }
 
-  function initPolygon (name: string, coordinates:GeojsonCoordinate[], color?:string, data?:{}) {
+  function initPolygon (name: string, coordinates:GeojsonCoordinate[][], color?:string, data?:{}) {
     const path = [] as GeojsonCoordinate[]
-    coordinates.forEach(coordinate => {
+    coordinates[0].forEach(coordinate => {
       path.push(new AMap.LngLat(coordinate[0], coordinate[1]))
     })
     // console.log('Polygon', path)
@@ -141,12 +141,43 @@ export function useGMapCover () {
     }
   }
 
+  function updatePolylineElement (id:string, name: string, coordinates:GeojsonCoordinate[], color?:string) {
+    const element = getElementFromMap(id) as any
+    if (element) {
+      const options = element.getOptions()
+      options.strokeColor = color || normalColor
+      element.setOptions(options)
+    } else {
+      initPolyline(name, coordinates, color, {
+        id: id,
+        name: name
+      })
+    }
+  }
+
+  function updatePolygonElement (id:string, name: string, coordinates:GeojsonCoordinate[][], color?:string) {
+    const element = getElementFromMap(id) as any
+    if (element) {
+      const options = element.getOptions()
+      options.fillColor = color || normalColor
+      options.strokeColor = color || normalColor
+      element.setOptions(options)
+    } else {
+      initPolygon(name, coordinates, color, {
+        id: id,
+        name: name
+      })
+    }
+  }
+
   return {
     init2DPin,
     initPolyline,
     initPolygon,
     removeCoverFromMap,
     getElementFromMap,
-    updatePinElement
+    updatePinElement,
+    updatePolylineElement,
+    updatePolygonElement
   }
 }

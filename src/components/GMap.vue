@@ -21,8 +21,8 @@
       </div>
     </div>
     <!-- 飞机OSD -->
-    <div v-if="osdVisible.visible && !osdVisible.is_dock" class="osd-panel fz12">
-      <div class="pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 18%;">
+    <div v-if="osdVisible.visible && !osdVisible.is_dock" v-drag-window class="osd-panel fz12">
+      <div class="drag-title pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 18%;">
         <span>{{ osdVisible.callsign }}</span>
         <span><a class="fz16" style="color: white;" @click="() => osdVisible.visible = false"><CloseOutlined /></a></span>
       </div>
@@ -49,7 +49,7 @@
               <a-col span="6">
                 <a-tooltip title="RC Battery Level">
                   <span><ThunderboltOutlined class="fz14"/></span>
-                  <span class="ml10">{{ deviceInfo.gateway && deviceInfo.gateway.capacity_percent !== str ? deviceInfo.gateway.capacity_percent + ' %' : deviceInfo.gateway.capacity_percent }}</span>
+                  <span class="ml10">{{ deviceInfo.gateway && deviceInfo.gateway.capacity_percent !== str ? deviceInfo.gateway?.capacity_percent + ' %' : deviceInfo.gateway?.capacity_percent }}</span>
                 </a-tooltip>
               </a-col>
 
@@ -141,11 +141,11 @@
       </div>
     </div>
     <!-- 机场OSD -->
-    <div v-if="osdVisible.visible && osdVisible.is_dock" class="osd-panel fz12">
-      <div class="fz16 pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 10%;">
+    <div v-if="osdVisible.visible && osdVisible.is_dock"  v-drag-window class="osd-panel fz12">
+      <div class="drag-title fz16 pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 10%;">
         <span>{{ osdVisible.gateway_callsign }}</span>
-        <span><a style="color: white;" @click="() => osdVisible.visible = false"><CloseOutlined /></a></span>
       </div>
+      <span><a style="color: white; position: absolute; top: 5px; right: 5px;" @click="() => osdVisible.visible = false"><CloseOutlined /></a></span>
         <!-- 机场 -->
       <div class ="flex-display" style="border-bottom: 1px solid #515151;">
         <div class="flex-column flex-align-stretch flex-justify-center" style="width: 60px; background: #2d2d2d;">
@@ -267,7 +267,7 @@
               <a-col span="6">
                 <a-tooltip title="Drone in dock">
                   <span><RocketOutlined /></span>
-                  <span class="ml10">{{ DroneInDockEnum[deviceInfo.dock.basic_osd?.drone_in_dock] }}</span>
+                  <span class="ml10">{{ deviceInfo.dock.basic_osd?.drone_in_dock }}</span>
                 </a-tooltip>
               </a-col>
             </a-row>
@@ -413,6 +413,17 @@
       <!-- 飞行指令 -->
       <DroneControlPanel :sn="osdVisible.gateway_sn" :deviceInfo="deviceInfo" :payloads="osdVisible.payloads"></DroneControlPanel>
     </div>
+    <!-- liveview -->
+    <div class="liveview" v-if="livestreamOthersVisible" v-drag-window  >
+      <div style="height: 40px; width: 100%" class="drag-title"></div>
+      <a style="position: absolute; right: 10px; top: 10px; font-size: 16px; color: white;" @click="closeLivestreamOthers"><CloseOutlined /></a>
+      <LivestreamOthers />
+    </div>
+    <div class="liveview" v-if="livestreamAgoraVisible" v-drag-window  >
+      <div style="height: 40px; width: 100%" class="drag-title"></div>
+      <a style="position: absolute; right: 10px; top: 10px; font-size: 16px; color: white;" @click="closeLivestreamAgora"><CloseOutlined /></a>
+      <LivestreamAgora />
+    </div>
   </div>
 </template>
 
@@ -452,6 +463,8 @@ import DockControlPanel from './g-map/DockControlPanel.vue'
 import { useDockControl } from './g-map/use-dock-control'
 import DroneControlPanel from './g-map/DroneControlPanel.vue'
 import { useConnectMqtt } from './g-map/use-connect-mqtt'
+import LivestreamOthers from './livestream-others.vue'
+import LivestreamAgora from './livestream-agora.vue'
 
 export default defineComponent({
   components: {
@@ -475,7 +488,9 @@ export default defineComponent({
     DockControlPanel,
     DroneControlPanel,
     CarryOutOutlined,
-    RocketOutlined
+    RocketOutlined,
+    LivestreamOthers,
+    LivestreamAgora
   },
   name: 'GMap',
   props: {},
@@ -534,6 +549,12 @@ export default defineComponent({
     const drawVisible = computed(() => {
       return store.state.drawVisible
     })
+    const livestreamOthersVisible = computed(() => {
+      return store.state.livestreamOthersVisible
+    })
+    const livestreamAgoraVisible = computed(() => {
+      return store.state.livestreamAgoraVisible
+    })
     const osdVisible = computed(() => {
       return store.state.osdVisible
     })
@@ -572,7 +593,7 @@ export default defineComponent({
         }
       }
       if (data.currentType === EDeviceTypeName.Dock && data.dockInfo[data.currentSn]) {
-        deviceTsaUpdateHook.initMarker(EDeviceTypeName.Dock, [EDeviceTypeName.Dock], data.currentSn, data.dockInfo[data.currentSn].basic_osd?.longitude, data.dockInfo[data.currentSn].basic_osd?.latitude)
+        deviceTsaUpdateHook.initMarker(EDeviceTypeName.Dock, EDeviceTypeName[EDeviceTypeName.Dock], data.currentSn, data.dockInfo[data.currentSn].basic_osd?.longitude, data.dockInfo[data.currentSn].basic_osd?.latitude)
         if (osdVisible.value.visible && osdVisible.value.is_dock && osdVisible.value.gateway_sn !== '') {
           deviceInfo.dock = data.dockInfo[osdVisible.value.gateway_sn]
           deviceInfo.device = data.deviceInfo[deviceInfo.dock.basic_osd.sub_device?.device_sn ?? osdVisible.value.sn]
@@ -607,15 +628,27 @@ export default defineComponent({
             })
 
             updateCoordinates('wgs84-gcj02', ele)
-            useGMapCoverHook.init2DPin(
-              ele.name,
-              ele.resource.content.geometry.coordinates,
-              ele.resource.content.properties.color,
-              {
-                id: ele.id,
-                name: ele.name
-              }
-            )
+            const data = { id: ele.id, name: ele.name }
+            if (MapElementEnum.PIN === ele.resource?.type) {
+              useGMapCoverHook.init2DPin(
+                ele.name,
+                ele.resource.content.geometry.coordinates,
+                ele.resource.content.properties.color,
+                data
+              )
+            } else if (MapElementEnum.LINE === ele.resource?.type) {
+              useGMapCoverHook.initPolyline(
+                ele.name,
+                ele.resource.content.geometry.coordinates,
+                ele.resource.content.properties.color,
+                data)
+            } else if (MapElementEnum.POLY === ele.resource?.type) {
+              useGMapCoverHook.initPolygon(
+                ele.name,
+                ele.resource.content.geometry.coordinates,
+                ele.resource.content.properties.color,
+                data)
+            }
           }
 
           store.state.wsEvent.mapElementCreat = {}
@@ -749,6 +782,12 @@ export default defineComponent({
       console.log('layers', layers)
       store.commit('SET_LAYER_INFO', layers)
     }
+    function closeLivestreamOthers () {
+      store.commit('SET_LIVESTREAM_OTHERS_VISIBLE', false)
+    }
+    function closeLivestreamAgora () {
+      store.commit('SET_LIVESTREAM_AGORA_VISIBLE', false)
+    }
     function updateCoordinates (transformType: string, element: any) {
       const geoType = element.resource?.content.geometry.type
       const type = element.resource?.type as number
@@ -769,39 +808,38 @@ export default defineComponent({
             ) as GeojsonCoordinate
             element.resource.content.geometry.coordinates = transResult
           }
-        } else if (MapElementEnum.LINE === type && geoType === 'LineString') {
+        } else if (MapElementEnum.LINE === type) {
           const coordinates = element.resource?.content.geometry
             .coordinates as GeojsonCoordinate[]
           if (transformType === 'wgs84-gcj02') {
-            coordinates.forEach(coordinate => {
-              coordinate = wgs84togcj02(
+            coordinates.forEach((coordinate, i, arr) => {
+              arr[i] = wgs84togcj02(
                 coordinate[0],
                 coordinate[1]
               ) as GeojsonCoordinate
             })
           } else if (transformType === 'gcj02-wgs84') {
-            coordinates.forEach(coordinate => {
-              coordinate = gcj02towgs84(
+            coordinates.forEach((coordinate, i, arr) => {
+              arr[i] = gcj02towgs84(
                 coordinate[0],
                 coordinate[1]
               ) as GeojsonCoordinate
             })
           }
           element.resource.content.geometry.coordinates = coordinates
-        } else if (MapElementEnum.LINE === type && geoType === 'Polygon') {
+        } else if (MapElementEnum.POLY === type) {
           const coordinates = element.resource?.content.geometry
             .coordinates[0] as GeojsonCoordinate[]
-
           if (transformType === 'wgs84-gcj02') {
-            coordinates.forEach(coordinate => {
-              coordinate = wgs84togcj02(
+            coordinates.forEach((coordinate, i, arr) => {
+              arr[i] = wgs84togcj02(
                 coordinate[0],
                 coordinate[1]
               ) as GeojsonCoordinate
             })
           } else if (transformType === 'gcj02-wgs84') {
-            coordinates.forEach(coordinate => {
-              coordinate = gcj02towgs84(
+            coordinates.forEach((coordinate, i, arr) => {
+              arr[i] = gcj02towgs84(
                 coordinate[0],
                 coordinate[1]
               ) as GeojsonCoordinate
@@ -815,6 +853,8 @@ export default defineComponent({
       draw,
       mouseMode,
       drawVisible,
+      livestreamOthersVisible,
+      livestreamAgoraVisible,
       osdVisible,
       pin,
       state,
@@ -830,7 +870,9 @@ export default defineComponent({
       NetworkStateTypeEnum,
       NetworkStateQualityEnum,
       RainfallEnum,
-      DroneInDockEnum
+      DroneInDockEnum,
+      closeLivestreamOthers,
+      closeLivestreamAgora
     }
   }
 })
@@ -875,7 +917,8 @@ export default defineComponent({
 }
 .osd-panel {
   position: absolute;
-  left: 10px;
+  margin-left: 10px;
+  left: 0;
   top: 10px;
   width: 480px;
   background: #000;
@@ -925,5 +968,18 @@ export default defineComponent({
   position: absolute;
   min-height: 2px;
   border-radius: 2px;
+}
+
+.liveview {
+  position: absolute;
+  color: #fff;
+  z-index: 1;
+  left: 0;
+  margin-left: 10px;
+  top: 10px;
+  text-align: center;
+  width: 800px;
+  height: 720px;
+  background: #232323;
 }
 </style>

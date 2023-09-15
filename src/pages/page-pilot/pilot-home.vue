@@ -13,9 +13,9 @@
               <RightOutlined style="float: right; margin-top: 5px; color: #8894a0" />
             </div>
             <div style="height: 50%;">
-              <CloudSyncOutlined v-if="state === EStatusValue.CONNECTED" style="color: #75c5f6" />
+              <CloudSyncOutlined v-if="thingState === EStatusValue.CONNECTED" style="color: #75c5f6" />
               <SyncOutlined spin v-else/>
-              <span style="color: #737373; margin-left: 3px;">{{ state }}</span>
+              <span style="color: #737373; margin-left: 3px;">{{ thingState }}</span>
             </div>
             <a-drawer  placement="right" v-model:visible="drawerVisible" width="340px">
               <div class="mb10 flex-row flex-justify-center flex-align-center">
@@ -135,7 +135,6 @@ import { useConnectWebSocket } from '/@/hooks/use-connect-websocket'
 
 const root = getRoot()
 const gatewayState = ref<boolean>(localStorage.getItem(ELocalStorageKey.GatewayOnline) === 'true')
-const state = ref(EStatusValue.DISCONNECT)
 const thingState = ref(EStatusValue.DISCONNECT)
 const apiState = ref(EStatusValue.DISCONNECT)
 const liveState = ref(EStatusValue.DISCONNECT)
@@ -157,7 +156,7 @@ interface DeviceInfoData {
 }
 const device = reactive<DeviceInfoData>({
   data: {
-    sn: EStatusValue.DISCONNECT,
+    sn: '',
     online_status: false,
     device_callsign: '',
     user_id: '',
@@ -218,9 +217,7 @@ const messageHandler = async (payload: any) => {
     case EBizCode.DeviceOnline: {
       console.info('online: ', payload)
       if (payload.data.sn === device.data.gateway_sn) {
-        gatewayState.value = true
         localStorage.setItem(ELocalStorageKey.GatewayOnline, gatewayState.value.toString())
-        state.value = gatewayState.value && thingState.value === EStatusValue.CONNECTED ? EStatusValue.CONNECTED : EStatusValue.DISCONNECT
         break
       }
       if (payload.data.gateway_sn === device.data.gateway_sn) {
@@ -441,7 +438,6 @@ function refreshStatus () {
   tsaState.value = apiPilot.isComponentLoaded(EComponentName.Tsa) ? EStatusValue.CONNECTED : EStatusValue.DISCONNECT
   mediaState.value = apiPilot.isComponentLoaded(EComponentName.Media) ? EStatusValue.CONNECTED : EStatusValue.DISCONNECT
   waylineState.value = apiPilot.isComponentLoaded(EComponentName.Mission) ? EStatusValue.CONNECTED : EStatusValue.DISCONNECT
-  state.value = thingState.value === EStatusValue.CONNECTED && gatewayState.value ? EStatusValue.CONNECTED : EStatusValue.DISCONNECT
 }
 
 function moduleInstall (m: any) {

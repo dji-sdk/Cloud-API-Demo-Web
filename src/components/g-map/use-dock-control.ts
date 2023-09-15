@@ -45,8 +45,10 @@ export function useDockControl () {
   }
 
   // 控制面板关闭
-  async function onCloseControlPanel (sn: string) {
-    await dockDebugOnOff(sn, false)
+  async function onCloseControlPanel (sn: string, debugging: boolean) {
+    if (debugging) {
+      await dockDebugOnOff(sn, false)
+    }
     setDockControlPanelVisible(false)
   }
 

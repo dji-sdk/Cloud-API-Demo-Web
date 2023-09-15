@@ -203,7 +203,7 @@ import { EHmsLevel } from '/@/types/enums'
 const store = useMyStore()
 const username = ref(localStorage.getItem(ELocalStorageKey.Username))
 const workspaceId = ref(localStorage.getItem(ELocalStorageKey.WorkspaceId)!)
-const osdVisible = ref({} as OSDVisible)
+const osdVisible = computed(() => store.state.osdVisible)
 const hmsVisible = new Map<string, boolean>()
 const scorllHeight = ref()
 
@@ -344,6 +344,15 @@ function readHms (visiable: boolean, sn: string) {
     })
   }
 }
+
+function openLivestreamOthers () {
+  store.commit('SET_LIVESTREAM_OTHERS_VISIBLE', true)
+}
+
+function openLivestreamAgora () {
+  store.commit('SET_LIVESTREAM_AGORA_VISIBLE', true)
+}
+
 </script>
 
 <style lang="scss">

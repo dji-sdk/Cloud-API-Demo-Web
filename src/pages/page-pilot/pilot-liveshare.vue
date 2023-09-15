@@ -54,7 +54,26 @@
     <div class="width-100" style="margin-top: -10px;">
       <div class="ml10" style="width: 97%;">
         <span class="fz16">Param: </span>
-        <span v-if="liveStreamStatus.type === ELiveTypeValue.Agora" style="word-break: break-all; color: #75c5f6;">{{ agoraParam }}</span>
+        <span v-if="liveStreamStatus.type === ELiveTypeValue.Agora" style="word-break: break-all; color: #75c5f6;">
+          <div class="flex-col flex-justify-center flex-align-center">
+            <div>
+              <span class="ml10">Token:</span>
+              <a-input
+                class="ml10"
+                v-model:value="agoraParam.token"
+                placeholder="Token"
+              ></a-input>
+            </div>
+            <div>
+              <span class="ml10">Channel:</span>
+              <a-input
+                class="ml10"
+                v-model:value="agoraParam.channelId"
+                placeholder="Channel"
+              ></a-input>
+            </div>
+          </div>
+        </span>
         <span v-else-if="liveStreamStatus.type === ELiveTypeValue.RTMP" style="word-break: break-all; color: #75c5f6;">{{ rtmpParam }}</span>
         <span v-else-if="liveStreamStatus.type === ELiveTypeValue.RTSP" style="word-break: break-all; color: #75c5f6;">{{ rtspParam }}</span>
         <span v-else-if="liveStreamStatus.type === ELiveTypeValue.GB28181" style="word-break: break-all; color: #75c5f6;">{{ gb28181Param }}</span>
@@ -154,11 +173,11 @@ const liveTypeList = [
     label: ELiveTypeName.GB28181
   }
 ]
-const agoraParam = {
+const agoraParam = reactive({
   uid: '2892130292',
   token: config.agoraToken,
   channelId: config.agoraChannel
-}
+})
 const rtmpParam = {
   url: config.rtmpURL + new Date().getTime()
 }
@@ -174,7 +193,7 @@ const gb28181Param: GB28181Param = {
   agentId: CURRENT_CONFIG.gbAgentId,
   password: CURRENT_CONFIG.gbPassword,
   agentPort: CURRENT_CONFIG.gbAgentPort,
-  agentChannel: CURRENT_CONFIG.gbAgentChannel
+  agentChannel: CURRENT_CONFIG.gbAgentChannel,
 }
 
 const playVisiable = ref(false)
@@ -253,6 +272,7 @@ const onPublishModeSelect = (val: string) => {
   apiPilot.setVideoPublishType(publishModeSelected.value)
 }
 const onPlay = () => {
+  console.info(JSON.stringify(agoraParam))
   if (!publishModeSelected.value) {
     message.warn('Please select publish mode!')
     return

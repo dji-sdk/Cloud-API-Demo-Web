@@ -73,14 +73,13 @@ watch(() => props.deviceInfo, (value) => {
   deep: true
 })
 
+// dock 控制指令
+const debugStatus = ref(props.deviceInfo.dock?.basic_osd?.mode_code === EDockModeCode.Remote_Debugging)
 const emit = defineEmits(['close-control-panel'])
 
 function closeControlPanel () {
-  emit('close-control-panel', props.sn)
+  emit('close-control-panel', props.sn, debugStatus.value)
 }
-
-// dock 控制指令
-const debugStatus = ref(props.deviceInfo.dock?.basic_osd.mode_code === EDockModeCode.Remote_Debugging)
 
 async function onDeviceStatusChange (status: boolean) {
   let result = false

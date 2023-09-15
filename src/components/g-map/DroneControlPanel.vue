@@ -112,15 +112,53 @@
                     :options="WaylineLostControlActionInCommandFlightOptions"
                   ></a-select>
                 </div>
+                <div>
+                  <span class="form-label">Return-to-Home Mode:</span>
+                  <a-select
+                    v-model:value="takeoffToPointPopoverData.rthMode"
+                    style="width: 120px"
+                    :options="RthModeInCommandFlightOptions"
+                  ></a-select>
+                </div>
+                <div>
+                  <span class="form-label">Commander Mode Lost Action:</span>
+                  <a-select
+                    v-model:value="takeoffToPointPopoverData.commanderModeLostAction"
+                    style="width: 120px"
+                    :options="CommanderModeLostActionInCommandFlightOptions"
+                  ></a-select>
+                </div>
+                <div>
+                  <span class="form-label">Commander Flight Mode:</span>
+                  <a-select
+                    v-model:value="takeoffToPointPopoverData.commanderFlightMode"
+                    style="width: 120px"
+                    :options="CommanderFlightModeInCommandFlightOptions"
+                  ></a-select>
+                </div>
+                <div>
+                  <span class="form-label">Commander Flight Height(m):</span>
+                  <a-input-number v-model:value="takeoffToPointPopoverData.commanderFlightHeight"/>
+                </div>
               </div>
             </template>
             <Button size="small" ghost @click="onShowTakeoffToPointPopover" >
               <span>Take off</span>
             </Button>
+            <div v-for="(cmdItem) in cmdList" :key="cmdItem.cmdKey" class="control-cmd-item">
+              <Button :loading="cmdItem.loading" size="small" ghost @click="sendControlCmd(cmdItem, 0)">
+                {{ cmdItem.operateText }}
+              </Button>
+            </div>
+            <div>
+              <Button size="small" ghost @click="openLivestreamAgora" >
+                <span>Agora Live</span>
+              </Button>
+              <Button size="small" ghost @click="openLivestreamOthers" >
+                <span>RTMP/GB28181 Live</span>
+              </Button>
+            </div>
           </DroneControlPopover>
-          <Button :loading="cmdItem.loading" size="small" ghost @click="sendControlCmd(cmdItem, 0)">
-          {{ cmdItem.operateText }}
-          </Button>
         </div>
     </div>
     <div class="box">
@@ -250,9 +288,15 @@ import { usePayloadControl } from './use-payload-control'
 import { CameraMode, CameraType, CameraTypeOptions, ZoomCameraTypeOptions, CameraListItem } from '/@/types/live-stream'
 import { useDroneControlWsEvent } from './use-drone-control-ws-event'
 import { useDroneControlMqttEvent } from './use-drone-control-mqtt-event'
-import { postFlightAuth, LostControlActionInCommandFLight, WaylineLostControlActionInCommandFlight } from '/@/api/drone-control/drone'
+import {
+  postFlightAuth, LostControlActionInCommandFLight, WaylineLostControlActionInCommandFlight, ERthMode,
+  ECommanderModeLostAction, ECommanderFlightMode
+} from '/@/api/drone-control/drone'
 import { useDroneControl } from './use-drone-control'
-import { GimbalResetMode, GimbalResetModeOptions, LostControlActionInCommandFLightOptions, WaylineLostControlActionInCommandFlightOptions } from '/@/types/drone-control'
+import {
+  GimbalResetMode, GimbalResetModeOptions, LostControlActionInCommandFLightOptions, WaylineLostControlActionInCommandFlightOptions,
+  RthModeInCommandFlightOptions, CommanderModeLostActionInCommandFlightOptions, CommanderFlightModeInCommandFlightOptions
+} from '/@/types/drone-control'
 import DroneControlPopover from './DroneControlPopover.vue'
 import DroneControlInfoPanel from './DroneControlInfoPanel.vue'
 import { noDebugCmdList as baseCmdList, DeviceCmdItem, DeviceCmd } from '/@/types/device-cmd'
@@ -269,8 +313,8 @@ const clientId = computed(() => {
   return store.state.clientId
 })
 
-const initCmdList = baseCmdList.find(item => item.cmdKey === DeviceCmd.ReturnHome) as DeviceCmdItem
-const cmdItem = ref(initCmdList)
+const initCmdList = baseCmdList.map(cmdItem => Object.assign({}, cmdItem))
+const cmdList = ref(initCmdList)
 
 const {
   sendDockControlCmd
@@ -283,9 +327,11 @@ async function sendControlCmd (cmdItem: DeviceCmdItem, index: number) {
     cmd: cmdItem.cmdKey,
     action: cmdItem.action
   }, false)
-  if (result && flightController.value) {
+  if (result) {
     message.success('Return home successful')
-    exitFlightCOntrol()
+    if (flightController.value) {
+      exitFlightCOntrol()
+    }
   } else {
     message.error('Failed to return home')
   }
@@ -349,7 +395,11 @@ const takeoffToPointPopoverData = reactive({
   maxSpeed: MAX_SPEED,
   rthAltitude: null as null | number,
   rcLostAction: LostControlActionInCommandFLight.RETURN_HOME,
-  exitWaylineWhenRcLost: WaylineLostControlActionInCommandFlight.EXEC_LOST_ACTION
+  exitWaylineWhenRcLost: WaylineLostControlActionInCommandFlight.EXEC_LOST_ACTION,
+  rthMode: ERthMode.SETTING,
+  commanderModeLostAction: ECommanderModeLostAction.CONTINUE,
+  commanderFlightMode: ECommanderFlightMode.SETTING,
+  commanderFlightHeight: null as null | number,
 })
 
 function onShowTakeoffToPointPopover () {
@@ -361,6 +411,10 @@ function onShowTakeoffToPointPopover () {
   takeoffToPointPopoverData.rthAltitude = null
   takeoffToPointPopoverData.rcLostAction = LostControlActionInCommandFLight.RETURN_HOME
   takeoffToPointPopoverData.exitWaylineWhenRcLost = WaylineLostControlActionInCommandFlight.EXEC_LOST_ACTION
+  takeoffToPointPopoverData.rthMode = ERthMode.SETTING
+  takeoffToPointPopoverData.commanderModeLostAction = ECommanderModeLostAction.CONTINUE
+  takeoffToPointPopoverData.commanderFlightMode = ECommanderFlightMode.SETTING
+  takeoffToPointPopoverData.commanderFlightHeight = null
 }
 
 async function onTakeoffToPointConfirm (confirm: boolean) {
@@ -369,7 +423,8 @@ async function onTakeoffToPointConfirm (confirm: boolean) {
         !takeoffToPointPopoverData.latitude ||
         !takeoffToPointPopoverData.longitude ||
         !takeoffToPointPopoverData.securityTakeoffHeight ||
-        !takeoffToPointPopoverData.rthAltitude) {
+        !takeoffToPointPopoverData.rthAltitude ||
+        !takeoffToPointPopoverData.commanderFlightHeight) {
       message.error('Input error')
       return
     }
@@ -382,7 +437,11 @@ async function onTakeoffToPointConfirm (confirm: boolean) {
         rth_altitude: takeoffToPointPopoverData.rthAltitude,
         max_speed: takeoffToPointPopoverData.maxSpeed,
         rc_lost_action: takeoffToPointPopoverData.rcLostAction,
-        exit_wayline_when_rc_lost: takeoffToPointPopoverData.exitWaylineWhenRcLost
+        exit_wayline_when_rc_lost: takeoffToPointPopoverData.exitWaylineWhenRcLost,
+        rth_mode: takeoffToPointPopoverData.rthMode,
+        commander_mode_lost_action: takeoffToPointPopoverData.commanderModeLostAction,
+        commander_flight_mode: takeoffToPointPopoverData.commanderFlightMode,
+        commander_flight_height: takeoffToPointPopoverData.commanderFlightHeight,
       })
     } catch (error) {
     }
@@ -670,6 +729,14 @@ function onShowCameraAimPopover () {
   cameraAimPopoverData.locked = false
   cameraAimPopoverData.x = null
   cameraAimPopoverData.y = null
+}
+
+function openLivestreamOthers () {
+  store.commit('SET_LIVESTREAM_OTHERS_VISIBLE', true)
+}
+
+function openLivestreamAgora () {
+  store.commit('SET_LIVESTREAM_AGORA_VISIBLE', true)
 }
 
 async function onCameraAimConfirm (confirm: boolean) {

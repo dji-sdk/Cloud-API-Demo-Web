@@ -42,10 +42,12 @@ export interface CreatePlan {
   dock_sn: string,
   task_type: TaskType, // 任务类型
   wayline_type: WaylineType, // 航线类型
-  task_days?: number[] // 执行任务的日期（秒）
-  task_periods?: number[][] // 执行任务的时间点（秒）
+  task_days: number[] // 执行任务的日期（秒）
+  task_periods: number[][] // 执行任务的时间点（秒）
   rth_altitude: number // 相对机场返航高度 20 - 500
   out_of_control_action: OutOfControlAction // 失控动作
+  min_battery_capacity?: number, // The minimum battery capacity of aircraft.
+  min_storage_capacity?: number, // The minimum storage capacity of dock and aircraft.
 }
 
 // Create Wayline Job

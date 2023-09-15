@@ -7,6 +7,7 @@ export enum DeviceCmd {
   SupplementLightOpen = 'supplement_light_open', // 打开补光灯
   SupplementLightClose = 'supplement_light_close', // 关闭补光灯
   ReturnHome = 'return_home', // 一键返航
+  ReturnHomeCancel = 'return_home_cancel', // 取消返航
   // 复杂指令
   DeviceReboot = 'device_reboot', // 机场重启
   DroneOpen = 'drone_open', // 飞行器开机
@@ -48,6 +49,14 @@ export const noDebugCmdList: DeviceCmdItem[] = [
     func: 'returnHome',
     loading: false,
   },
+  {
+    label: 'Return Home Cancel',
+    status: '--',
+    operateText: 'Return Home Cancel',
+    cmdKey: DeviceCmd.ReturnHomeCancel,
+    func: 'returnHomeCancel',
+    loading: false,
+  }
 ]
 
 // 机场指令

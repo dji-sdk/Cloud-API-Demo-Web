@@ -171,7 +171,6 @@ function updateMapElement (
   const geoType = element.resource?.content.geometry.type
   const id = element.id
   const type = element.resource?.type as number
-
   if (MapElementEnum.PIN === type) {
     const coordinates = element.resource?.content.geometry
       .coordinates as GeojsonCoordinate
@@ -179,17 +178,11 @@ function updateMapElement (
   } else if (MapElementEnum.LINE === type && geoType === 'LineString') {
     const coordinates = element.resource?.content.geometry
       .coordinates as GeojsonCoordinate[]
-    useGMapCoverHook.initPolyline(name, coordinates, color, {
-      id: id,
-      name: name
-    })
+    useGMapCoverHook.updatePolylineElement(id, name, coordinates, color)
   } else if (MapElementEnum.POLY === type && geoType === 'Polygon') {
     const coordinates = element.resource?.content.geometry
-      .coordinates[0] as GeojsonCoordinate[]
-    useGMapCoverHook.initPolygon(name, coordinates, color, {
-      id: id,
-      name: name
-    })
+      .coordinates as GeojsonCoordinate[][]
+    useGMapCoverHook.updatePolygonElement(id, name, coordinates, color)
   }
 }
 function checkLayer (keys: string[]) {
@@ -235,10 +228,12 @@ function setBaseInfo () {
     layerState.layerName = layer.name
     layerState.layerId = layer.id
     layerState.color = layer.resource?.content.properties.color
+    let coordinate: GeojsonCoordinate
     switch (geoType) {
       case GeoType.Point:
-        layerState.longitude = layer.resource?.content.geometry.coordinates[0]
-        layerState.latitude = layer.resource?.content.geometry.coordinates[1]
+        coordinate = gcj02towgs84(layer.resource?.content.geometry.coordinates[0], layer.resource?.content.geometry.coordinates[1]) as GeojsonCoordinate
+        layerState.longitude = coordinate[0]
+        layerState.latitude = coordinate[1]
         break
       case GeoType.LineString:
         break
@@ -250,7 +245,7 @@ function setBaseInfo () {
 onMounted(() => {
   const element = document.getElementsByClassName('scrollbar').item(0) as HTMLDivElement
   const parent = element?.parentNode as HTMLDivElement
-  scorllHeight.value = parent.clientHeight - parent.firstElementChild!.clientHeight
+  scorllHeight.value = parent?.clientHeight - parent.firstElementChild!.clientHeight
   getAllElement()
 })
 function closeDrawer () {
@@ -356,39 +351,39 @@ function updateCoordinates (transformType: string, element: LayerResource) {
         ) as GeojsonCoordinate
         element.resource.content.geometry.coordinates = transResult
       }
-    } else if (MapElementEnum.LINE === type && geoType === 'LineString') {
+    } else if (MapElementEnum.LINE === type) {
       const coordinates = element.resource?.content.geometry
         .coordinates as GeojsonCoordinate[]
       if (transformType === 'wgs84-gcj02') {
-        coordinates.forEach(coordinate => {
-          coordinate = wgs84togcj02(
+        coordinates.forEach((coordinate, i, arr) => {
+          arr[i] = wgs84togcj02(
             coordinate[0],
             coordinate[1]
           ) as GeojsonCoordinate
         })
       } else if (transformType === 'gcj02-wgs84') {
-        coordinates.forEach(coordinate => {
-          coordinate = gcj02towgs84(
+        coordinates.forEach((coordinate, i, arr) => {
+          arr[i] = gcj02towgs84(
             coordinate[0],
             coordinate[1]
           ) as GeojsonCoordinate
         })
       }
       element.resource.content.geometry.coordinates = coordinates
-    } else if (MapElementEnum.LINE === type && geoType === 'Polygon') {
+    } else if (MapElementEnum.POLY === type) {
       const coordinates = element.resource?.content.geometry
         .coordinates[0] as GeojsonCoordinate[]
 
       if (transformType === 'wgs84-gcj02') {
-        coordinates.forEach(coordinate => {
-          coordinate = wgs84togcj02(
+        coordinates.forEach((coordinate, i, arr) => {
+          arr[i] = wgs84togcj02(
             coordinate[0],
             coordinate[1]
           ) as GeojsonCoordinate
         })
       } else if (transformType === 'gcj02-wgs84') {
-        coordinates.forEach(coordinate => {
-          coordinate = gcj02towgs84(
+        coordinates.forEach((coordinate, i, arr) => {
+          arr[i] = gcj02towgs84(
             coordinate[0],
             coordinate[1]
           ) as GeojsonCoordinate

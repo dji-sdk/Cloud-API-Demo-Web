@@ -32,6 +32,8 @@ const initStateFunc = () => ({
     [key:string]:string
   },
   drawVisible: false,
+  livestreamOthersVisible: false,
+  livestreamAgoraVisible: false,
   coverList: [
 
   ] as any,
@@ -124,7 +126,7 @@ const mutations: MutationTree<RootStateType> = {
       dock.basic_osd = info.host
       return
     }
-    if (info.host.sdr) {
+    if (info.host.wireless_link) {
       dock.link_osd = info.host
       return
     }
@@ -134,6 +136,12 @@ const mutations: MutationTree<RootStateType> = {
   },
   SET_DRAW_VISIBLE_INFO (state, bool) {
     state.drawVisible = bool
+  },
+  SET_LIVESTREAM_OTHERS_VISIBLE (state, bool) {
+    state.livestreamOthersVisible = bool
+  },
+  SET_LIVESTREAM_AGORA_VISIBLE (state, bool) {
+    state.livestreamAgoraVisible = bool
   },
   SET_MAP_ELEMENT_CREATE (state, info) {
     state.wsEvent.mapElementCreat = info

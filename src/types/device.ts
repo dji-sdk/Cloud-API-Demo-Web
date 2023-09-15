@@ -319,7 +319,7 @@ export interface DockBasicOsd {
     state: number,
     capacity_percent: number,
   },
-  drone_in_dock: DroneInDockEnum,
+  drone_in_dock: boolean,
   rainfall: RainfallEnum,
   wind_speed: number,
   environment_temperature: number,
@@ -379,7 +379,7 @@ export interface DockLinkOsd {
   media_file_detail?: {
     remain_upload: number
   },
-  sdr: {
+  sdr?: {
     up_quality: string,
     down_quality: string,
     frequency_band: number,

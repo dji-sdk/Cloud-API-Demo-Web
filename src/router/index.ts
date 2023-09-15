@@ -48,6 +48,10 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/' + ERouterName.TSA,
     children: [
       {
+        path: '/' + ERouterName.TSA,
+        component: () => import('/@/pages/page-web/projects/tsa.vue')
+      },
+      {
         path: '/' + ERouterName.LIVESTREAM,
         name: ERouterName.LIVESTREAM,
         component: () => import('/@/pages/page-web/projects/livestream.vue'),
@@ -61,10 +65,6 @@ const routes: Array<RouteRecordRaw> = [
             }
           }
         ]
-      },
-      {
-        path: '/' + ERouterName.TSA,
-        component: () => import('/@/pages/page-web/projects/tsa.vue')
       },
       {
         path: '/' + ERouterName.LAYER,
