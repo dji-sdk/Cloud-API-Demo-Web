@@ -12,12 +12,14 @@ export const MapElementDefaultColor = MapElementColor.Default
 export enum MapDoodleColor {
   PinColor = '#2D8CF0',
   PolylineColor = '#3366FF',
-  PolygonColor = '#FF33FF'
+  PolygonColor = '#FF33FF',
+  CircleColor='pink'
 }
 
 export enum MapElementEnum {
   PIN = 0,
   LINE = 1,
-  POLY = 2
+  POLY = 2,
+  CIR = 3
 }
 export type MapDoodleType = 'pin' | 'polyline' | 'polygon' | 'off'
