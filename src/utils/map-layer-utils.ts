@@ -4,7 +4,7 @@ import { MapDoodleColor, MapElementEnum } from '/@/constants/map'
 function getPinPosition (pinAMapPosition: pinAMapPosition):MapGeographicPosition {
   return { height: 0, latitude: pinAMapPosition.lat, longitude: pinAMapPosition.lng }
 }
-export type GeojsonCoordinate = [number, number, number?]
+
 export function generatePointContent (pinAMapPosition: pinAMapPosition) {
   const position = getPinPosition(pinAMapPosition)
   return {
@@ -15,10 +15,11 @@ export function generatePointContent (pinAMapPosition: pinAMapPosition) {
     })
   }
 }
-export function generateCircleContent (pinAMapPosition: GeojsonCoordinate) {
+export function generateCircleContent (circleAMapPosition: pinAMapPosition, radius:number) {
+  const position = { height: radius, latitude: circleAMapPosition.lat, longitude: circleAMapPosition.lng }
   return {
     type: MapElementEnum.CIR,
-    content: generateCircle(pinAMapPosition, {
+    content: generateCircle(position, {
       color: MapDoodleColor.CircleColor,
       clampToGround: true,
     })

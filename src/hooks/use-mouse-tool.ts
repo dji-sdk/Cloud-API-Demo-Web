@@ -50,13 +50,15 @@ export function useMouseTool () {
   function drawCircle (type:MapDoodleType, getDrawCallback:Function) {
     root?.$mouseTool.circle({
       strokeColor: "#FF33FF",
-        strokeOpacity: 1,
-        strokeWeight: 6,
-        strokeOpacity: 0.2,
-        fillColor: '#1791fc',
-        fillOpacity: 0.4,
-        strokeStyle: 'solid',
-   })
+      strokeOpacity: 1,
+      strokeWeight: 6,
+      strokeOpacity: 0.2,
+      fillColor: '#1791fc',
+      fillOpacity: 0.4,
+      strokeStyle: 'solid',
+      // 线样式还支持 'dashed'
+      // strokeDasharray: [30,10],
+    })
     root?.$mouseTool.on('draw', getDrawCallback)
   }
   function drawOff (type:MapDoodleType) {

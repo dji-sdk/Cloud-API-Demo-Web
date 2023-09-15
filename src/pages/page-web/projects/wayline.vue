@@ -101,7 +101,7 @@ import { CURRENT_CONFIG } from '/@/api/http/config'
 import { load } from '@amap/amap-jsapi-loader'
 import { getRoot } from '/@/root'
 import { wgs84togcj02 } from '/@/vendors/coordtransform'
-import {initPloyline} from '/@/hooks/use-g-map-wayline.ts'
+import { initPloyline } from '/@/hooks/use-g-map-wayline.ts'
 import line from '/@/assets/icons/line.svg'
 const lineType = ref(['航点飞行', '航点飞行', '建图航拍', '倾斜摄影', '带状航线'])
 const polyline = ref()

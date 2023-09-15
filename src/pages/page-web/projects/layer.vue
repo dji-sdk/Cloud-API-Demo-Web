@@ -273,6 +273,12 @@ function updateMapElement (
       id: id,
       name: name,
     })
+  } else if (MapElementEnum.CIR === type && geoType === 'Circle') {
+    const coordinates = element.resource?.content.geometry.coordinates as GeojsonCoordinate
+    useGMapCoverHook.initCircle(name, coordinates, color, {
+      id: id,
+      name: name,
+    })
   }
 }
 function checkLayer (keys: string[]) {

@@ -67,6 +67,27 @@ export function useGMapCover () {
     AddCoverToMap(pin)
   }
 
+  function initCircle (name: string, coordinates:GeojsonCoordinate, color?:string, data?:{}) {
+    // 创建圆形 Circle实例
+    const circle = new AMap.Circle({
+      center: [coordinates[0], coordinates[1]],
+      radius: coordinates[2],
+      borderWeight: 3,
+      strokeColor: '#FF33FF',
+      strokeOpacity: 1,
+      strokeWeight: 6,
+      strokeOpacity: 0.2,
+      fillOpacity: 0.4,
+      strokeStyle: 'dashed',
+      strokeDasharray: [10, 10],
+      // 线样式还支持 'dashed'
+      fillColor: color,
+      zIndex: 50,
+    })
+
+    AddCoverToMap(circle)
+  }
+
   function AddOverlayGroup (overlayGroup) {
     root.$map.add(overlayGroup)
     coverList.push(overlayGroup)
@@ -211,12 +232,26 @@ export function useGMapCover () {
     }
   }
 
+  function calculateDistance (lat1:number, lon1:number, lat2:number, lon2:number) :number {
+    const p1 = [lat1, lon1]
+    const p2 = [lat2, lon2]
+    // 返回 p1 到 p2 间的地面距离，单位：米
+    return root.$aMap.GeometryUtil.distance(p1, p2)
+  }
+
+  function ringArea (coordinates:GeojsonCoordinate[]) :number {
+    return root.$aMap.GeometryUtil.ringArea(coordinates)
+  }
+
   return {
     init2DPin,
     initPolyline,
     initPolygon,
+    initCircle,
     removeCoverFromMap,
     getElementFromMap,
-    updatePinElement
+    updatePinElement,
+    calculateDistance,
+    ringArea
   }
 }

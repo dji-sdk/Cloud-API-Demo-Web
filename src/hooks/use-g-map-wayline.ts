@@ -15,6 +15,6 @@ export function initPloyline (path:GeojsonCoordinate[]) {
   })
   map.add(polyline)
   map.setCenter(path[0])
-  map.setZoom(12)
+  map.setZoom(14)
   return polyline
 }

@@ -89,13 +89,13 @@ export function generatePoint (position: MapGeographicPosition, properties: Geoj
     },
   }
 }
-export function generateCircle (position: GeojsonCoordinate, properties: GeojsonCircle['properties']): GeojsonFeature {
+export function generateCircle (position: MapGeographicPosition, properties: GeojsonCircle['properties']): GeojsonFeature {
   return {
     type: 'Feature',
     properties,
     geometry: {
       type: 'Circle',
-      coordinates: position,
+      coordinates: geographic2Coordinate(position),
     },
   }
 }
