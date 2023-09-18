@@ -4,16 +4,19 @@ import { commonColor } from '/@/utils/color'
 export enum TaskType {
   Immediate = 0, // 立即执行
   Timed = 1, // 单次定时任务
+  Condition = 2,
 }
 
 export const TaskTypeMap = {
   [TaskType.Immediate]: 'Immediate',
   [TaskType.Timed]: 'Timed',
+  [TaskType.Condition]: 'Continuous',
 }
 
 export const TaskTypeOptions = [
   { value: TaskType.Immediate, label: TaskTypeMap[TaskType.Immediate] },
   { value: TaskType.Timed, label: TaskTypeMap[TaskType.Timed] },
+  { value: TaskType.Condition, label: TaskTypeMap[TaskType.Condition] },
 ]
 
 // 失控动作

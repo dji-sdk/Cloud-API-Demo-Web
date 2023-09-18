@@ -11,8 +11,8 @@ export const MapElementDefaultColor = MapElementColor.Default
 
 export enum MapDoodleColor {
   PinColor = '#2D8CF0',
-  PolylineColor = '#3366FF',
-  PolygonColor = '#FF33FF'
+  PolylineColor = '#2D8CF0',
+  PolygonColor = '#2D8CF0'
 }
 
 export enum MapElementEnum {

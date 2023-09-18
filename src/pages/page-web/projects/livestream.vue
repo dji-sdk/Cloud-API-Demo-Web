@@ -18,7 +18,8 @@
     >
     </router-link>
   </div>
-  <div class="live" v-if="showLive">
+  <div class="live" v-if="showLive" v-drag-window>
+    <div style="height: 40px; width: 100%" class="drag-title"></div>
     <a style="position: absolute; right: 10px; top: 10px; font-size: 16px; color: white;" @click="() => root.$router.push('/' + ERouterName.LIVESTREAM)"><CloseOutlined /></a>
     <router-view :name="routeName" />
   </div>
@@ -74,14 +75,13 @@ onMounted(() => {
 .live {
   position: absolute;
   z-index: 1;
-  right: 50%;
-  left: 50%;
-  top: 50%;
-  margin: auto;
-  transform: translate(-50%, -50%);
+  left: 0;
+  top: 10px;
+  margin-left: 345px;
+
   text-align: center;
   width: 800px;
-  height: 700px;
+  height: 720px;
   background: #232323;
 }
 </style>

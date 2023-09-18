@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-column flex-justify-start flex-align-center mt20">
+  <div class="flex-column flex-justify-start flex-align-center">
     <video
       :style="{ width: '720px', height: '480px' }"
       id="video-webrtc"

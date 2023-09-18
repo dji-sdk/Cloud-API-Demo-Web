@@ -1,5 +1,5 @@
 import { ControlSource } from './device'
-import { LostControlActionInCommandFLight, WaylineLostControlActionInCommandFlight } from '/@/api/drone-control/drone'
+import { ECommanderModeLostAction, ERthMode, LostControlActionInCommandFLight, WaylineLostControlActionInCommandFlight } from '/@/api/drone-control/drone'
 
 export enum ControlSourceChangeType {
   Flight = 1,
@@ -50,6 +50,21 @@ export const LostControlActionInCommandFLightOptions = [
   { label: 'Return Home', value: LostControlActionInCommandFLight.RETURN_HOME },
   { label: 'Hover', value: LostControlActionInCommandFLight.HOVER },
   { label: 'Landing', value: LostControlActionInCommandFLight.Land }
+]
+
+export const RthModeInCommandFlightOptions = [
+  { label: 'Smart Height', value: ERthMode.SMART },
+  { label: 'Setting Height', value: ERthMode.SETTING }
+]
+
+export const CommanderModeLostActionInCommandFlightOptions = [
+  { label: 'Continue', value: ECommanderModeLostAction.CONTINUE },
+  { label: 'Execute Lost Action', value: ECommanderModeLostAction.EXEC_LOST_ACTION }
+]
+
+export const CommanderFlightModeInCommandFlightOptions = [
+  { label: 'Smart Height', value: ERthMode.SMART },
+  { label: 'Setting Height', value: ERthMode.SETTING }
 ]
 
 // 云台重置模式
