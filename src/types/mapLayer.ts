@@ -72,7 +72,8 @@ export interface Color {
 export enum GeoType {
   LineString = 'LineString',
   Polygon = 'Polygon',
-  Point = 'Point'
+  Point = 'Point',
+  Circle ='Circle'
 }
 export enum ResourceStatus {
   NotShow,

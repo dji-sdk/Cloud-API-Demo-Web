@@ -171,14 +171,13 @@ import importImg from '/@/assets/icons/import.svg'
 const root = getRoot()
 const store = useMyStore()
 let useGMapCoverHook = useGMapCover(store)
-console.log('store', store)
 const mapLayers = ref(store?.state?.Layers)
 const checkedKeys = ref<string[]>([])
 const selectedKeys = ref<string[]>([])
 const selectedKey = ref<string>('')
 const selectedLayer = ref<any>(null)
 const visible = ref<boolean>(false)
-store.commit('SET_DRAW_VISIBLE_INFO', visible.value)
+store?.commit('SET_DRAW_VISIBLE_INFO', visible.value)
 const geoType = GeoType
 const layerState = reactive({
   layerName: '',
@@ -216,7 +215,7 @@ function initMapCover () {
   })
 }
 watch(
-  () => store.state.Layers,
+  () => store?.state.Layers,
   newData => {
     mapLayers.value = newData
   },
@@ -226,13 +225,13 @@ watch(
 )
 
 watch(
-  () => store.state.layerId,
+  () => store?.state.layerId,
   newLayerId => {
     selectedKey.value = 'resource__' + newLayerId
     selectedLayer.value = getCurrentLayer(selectedKey.value)
     setBaseInfo()
     visible.value = true
-    store.commit('SET_DRAW_VISIBLE_INFO', visible.value)
+    store?.commit('SET_DRAW_VISIBLE_INFO', visible.value)
   },
   {
     deep: true // 监听属性变化
@@ -285,20 +284,18 @@ function checkLayer (keys: string[]) {
   console.log('checkLayer', keys, selectedKeys.value, checkedKeys.value)
 }
 function selectLayer (keys: string[], e) {
-  // console.log('selectLayer', e.node.eventKey, e.selected)
   if (e.selected) {
     selectedKey.value = e.node.eventKey
     selectedLayer.value = getCurrentLayer(selectedKey.value)
     setBaseInfo()
   }
   visible.value = e.selected
-  store.commit('SET_DRAW_VISIBLE_INFO', visible.value)
+  store?.commit('SET_DRAW_VISIBLE_INFO', visible.value)
   // store.dispatch('updateElement', { type: 'is_select', id: e.node.eventKey, bool: e.selected })
 }
 function getCurrentLayer (id: string) {
-  const Layers = store.state.Layers
+  const Layers = store?.state.Layers
   const key = id.replaceAll('resource__', '')
-  // console.log('selectedKey.value', selectedKey.value)
   let layer = null
   const findCan = function (V) {
     V.forEach(item => {
@@ -312,7 +309,6 @@ function getCurrentLayer (id: string) {
   }
   findCan(Layers)
   // const layer = Layers.find(item => item.elements.find(el => el.id === key))
-  console.log('layer', layer)
   return layer
 }
 function setBaseInfo () {
@@ -348,7 +344,7 @@ onMounted(() => {
   getAllElement()
 })
 function closeDrawer () {
-  store.commit('SET_DRAW_VISIBLE_INFO', false)
+  store?.commit('SET_DRAW_VISIBLE_INFO', false)
   selectedKeys.value = []
 }
 function changeColor (color: Color) {
@@ -363,13 +359,12 @@ async function deleteElement () {
   const elementid = selectedLayer.value.id
 
   await deleteElementReq(elementid, {}).then(async (res: any) => {
-    // console.log('delete element res:', res)
     if (res.code !== 0) {
       console.warn(res)
       return
     }
     visible.value = false
-    store.commit('SET_DRAW_VISIBLE_INFO', visible.value)
+    store?.commit('SET_DRAW_VISIBLE_INFO', visible.value)
     useGMapCoverHook.removeCoverFromMap(elementid)
     getElementGroups()
   })
@@ -382,9 +377,9 @@ async function getElementGroups (type?: string) {
   mapLayers.value = result.data
   mapLayers.value = updateWgs84togcj02()
   if (type && type === 'init') {
-    store.dispatch('setLayerInfo', mapLayers.value)
+    store?.dispatch('setLayerInfo', mapLayers.value)
   }
-  store.commit('SET_LAYER_INFO', mapLayers.value)
+  store?.commit('SET_LAYER_INFO', mapLayers.value)
 }
 async function updateElements () {
   let content = null
@@ -489,6 +484,23 @@ function updateCoordinates (transformType: string, element: LayerResource) {
         })
       }
       element.resource.content.geometry.coordinates = [coordinates]
+    } else if (MapElementEnum.CIR === type && geoType === 'Circle') {
+      let position = element.resource?.content.geometry
+        .coordinates
+      // 半径
+      const radius = position[2]
+      if (transformType === 'wgs84-gcj02') {
+        position = wgs84togcj02(
+          position[0],
+          position[1]
+        ) as GeojsonCoordinate
+      } else if (transformType === 'gcj02-wgs84') {
+        position = gcj02towgs84(
+          position[0],
+          position[1]
+        ) as GeojsonCoordinate
+      }
+      element.resource.content.geometry.coordinates = [...position, radius]
     }
   }
 }

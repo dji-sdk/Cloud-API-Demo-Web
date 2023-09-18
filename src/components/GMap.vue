@@ -17,7 +17,7 @@
         <a><BorderOutlined class="fz18" /></a>
       </div>
       <div :class="state.currentType === 'circle' ? 'g-action-item selection' : 'g-action-item'" @click="draw('circle', true)">
-        <a><BorderOutlined class="fz18" /></a>
+        <a><a-image :src="cir" :preview="false" /></a>
       </div>
       <div v-if="mouseMode" class="g-action-item" @click="draw('off', false)">
         <a style="color: red;"><CloseOutlined /></a>
@@ -33,7 +33,7 @@
       </div>
     </div>
     <!-- 飞机OSD -->
-    <div v-if="osdVisible.visible && !osdVisible.is_dock" class="osd-panel fz12">
+    <div v-if="osdVisible?.visible && !osdVisible?.is_dock" class="osd-panel fz12">
       <div style="opacity: 0.8;background: #000;">
         <div class="pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 18%;">
           <span>{{ osdVisible.callsign }}</span>
@@ -166,7 +166,7 @@
 
     </div> -->
     <!-- 机场OSD -->
-    <div v-if="osdVisible.visible && osdVisible.is_dock" class="osd-panel fz12">
+    <div v-if="osdVisible?.visible && osdVisible?.is_dock" class="osd-panel fz12">
       <div class="fz16 pl5 pr5 flex-align-center flex-row flex-justify-between" style="border-bottom: 1px solid #515151; height: 10%;">
         <span>{{ osdVisible.gateway_callsign }}</span>
         <span><a style="color: white;" @click="() => osdVisible.visible = false"><CloseOutlined /></a></span>
@@ -466,13 +466,14 @@ import {
   DeviceOsd, DeviceStatus, DockOsd, EGear, EModeCode, GatewayOsd, EDockModeCode,
   NetworkStateQualityEnum, NetworkStateTypeEnum, RainfallEnum, DroneInDockEnum
 } from '/@/types/device'
+import cir from '/@/assets/icons/circle.svg'
 import pin from '/@/assets/icons/pin-2d8cf0.svg'
 import M30 from '/@/assets/icons/m30.png'
 import {
   BorderOutlined, LineOutlined, CloseOutlined, ControlOutlined, TrademarkOutlined, ArrowDownOutlined,
   ThunderboltOutlined, SignalFilled, GlobalOutlined, HistoryOutlined, CloudUploadOutlined, RocketOutlined,
   FieldTimeOutlined, CloudOutlined, CloudFilled, FolderOpenOutlined, RobotFilled, ArrowUpOutlined, CarryOutOutlined,
-  EyeInvisibleOutlined, VideoCameraOutlined
+  VideoCameraOutlined, LeftCircleOutlined
 } from '@ant-design/icons-vue'
 import { EDeviceTypeName } from '../types'
 import DockControlPanel from './g-map/DockControlPanel.vue'
@@ -483,6 +484,7 @@ import LiveNewOthers from '/@/components/livestream-newOthers.vue'
 
 export default defineComponent({
   components: {
+    LeftCircleOutlined,
     LiveNewOthers,
     BorderOutlined,
     LineOutlined,
@@ -626,13 +628,11 @@ export default defineComponent({
         const event = newData
         let exist = false
         if (Object.keys(event.mapElementCreat).length !== 0) {
-          console.log(event.mapElementCreat)
           const ele = event.mapElementCreat
           store?.state?.Layers.forEach(layer => {
             layer.elements.forEach(e => {
               if (e.id === ele.id) {
                 exist = true
-                console.log('true')
               }
             })
           })
@@ -702,8 +702,6 @@ export default defineComponent({
     })
 
     function getDrawCallback ({ obj }) {
-      console.log(333)
-      console.log(obj)
       switch (state.currentType) {
         case MapDoodleEnum.PIN:
           postPinPositionResource(obj)
@@ -750,19 +748,17 @@ export default defineComponent({
       store.state.coverList.push(obj)
     }
     async function postPolygonResource (obj) {
-      console.log(obj, 'hafhhaf')
       const req = getPoygonResource(obj)
       setLayers(req)
       updateCoordinates('gcj02-wgs84', req)
       const result = await postElementsReq(shareId.value, req)
       obj.setExtData({ id: req.id, name: req.name, area: 222 })
       store.state.coverList.push(obj)
-      // console.log(store.state.coverList)
     }
     function getCircleResource (obj) {
     // name暂时写死，还在调试中
       const name = '1212'
-      const resource = generateCircleContent([...obj.getCenter().pos, obj.getRadius()])
+      const resource = generateCircleContent(obj.getCenter(), obj.getRadius())
       const id = uuidv4()
       return {
         id,
@@ -808,14 +804,13 @@ export default defineComponent({
       return { name, id }
     }
     function setLayers (resource: PostElementsBody) {
-      const layers = store.state.Layers
-      const layer = layers.find(item => item.id.includes(shareId.value))
+      const layers = store?.state?.Layers
+      const layer = layers ? layers.find(item => item.id.includes(shareId.value)) : ''
       // layer.id = 'private_layer' + uuidv4()
       // layer?.elements.push(resource)
       if (layer?.elements) {
         (layer?.elements as any[]).push(resource)
       }
-      // console.log('layers', layers)
       // store.commit('SET_LAYER_INFO', layers)
     }
     function updateCoordinates (transformType: string, element: any) {
@@ -880,7 +875,7 @@ export default defineComponent({
         } else if (MapElementEnum.CIR === type && geoType === 'Circle') {
           let position = element.resource?.content.geometry
             .coordinates
-            // 半径
+          // 半径
           const radius = position[2]
           if (transformType === 'wgs84-gcj02') {
             position = wgs84togcj02(
@@ -919,6 +914,7 @@ export default defineComponent({
       pin,
       state,
       M30,
+      cir,
       deviceInfo,
       EGear,
       EModeCode,

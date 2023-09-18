@@ -47,7 +47,7 @@ const state = reactive({
 })
 const getTreeData = computed(() => {
   // console.log('props.treeData', JSON.parse(JSON.stringify(props.layerData)))
-  return JSON.parse(JSON.stringify(props.layerData))
+  return JSON.parse(JSON.stringify(props?.layerData))
 })
 const shareId = computed(() => {
   return store.state.layerBaseInfo.share

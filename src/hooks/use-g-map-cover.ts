@@ -76,7 +76,6 @@ export function useGMapCover () {
       strokeColor: '#FF33FF',
       strokeOpacity: 1,
       strokeWeight: 6,
-      strokeOpacity: 0.2,
       fillOpacity: 0.4,
       strokeStyle: 'dashed',
       strokeDasharray: [10, 10],
@@ -84,7 +83,10 @@ export function useGMapCover () {
       fillColor: color,
       zIndex: 50,
     })
-
+    // 点击触发
+    circle.on('click', function (e) {
+      store.commit('SET_LAYER_ID', data.id)
+    })
     AddCoverToMap(circle)
   }
 
