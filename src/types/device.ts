@@ -22,8 +22,9 @@ export enum DOMAIN {
 export enum DRONE_TYPE {
   M30 = 67,
   M300 = 60,
-  Mavic3EnterpriseAdvanced= 77,
+  Mavic3EnterpriseAdvanced = 77,
   M350 = 89,
+  M3D = 91,
 }
 
 // DJI负载类型枚举值
@@ -43,6 +44,8 @@ export enum PAYLOAD_TYPE {
 
   M3E = 66,
   M3T = 67,
+  M3D = 80,
+  M3TD = 81,
   // UNKNOWN = 65535
 }
 
@@ -56,6 +59,7 @@ export enum RC_TYPE {
 // DOCK type
 export enum DOCK_TYPE {
   Dock = 1,
+  Dock2 = 2,
 }
 
 // 设备sub_type 从0升序
@@ -77,6 +81,9 @@ export const DEVICE_MODEL_KEY = {
   M300: `${DOMAIN.DRONE}-${DRONE_TYPE.M300}-${DEVICE_SUB_TYPE.ZERO}`,
   M350: `${DOMAIN.DRONE}-${DRONE_TYPE.M350}-${DEVICE_SUB_TYPE.ZERO}`,
 
+  M3D: `${DOMAIN.DRONE}-${DRONE_TYPE.M3D}-${DEVICE_SUB_TYPE.ZERO}`,
+  M3TD: `${DOMAIN.DRONE}-${DRONE_TYPE.M3D}-${DEVICE_SUB_TYPE.ONE}`,
+
   FPV: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.FPV}-${DEVICE_SUB_TYPE.ZERO}`,
   H20: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.H20}-${DEVICE_SUB_TYPE.ZERO}`,
   H20T: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.H20T}-${DEVICE_SUB_TYPE.ZERO}`,
@@ -88,6 +95,8 @@ export const DEVICE_MODEL_KEY = {
 
   M3ECamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M3E}-${DEVICE_SUB_TYPE.ZERO}`,
   M3TCamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M3T}-${DEVICE_SUB_TYPE.ZERO}`,
+  M3DCamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M3D}-${DEVICE_SUB_TYPE.ZERO}`,
+  M3TDCamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M3TD}-${DEVICE_SUB_TYPE.ZERO}`,
   // M3MCamera: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.M3M}-${DEVICE_SUB_TYPE.ZERO}`,
 
   XT2: `${DOMAIN.PAYLOAD}-${PAYLOAD_TYPE.XT2}-${DEVICE_SUB_TYPE.ZERO}`,
@@ -99,6 +108,7 @@ export const DEVICE_MODEL_KEY = {
   RCPlus: `${DOMAIN.RC}-${RC_TYPE.RCPlus}-${DEVICE_SUB_TYPE.ZERO}`,
 
   Dock: `${DOMAIN.DOCK}-${DOCK_TYPE.Dock}-${DEVICE_SUB_TYPE.ZERO}`,
+  Dock2: `${DOMAIN.DOCK}-${DOCK_TYPE.Dock2}-${DEVICE_SUB_TYPE.ZERO}`,
 }
 
 export const DEVICE_NAME = {
@@ -110,6 +120,8 @@ export const DEVICE_NAME = {
   // [DEVICE_MODEL_KEY.M3M]: 'Mavic 3M',
   [DEVICE_MODEL_KEY.M300]: 'M300 RTK',
   [DEVICE_MODEL_KEY.M350]: 'M350 RTK',
+  [DEVICE_MODEL_KEY.M3D]: 'M3D',
+  [DEVICE_MODEL_KEY.M3TD]: 'M3TD',
 
   // payload
   [DEVICE_MODEL_KEY.FPV]: 'FPV',
@@ -127,6 +139,8 @@ export const DEVICE_NAME = {
   [DEVICE_MODEL_KEY.XTS]: 'XTS',
   [DEVICE_MODEL_KEY.Z30]: 'Z30',
   [DEVICE_MODEL_KEY.DockTopCamera]: 'Dock Camera',
+  [DEVICE_MODEL_KEY.M3DCamera]: 'M3D Camera',
+  [DEVICE_MODEL_KEY.M3TDCamera]: 'M3TD Camera',
 
   // rc
   [DEVICE_MODEL_KEY.RC]: 'RC',
@@ -134,6 +148,7 @@ export const DEVICE_NAME = {
 
   // dock
   [DEVICE_MODEL_KEY.Dock]: 'Dock',
+  [DEVICE_MODEL_KEY.Dock2]: 'Dock2',
 }
 
 // 控制权
@@ -169,7 +184,7 @@ export interface OnlineDevice {
 // 固件升级类型
 export enum DeviceFirmwareTypeEnum {
   ToUpgraded = 3, // 普通升级
-  ConsistencyUpgrade =2, // 一致性升级
+  ConsistencyUpgrade = 2, // 一致性升级
 }
 
 // 固件升级状态
@@ -230,7 +245,7 @@ export interface OSDVisible {
   is_dock: boolean,
   gateway_sn: string,
   gateway_callsign: string,
-  payloads: null | PayloadInfo [],
+  payloads: null | PayloadInfo[],
 }
 
 export interface GatewayOsd {
@@ -293,9 +308,12 @@ export enum NetworkStateTypeEnum {
 }
 
 export enum NetworkStateQualityEnum {
-  BAD = 0,
-  MEDIUM = 1,
-  GOOD = 2
+  NO_SIGNAL = 0,
+  BAD = 1,
+  POOR = 2,
+  FAIR = 3,
+  GOOD = 4,
+  EXCELLENT = 5,
 }
 
 export enum RainfallEnum {
@@ -384,7 +402,7 @@ export interface DockLinkOsd {
     down_quality: string,
     frequency_band: number,
   },
-  wireless_link?:{ // 图传链路<会包括4G和sdr信息
+  wireless_link?: { // 图传链路<会包括4G和sdr信息
     dongle_number: number, // dongle 数量
     ['4g_link_state']: FourGLinkStateEnum, // 4g_link_state
     sdr_link_state: SdrLinkStateEnum, // sdr链路连接状态
@@ -461,29 +479,6 @@ export enum EGear {
   M,
   G,
   T
-}
-
-export enum EDeviceType {
-  M30 = '0-67-0' as any,
-  M30T = '0-67-1' as any,
-  M300 = '0-60-0' as any,
-  M350 = DEVICE_MODEL_KEY.M350 as any,
-  Z30 = '1-20-0' as any,
-  XT2 = '1-26-0' as any,
-  FPV = '1-39-0' as any,
-  XTS = '1-41-0' as any,
-  H20 = '1-42-0' as any,
-  H20T = '1-43-0' as any,
-  P1 = '1-50-65535' as any,
-  M30_Camera = '1-52-0' as any,
-  M30T_Camera = '1-53-0' as any,
-  H20N = '1-61-0' as any,
-  DJI_Dock_Camera = '1-165-0' as any,
-  L1 = '1-90742-0' as any,
-  M3E = '0-77-0' as any,
-  M3D = '0-77-1' as any,
-  M3E_Camera = '1-66-0' as any,
-  M3T_Camera = '1-67-0' as any,
 }
 
 export enum EDockModeCode {
