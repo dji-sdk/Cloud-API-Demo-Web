@@ -21,8 +21,8 @@
          <!-- 设备类型 -->
           <template #device_type="{ record }">
             <div>
-              <div v-if="getDeviceInfo(record).parents && getDeviceInfo(record).parents.length > 0">{{ DEVICE_NAME[getDeviceInfo(record).parents[0].device_model.key]}}</div>
-              <div v-if="getDeviceInfo(record).hosts && getDeviceInfo(record).hosts.length > 0">{{ DEVICE_NAME[getDeviceInfo(record).hosts[0].device_model.key]}}</div>
+              <div v-if="getDeviceInfo(record).parents && getDeviceInfo(record).parents.length > 0">{{ DEVICE_NAME[getDeviceInfo(record).parents[0].device_model.device_model_key]}}</div>
+              <div v-if="getDeviceInfo(record).hosts && getDeviceInfo(record).hosts.length > 0">{{ DEVICE_NAME[getDeviceInfo(record).hosts[0].device_model.device_model_key]}}</div>
             </div>
           </template>
           <!-- 设备sn -->

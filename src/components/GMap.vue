@@ -185,8 +185,7 @@
             <a-row>
               <a-col span="6">
                 <a-tooltip title="Network State">
-                  <span :style="deviceInfo.dock.basic_osd?.network_state?.type === NetworkStateTypeEnum.ETHERNET || deviceInfo.dock.basic_osd?.network_state?.quality === NetworkStateQualityEnum.GOOD ?
-                    'color: #00ee8b' : deviceInfo.dock.basic_osd?.network_state?.quality === NetworkStateQualityEnum.MEDIUM ? 'color: yellow' : 'color: red'">
+                  <span :style="qualityStyle">
                     <span v-if="deviceInfo.dock.basic_osd?.network_state?.type === NetworkStateTypeEnum.FOUR_G"><SignalFilled /></span>
                     <span v-else><GlobalOutlined /></span>
                   </span>
@@ -558,7 +557,16 @@ export default defineComponent({
     const osdVisible = computed(() => {
       return store.state.osdVisible
     })
-
+    const qualityStyle = computed(() => {
+      if (deviceInfo.dock.basic_osd?.network_state?.type === NetworkStateTypeEnum.ETHERNET ||
+        (deviceInfo.dock.basic_osd?.network_state?.quality || 0) > NetworkStateQualityEnum.FAIR) {
+        return 'color: #00ee8b'
+      }
+      if ((deviceInfo.dock.basic_osd?.network_state?.quality || 0) === NetworkStateQualityEnum.FAIR) {
+        return 'color: yellow'
+      }
+      return 'color: red'
+    })
     watch(() => store.state.deviceStatusEvent,
       data => {
         if (Object.keys(data.deviceOnline).length !== 0) {
@@ -872,7 +880,8 @@ export default defineComponent({
       RainfallEnum,
       DroneInDockEnum,
       closeLivestreamOthers,
-      closeLivestreamAgora
+      closeLivestreamAgora,
+      qualityStyle,
     }
   }
 })

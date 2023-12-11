@@ -30,10 +30,10 @@
             </div>
             <div class="ml10 mt5" style="color: hsla(0,0%,100%,0.65);">
               <span><RocketOutlined /></span>
-              <span class="ml5">{{ Object.keys(EDeviceType)[Object.values(EDeviceType).indexOf(wayline.drone_model_key)] }}</span>
+              <span class="ml5">{{ DEVICE_NAME[wayline.drone_model_key] }}</span>
               <span class="ml10"><CameraFilled style="border-top: 1px solid; padding-top: -3px;" /></span>
               <span class="ml5" v-for="payload in wayline.payload_model_keys" :key="payload.id">
-                {{ Object.keys(EDeviceType)[Object.values(EDeviceType).indexOf(payload)] }}
+                {{ DEVICE_NAME[payload] }}
               </span>
             </div>
             <div class="mt5 ml10" style="color: hsla(0,0%,100%,0.35);">
@@ -162,7 +162,7 @@ import { CloseOutlined, RocketOutlined, CameraFilled, UserOutlined, PlusCircleOu
 import { ELocalStorageKey, ERouterName } from '/@/types'
 import { useMyStore } from '/@/store'
 import { WaylineType, WaylineFile } from '/@/types/wayline'
-import { Device, EDeviceType } from '/@/types/device'
+import { Device, DEVICE_NAME } from '/@/types/device'
 import { createPlan, CreatePlan } from '/@/api/wayline'
 import { getRoot } from '/@/root'
 import { TaskType, OutOfControlActionOptions, OutOfControlAction, TaskTypeOptions } from '/@/types/task'
