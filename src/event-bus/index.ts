@@ -6,6 +6,9 @@ type Events = {
   flightTaskWs: any // 机场任务消息
   droneControlWs: any // 飞行指令信息
   droneControlMqttInfo: any // drc 链路通知
+  flightAreasDroneLocationWs: any
+  flightAreasSyncProgressWs: any
+  flightAreasUpdateWs: any
 };
 
 const emitter: Emitter<Events> = mitt<Events>()

@@ -58,7 +58,8 @@ export default defineComponent({
       { key: 2, label: 'Annotations', path: '/' + ERouterName.LAYER, icon: 'EnvironmentOutlined' },
       { key: 3, label: 'Media Files', path: '/' + ERouterName.MEDIA, icon: 'PictureOutlined' },
       { key: 4, label: 'Flight Route Library', path: '/' + ERouterName.WAYLINE, icon: 'NodeIndexOutlined' },
-      { key: 5, label: 'Task Plan Library', path: '/' + ERouterName.TASK, icon: 'CalendarOutlined' }
+      { key: 5, label: 'Task Plan Library', path: '/' + ERouterName.TASK, icon: 'CalendarOutlined' },
+      { key: 6, label: 'Flight Area', path: '/' + ERouterName.FLIGHT_AREA, icon: 'GroupOutlined' },
     ]
 
     function selectedRoute (item: IOptions) {

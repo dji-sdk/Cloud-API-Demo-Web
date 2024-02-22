@@ -1,3 +1,4 @@
+import { EFlightAreaType } from '../types/flight-area'
 import pin19be6b from '/@/assets/icons/pin-19be6b.svg'
 import pin212121 from '/@/assets/icons/pin-212121.svg'
 import pin2d8cf0 from '/@/assets/icons/pin-2d8cf0.svg'
@@ -14,12 +15,16 @@ export function useGMapCover () {
 
   const normalColor = '#2D8CF0'
   const store = rootStore
-  const coverList = store.state.coverList
+  const coverMap = store.state.coverMap
+  const flightAreaColorMap = {
+    [EFlightAreaType.DFENCE]: '#19be6b',
+    [EFlightAreaType.NFZ]: '#ff0000',
+  }
+  const disableColor = '#b3b3b3'
 
   function AddCoverToMap (cover :any) {
     root.$map.add(cover)
-    coverList.push(cover)
-    // console.log('coverList:', store.state.coverList)
+    coverMap[cover.getExtData().id] = [cover]
   }
 
   function getPinIcon (color?:string) {
@@ -29,10 +34,10 @@ export function useGMapCover () {
     } = {
       '2d8cf0': pin2d8cf0,
       '19be6b': pin19be6b,
-      '212121': pin212121,
-      'b620e0': pinb620e0,
-      'e23c39': pine23c39,
-      'ffbb00': pineffbb00,
+      212121: pin212121,
+      b620e0: pinb620e0,
+      e23c39: pine23c39,
+      ffbb00: pineffbb00,
     }
     const iconName = (color?.replaceAll('#', '') || '').toLocaleLowerCase()
     return new AMap.Icon({
@@ -44,7 +49,6 @@ export function useGMapCover () {
   }
 
   function init2DPin (name: string, coordinates:GeojsonCoordinate, color?:string, data?:{}) {
-    console.log(name, coordinates[0], coordinates[1], color, data)
     const pin = new AMap.Marker({
       position: new AMap.LngLat(coordinates[0], coordinates[1]),
       title: name,
@@ -59,7 +63,8 @@ export function useGMapCover () {
 
   function AddOverlayGroup (overlayGroup) {
     root.$map.add(overlayGroup)
-    coverList.push(overlayGroup)
+    const id = overlayGroup.getExtData().id
+    coverMap[id] = [...(coverMap[id] || []), overlayGroup]
   }
   function initPolyline (name: string, coordinates:GeojsonCoordinate[], color?:string, data?:{}) {
     const path = [] as GeojsonCoordinate[]
@@ -98,36 +103,18 @@ export function useGMapCover () {
   }
 
   function removeCoverFromMap (id:string) {
-    for (let i = 0; i < coverList.length; i++) {
-      const ele = coverList[i]
-      // console.log(ele)
-      const extdata = ele?.getExtData()
-      if (extdata?.id === id) {
-        console.log(extdata)
-        root.$map.remove(ele)
-        coverList.slice(i, 1)
-        break
-      }
-    }
+    coverMap[id].forEach(cover => root.$map.remove(cover))
+    coverMap[id] = []
   }
 
-  function getElementFromMap (id:string) {
-    // console.log('start', new Date().getTime())
-    const ele = coverList.find(ele => ele?.getExtData().id === id)
-    // console.log('end', new Date().getTime())
-    return ele
-    // coverList.forEach((ele:any) => {
-    //   const extdata = ele?.getExtData()
-    //   // console.log(extdata)
-    //   if (extdata?.id === id) {
-    //     return ele
-    //   }
-    // })
+  function getElementFromMap (id:string): any[] {
+    return coverMap[id]
   }
 
   function updatePinElement (id:string, name: string, coordinates:GeojsonCoordinate, color?:string) {
-    const element = getElementFromMap(id) as any
-    if (element) {
+    const elements = getElementFromMap(id)
+    if (elements && elements.length > 0) {
+      const element = elements[0]
       const icon = getPinIcon(color)
       element.setPosition(new AMap.LngLat(coordinates[0], coordinates[1]))
       element.setIcon(icon)
@@ -142,8 +129,9 @@ export function useGMapCover () {
   }
 
   function updatePolylineElement (id:string, name: string, coordinates:GeojsonCoordinate[], color?:string) {
-    const element = getElementFromMap(id) as any
-    if (element) {
+    const elements = getElementFromMap(id)
+    if (elements && elements.length > 0) {
+      const element = elements[0]
       const options = element.getOptions()
       options.strokeColor = color || normalColor
       element.setOptions(options)
@@ -156,8 +144,9 @@ export function useGMapCover () {
   }
 
   function updatePolygonElement (id:string, name: string, coordinates:GeojsonCoordinate[][], color?:string) {
-    const element = getElementFromMap(id) as any
-    if (element) {
+    const elements = getElementFromMap(id)
+    if (elements && elements.length > 0) {
+      const element = elements[0]
       const options = element.getOptions()
       options.fillColor = color || normalColor
       options.strokeColor = color || normalColor
@@ -170,6 +159,116 @@ export function useGMapCover () {
     }
   }
 
+  function initTextInfo (content: string, coordinates: GeojsonCoordinate, id: string) {
+    const info = new AMap.Text({
+      text: content,
+      position: new AMap.LngLat(coordinates[0], coordinates[1]),
+      extData: { id: id, type: 'text' },
+      anchor: 'top-center',
+      style: {
+        background: 'none',
+        borderStyle: 'none',
+        fontSize: '16px',
+      },
+    })
+    AddOverlayGroup(info)
+  }
+
+  function initFlightAreaCircle (name: string, radius: number, position: GeojsonCoordinate, data: { id: string, type: EFlightAreaType, enable: boolean }) {
+    const circle = new AMap.Circle({
+      strokeColor: data.enable ? flightAreaColorMap[data.type] : disableColor,
+      strokeOpacity: 1,
+      strokeWeight: 6,
+      extData: data,
+      strokeStyle: 'dashed',
+      strokeDasharray: EFlightAreaType.NFZ === data.type ? [10, 2] : [10, 1, 2],
+      fillColor: flightAreaColorMap[data.type],
+      fillOpacity: EFlightAreaType.NFZ === data.type && data.enable ? 0.3 : 0,
+      radius: radius,
+      center: new AMap.LngLat(position[0], position[1]),
+    })
+    AddOverlayGroup(circle)
+    initTextInfo(name, position, data.id)
+  }
+
+  function updateFlightAreaCircle (id: string, name: string, radius: number, position: GeojsonCoordinate, enable: boolean, type: EFlightAreaType) {
+    const elements = getElementFromMap(id)
+    if (elements && elements.length > 0) {
+      let textIndex = elements.findIndex(ele => ele.getExtData()?.type === 'text')
+      if (textIndex === -1) {
+        textIndex = 1
+        initTextInfo(name, position, id)
+      } else {
+        const text = elements[textIndex]
+        text.setText(name)
+        text.setPosition(position)
+      }
+      const element = elements[textIndex ^ 1]
+      const options = element.getOptions()
+
+      options.fillOpacity = EFlightAreaType.NFZ === type && enable ? 0.3 : 0
+      options.strokeColor = enable ? flightAreaColorMap[type] : disableColor
+      options.radius = radius
+      options.center = new AMap.LngLat(position[0], position[1])
+      element.setOptions(options)
+    } else {
+      initFlightAreaCircle(name, radius, position, { id, type, enable })
+    }
+  }
+
+  function calcPolygonPosition (coordinate: GeojsonCoordinate[]): GeojsonCoordinate {
+    const index = coordinate.length - 1
+    return [(coordinate[0][0] + coordinate[index][0]) / 2.0, (coordinate[0][1] + coordinate[index][1]) / 2]
+  }
+
+  function initFlightAreaPolygon (name: string, coordinates: GeojsonCoordinate[], data: { id: string, type: EFlightAreaType, enable: boolean }) {
+    const path = [] as GeojsonCoordinate[]
+    coordinates.forEach(coordinate => {
+      path.push(new AMap.LngLat(coordinate[0], coordinate[1]))
+    })
+    const polygon = new AMap.Polygon({
+      path: path,
+      strokeColor: data.enable ? flightAreaColorMap[data.type] : disableColor,
+      strokeOpacity: 1,
+      strokeWeight: 4,
+      draggable: true,
+      extData: data,
+      strokeStyle: 'dashed',
+      strokeDasharray: EFlightAreaType.NFZ === data.type ? [10, 2] : [10, 1, 2],
+      fillColor: flightAreaColorMap[data.type],
+      fillOpacity: EFlightAreaType.NFZ === data.type && data.enable ? 0.3 : 0,
+    })
+    AddOverlayGroup(polygon)
+    initTextInfo(name, calcPolygonPosition(coordinates), data.id)
+  }
+
+  function updateFlightAreaPolygon (id: string, name: string, coordinates: GeojsonCoordinate[], enable: boolean, type: EFlightAreaType) {
+    const elements = getElementFromMap(id)
+    if (elements && elements.length > 0) {
+      let textIndex = elements.findIndex(ele => ele.getExtData()?.type === 'text')
+      if (textIndex === -1) {
+        textIndex = 1
+        initTextInfo(name, calcPolygonPosition(coordinates), id)
+      } else {
+        const text = elements[textIndex]
+        text.setText(name)
+        text.setPosition(calcPolygonPosition(coordinates))
+      }
+      const element = elements[textIndex ^ 1]
+      const options = element.getOptions()
+      const path = [] as GeojsonCoordinate[]
+      coordinates.forEach(coordinate => {
+        path.push(new AMap.LngLat(coordinate[0], coordinate[1]))
+      })
+      options.path = path
+      options.fillOpacity = EFlightAreaType.NFZ === type && enable ? 0.3 : 0
+      options.strokeColor = enable ? flightAreaColorMap[type] : disableColor
+      element.setOptions(options)
+    } else {
+      initFlightAreaPolygon(name, coordinates, { id, type, enable })
+    }
+  }
+
   return {
     init2DPin,
     initPolyline,
@@ -178,6 +277,11 @@ export function useGMapCover () {
     getElementFromMap,
     updatePinElement,
     updatePolylineElement,
-    updatePolygonElement
+    updatePolygonElement,
+    initFlightAreaCircle,
+    initFlightAreaPolygon,
+    updateFlightAreaPolygon,
+    updateFlightAreaCircle,
+    calcPolygonPosition,
   }
 }

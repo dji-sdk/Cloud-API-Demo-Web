@@ -1,5 +1,5 @@
 import { pinAMapPosition, MapGeographicPosition, Layer, LayerType, LayerElevationLoadStatus } from '/@/types/map'
-import { generatePoint, generateLine, generatePolygon } from '/@/utils/genjson'
+import { generatePoint, generateLine, generatePolygon, generateCircle } from '/@/utils/genjson'
 import { MapDoodleColor, MapElementEnum } from '/@/constants/map'
 function getPinPosition (pinAMapPosition: pinAMapPosition):MapGeographicPosition {
   return { height: 0, latitude: pinAMapPosition.lat, longitude: pinAMapPosition.lng }
@@ -41,4 +41,9 @@ export function generatePolyContent (mapPosition: pinAMapPosition[]) {
       color: MapDoodleColor.PolygonColor,
     })
   }
+}
+
+export function generateCircleContent (pinAMapPosition: pinAMapPosition, radius: number) {
+  const position = getPinPosition(pinAMapPosition)
+  return generateCircle(position, { color: MapDoodleColor.PolygonColor }, radius)
 }

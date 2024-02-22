@@ -103,7 +103,12 @@ const routes: Array<RouteRecordRaw> = [
           }
 
         ]
-      }
+      },
+      {
+        path: '/' + ERouterName.FLIGHT_AREA,
+        name: ERouterName.FLIGHT_AREA,
+        component: () => import('/@/pages/page-web/projects/flight-area.vue')
+      },
     ]
   },
   // pilot

@@ -20,4 +20,4 @@ export enum MapElementEnum {
   LINE = 1,
   POLY = 2
 }
-export type MapDoodleType = 'pin' | 'polyline' | 'polygon' | 'off'
+export type MapDoodleType = 'pin' | 'polyline' | 'polygon' | 'off' | 'circle'

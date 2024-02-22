@@ -13,9 +13,10 @@
       <div :class="state.currentType === 'polyline' ? 'g-action-item selection' : 'g-action-item'" @click="draw('polyline', true)">
         <a><LineOutlined :rotate="135" class="fz20"/></a>
       </div>
-      <div :class="state.currentType === 'polygon' ? 'g-action-item selection' : 'g-action-item'" @click="draw('polygon', true)">
+      <div :class="state.currentType === 'polygon' && !state.isFlightArea ? 'g-action-item selection' : 'g-action-item'" @click="draw('polygon', true)">
         <a><BorderOutlined class="fz18" /></a>
       </div>
+      <FlightAreaActionIcon class="g-action-item mt10" :class="{'selection': mouseMode && state.isFlightArea}" @select-action="selectFlightAreaAction" @click="selectFlightAreaAction"/>
       <div v-if="mouseMode" class="g-action-item" @click="draw('off', false)">
         <a style="color: red;"><CloseOutlined /></a>
       </div>
@@ -464,6 +465,10 @@ import DroneControlPanel from './g-map/DroneControlPanel.vue'
 import { useConnectMqtt } from './g-map/use-connect-mqtt'
 import LivestreamOthers from './livestream-others.vue'
 import LivestreamAgora from './livestream-agora.vue'
+import FlightAreaActionIcon from './flight-area/FlightAreaActionIcon.vue'
+import { EFlightAreaType } from '../types/flight-area'
+import { useFlightArea } from './flight-area/use-flight-area'
+import { useFlightAreaDroneLocationEvent } from './flight-area/use-flight-area-drone-location-event'
 
 export default defineComponent({
   components: {
@@ -489,7 +494,8 @@ export default defineComponent({
     CarryOutOutlined,
     RocketOutlined,
     LivestreamOthers,
-    LivestreamAgora
+    LivestreamAgora,
+    FlightAreaActionIcon,
   },
   name: 'GMap',
   props: {},
@@ -503,7 +509,8 @@ export default defineComponent({
     const store = useMyStore()
     const state = reactive({
       currentType: '',
-      coverIndex: 0
+      coverIndex: 0,
+      isFlightArea: false,
     })
     const str: string = '--'
     const deviceInfo = reactive({
@@ -589,19 +596,22 @@ export default defineComponent({
 
     watch(() => store.state.deviceState, data => {
       if (data.currentType === EDeviceTypeName.Gateway && data.gatewayInfo[data.currentSn]) {
-        deviceTsaUpdateHook.moveTo(data.currentSn, data.gatewayInfo[data.currentSn].longitude, data.gatewayInfo[data.currentSn].latitude)
+        const coordinate = wgs84togcj02(data.gatewayInfo[data.currentSn].longitude, data.gatewayInfo[data.currentSn].latitude)
+        deviceTsaUpdateHook.moveTo(data.currentSn, coordinate[0], coordinate[1])
         if (osdVisible.value.visible && osdVisible.value.gateway_sn !== '') {
           deviceInfo.gateway = data.gatewayInfo[osdVisible.value.gateway_sn]
         }
       }
       if (data.currentType === EDeviceTypeName.Aircraft && data.deviceInfo[data.currentSn]) {
-        deviceTsaUpdateHook.moveTo(data.currentSn, data.deviceInfo[data.currentSn].longitude, data.deviceInfo[data.currentSn].latitude)
+        const coordinate = wgs84togcj02(data.deviceInfo[data.currentSn].longitude, data.deviceInfo[data.currentSn].latitude)
+        deviceTsaUpdateHook.moveTo(data.currentSn, coordinate[0], coordinate[1])
         if (osdVisible.value.visible && osdVisible.value.sn !== '') {
           deviceInfo.device = data.deviceInfo[osdVisible.value.sn]
         }
       }
       if (data.currentType === EDeviceTypeName.Dock && data.dockInfo[data.currentSn]) {
-        deviceTsaUpdateHook.initMarker(EDeviceTypeName.Dock, EDeviceTypeName[EDeviceTypeName.Dock], data.currentSn, data.dockInfo[data.currentSn].basic_osd?.longitude, data.dockInfo[data.currentSn].basic_osd?.latitude)
+        const coordinate = wgs84togcj02(data.dockInfo[data.currentSn].basic_osd?.longitude, data.dockInfo[data.currentSn].basic_osd?.latitude)
+        deviceTsaUpdateHook.initMarker(EDeviceTypeName.Dock, EDeviceTypeName[EDeviceTypeName.Dock], data.currentSn, coordinate[0], coordinate[1])
         if (osdVisible.value.visible && osdVisible.value.is_dock && osdVisible.value.gateway_sn !== '') {
           deviceInfo.dock = data.dockInfo[osdVisible.value.gateway_sn]
           deviceInfo.device = data.deviceInfo[deviceInfo.dock.basic_osd.sub_device?.device_sn ?? osdVisible.value.sn]
@@ -677,10 +687,11 @@ export default defineComponent({
       }
     )
 
-    function draw (type: MapDoodleType, bool: boolean) {
+    function draw (type: MapDoodleType, bool: boolean, flightAreaType?: EFlightAreaType) {
       state.currentType = type
-      useMouseToolHook.mouseTool(type, getDrawCallback)
       mouseMode.value = bool
+      state.isFlightArea = !!flightAreaType
+      useMouseToolHook.mouseTool(type, getDrawCallback, flightAreaType)
     }
 
     // dock 控制面板
@@ -698,7 +709,18 @@ export default defineComponent({
       useGMapManageHook.globalPropertiesConfig(app)
     })
 
-    function getDrawCallback ({ obj }) {
+    const { getDrawFlightAreaCallback, onFlightAreaDroneLocationWs } = useFlightArea()
+    useFlightAreaDroneLocationEvent(onFlightAreaDroneLocationWs)
+
+    function selectFlightAreaAction ({ type, isCircle }: { type: EFlightAreaType, isCircle: boolean }) {
+      draw(isCircle ? MapDoodleEnum.CIRCLE : MapDoodleEnum.POLYGON, true, type)
+    }
+
+    function getDrawCallback ({ obj }: { obj : any }) {
+      if (state.isFlightArea) {
+        getDrawFlightAreaCallback(obj)
+        return
+      }
       switch (state.currentType) {
         case MapDoodleEnum.PIN:
           postPinPositionResource(obj)
@@ -721,8 +743,7 @@ export default defineComponent({
       (req.resource.content.geometry.coordinates as GeojsonCoordinate).push((coordinates as GeojsonCoordinate)[2])
       const result = await postElementsReq(shareId.value, req)
       obj.setExtData({ id: req.id, name: req.name })
-      store.state.coverList.push(obj)
-      // console.log(store.state.coverList)
+      store.state.coverMap[req.id] = [obj]
     }
     async function postPolylineResource (obj) {
       const req = getPolylineResource(obj)
@@ -730,8 +751,7 @@ export default defineComponent({
       updateCoordinates('gcj02-wgs84', req)
       const result = await postElementsReq(shareId.value, req)
       obj.setExtData({ id: req.id, name: req.name })
-      store.state.coverList.push(obj)
-      // console.log(store.state.coverList)
+      store.state.coverMap[req.id] = [obj]
     }
     async function postPolygonResource (obj) {
       const req = getPoygonResource(obj)
@@ -739,8 +759,7 @@ export default defineComponent({
       updateCoordinates('gcj02-wgs84', req)
       const result = await postElementsReq(shareId.value, req)
       obj.setExtData({ id: req.id, name: req.name })
-      store.state.coverList.push(obj)
-      // console.log(store.state.coverList)
+      store.state.coverMap[req.id] = [obj]
     }
 
     function getPinPositionResource (obj) {
@@ -882,6 +901,7 @@ export default defineComponent({
       closeLivestreamOthers,
       closeLivestreamAgora,
       qualityStyle,
+      selectFlightAreaAction,
     }
   }
 })

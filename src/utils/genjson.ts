@@ -39,7 +39,20 @@ export interface GeojsonPoint {
  }
 }
 
-export type GeojsonFeature = GeojsonLine | GeojsonPolygon | GeojsonPoint
+export interface GeojsonCircle {
+ type: 'Feature'
+ properties: {
+   color: string
+   clampToGround?: boolean
+ }
+ geometry: {
+   type: 'Circle'
+   coordinates: GeojsonCoordinate
+   radius: number
+ }
+}
+
+export type GeojsonFeature = GeojsonLine | GeojsonPolygon | GeojsonPoint | GeojsonCircle
 
 export function geographic2Coordinate (position: MapGeographicPosition): GeojsonCoordinate {
   const coordinates: GeojsonCoordinate = [position.longitude, position.latitude]
@@ -76,6 +89,18 @@ export function generatePoint (position: MapGeographicPosition, properties: Geoj
     geometry: {
       type: 'Point',
       coordinates: geographic2Coordinate(position),
+    },
+  }
+}
+
+export function generateCircle (position: MapGeographicPosition, properties: GeojsonCircle['properties'], radius: number): GeojsonFeature {
+  return {
+    type: 'Feature',
+    properties,
+    geometry: {
+      type: 'Circle',
+      coordinates: geographic2Coordinate(position),
+      radius: radius,
     },
   }
 }

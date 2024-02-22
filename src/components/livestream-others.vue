@@ -5,6 +5,7 @@
       id="video-webrtc"
       ref="videowebrtc"
       controls
+      autoplay
       class="mt20"
     ></video>
     <p class="fz24">Live streaming source selection</p>
@@ -120,6 +121,8 @@ import { CURRENT_CONFIG as config } from '/@/api/http/config'
 import { changeLivestreamLens, getLiveCapacity, setLivestreamQuality, startLivestream, stopLivestream } from '/@/api/manage'
 import { getRoot } from '/@/root'
 import jswebrtc from '/@/vendors/jswebrtc.min.js'
+import srs from '/@/vendors/srs.sdk.js'
+
 const root = getRoot()
 
 interface SelectOption {
@@ -140,6 +143,10 @@ const liveTypeList: SelectOption[] = [
   {
     value: 3,
     label: 'GB28181'
+  },
+  {
+    value: 4,
+    label: 'WEBRTC'
   }
 ]
 const clarityList: SelectOption[] = [
@@ -182,6 +189,7 @@ const lensList = ref<string[]>([])
 const lensSelected = ref<String>()
 const isDockLive = ref(false)
 const nonSwitchable = 'normal'
+let webrtc: any = null
 
 const onRefresh = async () => {
   droneList.value = []
@@ -258,6 +266,9 @@ const onStart = async () => {
       liveURL = `serverIP=${config.gbServerIp}&serverPort=${config.gbServerPort}&serverID=${config.gbServerId}&agentID=${config.gbAgentId}&agentPassword=${config.gbPassword}&localPort=${config.gbAgentPort}&channel=${config.gbAgentChannel}`
       break
     }
+    case 4: {
+      break
+    }
     default:
       console.warn('warning: live type is not correct!!!')
       break
@@ -291,13 +302,7 @@ const onStart = async () => {
         })
       } else if (livetypeSelected.value === 2) {
         console.log(res)
-        rtspData.value =
-          'url:' +
-          res.data.url +
-          '&username:' +
-          res.data.username +
-          '&password:' +
-          res.data.password
+        rtspData.value = 'url:' + res.data.url
       } else if (livetypeSelected.value === 1) {
         const url = res.data.url
         const videoElement = videowebrtc.value
@@ -310,6 +315,10 @@ const onStart = async () => {
             console.log('start play livestream')
           }
         })
+      } else if (livetypeSelected.value === 4) {
+        const videoElement = videowebrtc.value as unknown as HTMLMediaElement
+        videoElement.muted = true
+        playWebrtc(videoElement, res.data.url)
       }
       liveState.value = true
     })
@@ -410,6 +419,19 @@ const onSwitch = () => {
     if (res.code === 0) {
       message.success('Switching live camera successfully.')
     }
+  })
+}
+const playWebrtc = (videoElement: HTMLMediaElement, url: string) => {
+  if (webrtc) {
+    webrtc.close()
+  }
+  webrtc = new srs.SrsRtcWhipWhepAsync()
+  videoElement.srcObject = webrtc.stream
+  webrtc.play(url).then(function (session: any) {
+    console.info(session)
+  }).catch(function (reason: any) {
+    webrtc.close()
+    console.error(reason)
   })
 }
 </script>

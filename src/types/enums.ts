@@ -15,6 +15,7 @@ export enum ERouterName {
     CREATE_PLAN = 'create-plan',
     SELECT_PLAN = 'select-plan',
     FIRMWARES = 'firmwares',
+    FLIGHT_AREA = 'flight-area',
 
     PILOT = 'pilot-login',
     PILOT_HOME = 'pilot-home',
@@ -123,6 +124,11 @@ export enum EBizCode {
     TakeoffToPointProgress = 'takeoff_to_point_progress', // 一键起飞
     JoystickInvalidNotify = 'joystick_invalid_notify', // 设备端退出drc模式
     DrcStatusNotify = 'drc_status_notify', // 飞行控制模式状态
+
+    // custom flight area
+    FlightAreasSyncProgress = 'flight_areas_sync_progress',
+    FlightAreasDroneLocation = 'flight_areas_drone_location',
+    FlightAreasUpdate = 'flight_areas_update',
 }
 
 export enum EDeviceTypeName {

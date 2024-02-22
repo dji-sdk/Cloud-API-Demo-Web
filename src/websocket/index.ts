@@ -1,5 +1,6 @@
 import { message } from 'ant-design-vue'
 import ReconnectingWebSocket from 'reconnecting-websocket'
+import { EBizCode } from '../types'
 
 interface WebSocketOptions {
   data: any
@@ -9,6 +10,11 @@ interface WebSocketOptions {
 
 export interface MessageHandler {
   (data : {[key: string]: any}): void
+}
+
+export interface CommonHostWs<T> {
+  sn: string
+  host: T
 }
 
 /**

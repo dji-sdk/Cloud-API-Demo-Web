@@ -3,6 +3,8 @@ import pin2d8cf0 from '/@/assets/icons/pin-2d8cf0.svg'
 import { MapDoodleType } from '/@/constants/map'
 import { getRoot } from '/@/root'
 import { MapDoodleEnum } from '/@/types/map-enum'
+import { EFlightAreaType } from '../types/flight-area'
+import { message } from 'ant-design-vue'
 
 export function useMouseTool () {
   const root = getRoot()
@@ -13,7 +15,10 @@ export function useMouseTool () {
     PolygonNum: 0,
     currentType: '',
   })
-
+  const flightAreaColorMap = {
+    [EFlightAreaType.DFENCE]: '#19be6b',
+    [EFlightAreaType.NFZ]: '#ff0000',
+  }
   function drawPin (type:MapDoodleType, getDrawCallback:Function) {
     root?.$mouseTool.marker({
       title: type + state.pinNum,
@@ -29,7 +34,6 @@ export function useMouseTool () {
       strokeOpacity: 1,
       strokeWeight: 2,
       strokeStyle: 'solid',
-      draggable: true,
       title: type + state.polylineNum++
     })
     root?.$mouseTool.on('draw', getDrawCallback)
@@ -42,7 +46,6 @@ export function useMouseTool () {
       strokeWeight: 2,
       fillColor: '#1791fc',
       fillOpacity: 0.4,
-      draggable: true,
       title: type + state.PolygonNum++
     })
     root?.$mouseTool.on('draw', getDrawCallback)
@@ -53,8 +56,55 @@ export function useMouseTool () {
     root?.$mouseTool.off('draw')
   }
 
-  function mouseTool (type: MapDoodleType, getDrawCallback: Function) {
+  function drawFlightAreaPolygon (type: EFlightAreaType, getDrawFlightAreaCallback: Function) {
+    root?.$mouseTool.polygon({
+      strokeColor: flightAreaColorMap[type],
+      strokeOpacity: 1,
+      strokeWeight: 4,
+      extData: {
+        type: type,
+        mapType: 'polygon',
+      },
+      strokeStyle: 'dashed',
+      strokeDasharray: EFlightAreaType.NFZ === type ? [10, 2] : [10, 1, 2],
+      fillColor: flightAreaColorMap[type],
+      fillOpacity: EFlightAreaType.NFZ === type ? 0.3 : 0,
+    })
+    root?.$mouseTool.on('draw', getDrawFlightAreaCallback)
+  }
+
+  function drawFlightAreaCircle (type: EFlightAreaType, getDrawFlightAreaCallback: Function) {
+    root?.$mouseTool.circle({
+      strokeColor: flightAreaColorMap[type],
+      strokeOpacity: 1,
+      strokeWeight: 6,
+      extData: {
+        type: type,
+        mapType: 'circle',
+      },
+      strokeStyle: 'dashed',
+      strokeDasharray: EFlightAreaType.NFZ === type ? [10, 2] : [10, 1, 2],
+      fillColor: flightAreaColorMap[type],
+      fillOpacity: EFlightAreaType.NFZ === type ? 0.3 : 0,
+    })
+    root?.$mouseTool.on('draw', getDrawFlightAreaCallback)
+  }
+
+  function mouseTool (type: MapDoodleType, getDrawCallback: Function, flightAreaType?: EFlightAreaType) {
     state.currentType = type
+    if (flightAreaType) {
+      switch (type) {
+        case MapDoodleEnum.POLYGON:
+          drawFlightAreaPolygon(flightAreaType, getDrawCallback)
+          return
+        case MapDoodleEnum.CIRCLE:
+          drawFlightAreaCircle(flightAreaType, getDrawCallback)
+          return
+        default:
+          message.error(`Invalid type: ${flightAreaType}`)
+          return
+      }
+    }
     switch (type) {
       case MapDoodleEnum.PIN:
         drawPin(type, getDrawCallback)

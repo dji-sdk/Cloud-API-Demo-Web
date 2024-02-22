@@ -109,6 +109,18 @@ const messageHandler = async (payload: any) => {
       EventBus.emit('droneControlWs', payload)
       break
     }
+    case EBizCode.FlightAreasSyncProgress: {
+      EventBus.emit('flightAreasSyncProgressWs', payload.data)
+      break
+    }
+    case EBizCode.FlightAreasDroneLocation: {
+      EventBus.emit('flightAreasDroneLocationWs', payload)
+      break
+    }
+    case EBizCode.FlightAreasUpdate: {
+      EventBus.emit('flightAreasUpdateWs', payload.data)
+      break
+    }
     default:
       break
   }

@@ -22,7 +22,7 @@ export enum DOMAIN {
 export enum DRONE_TYPE {
   M30 = 67,
   M300 = 60,
-  Mavic3EnterpriseAdvanced = 77,
+  Mavic3EnterpriseAdvanced= 77,
   M350 = 89,
   M3D = 91,
 }
@@ -184,7 +184,7 @@ export interface OnlineDevice {
 // 固件升级类型
 export enum DeviceFirmwareTypeEnum {
   ToUpgraded = 3, // 普通升级
-  ConsistencyUpgrade = 2, // 一致性升级
+  ConsistencyUpgrade =2, // 一致性升级
 }
 
 // 固件升级状态
@@ -245,7 +245,7 @@ export interface OSDVisible {
   is_dock: boolean,
   gateway_sn: string,
   gateway_callsign: string,
-  payloads: null | PayloadInfo[],
+  payloads: null | PayloadInfo [],
 }
 
 export interface GatewayOsd {
@@ -402,7 +402,7 @@ export interface DockLinkOsd {
     down_quality: string,
     frequency_band: number,
   },
-  wireless_link?: { // 图传链路<会包括4G和sdr信息
+  wireless_link?:{ // 图传链路<会包括4G和sdr信息
     dongle_number: number, // dongle 数量
     ['4g_link_state']: FourGLinkStateEnum, // 4g_link_state
     sdr_link_state: SdrLinkStateEnum, // sdr链路连接状态

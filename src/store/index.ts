@@ -6,6 +6,7 @@ import { getLayers } from '/@/api/layer'
 import { LayerType } from '/@/types/mapLayer'
 import { WaylineFile } from '/@/types/wayline'
 import { DevicesCmdExecuteInfo } from '/@/types/device-cmd'
+import { FlightAreaStatus } from '../api/flight-area'
 
 const initStateFunc = () => ({
   Layers: [
@@ -34,9 +35,9 @@ const initStateFunc = () => ({
   drawVisible: false,
   livestreamOthersVisible: false,
   livestreamAgoraVisible: false,
-  coverList: [
-
-  ] as any,
+  coverMap: {} as {
+    [key: string]: any[]
+  },
   wsEvent: {
     mapElementCreat: {},
     mapElementUpdate: {},
