@@ -1,12 +1,12 @@
 export const CURRENT_CONFIG = {
 
   // license
-  appId: 'Please enter the app id.', // You need to go to the development website to apply.
-  appKey: 'Please enter the app key.', // You need to go to the development website to apply.
-  appLicense: 'Please enter the app license.', // You need to go to the development website to apply.
+  appId: '146410', // You need to go to the development website to apply.
+  appKey: 'd422e7fa14c4e98ea2100736bea195e', // You need to go to the development website to apply.
+  appLicense: 'vNVYmp43PMf/a4Yb4nJ947S70mT8bZUnNILRZSLFLjLKaOUX58BgS3DKwgQQSsbDyOvTOSSAjrnoD5Xg/2eUXro2MxoxW3Yx55pVUDZ58I2FgHH3870I6fWw3BqWcF0W14lglfWFl5aMuvCsv84G3EnvjRfSGjklHrDiCNSf2Bo=', // You need to go to the development website to apply.
 
   // http
-  baseURL: 'Please enter the backend access address prefix.', // This url must end with "/". Example: 'http://192.168.1.1:6789/'
+  baseURL: 'http://192.168.2.239:6789/', // This url must end with "/". Example: 'http://192.168.1.1:6789/'
   websocketURL: 'Please enter the WebSocket access address.', // Example: 'ws://192.168.1.1:6789/api/v1/ws'
 
   // livestreaming
@@ -31,6 +31,6 @@ export const CURRENT_CONFIG = {
 
   // map
   // You can apply on the AMap website.
-  amapKey: 'Please enter the amap key.',
+  amapKey: '6e948d848f069e3fbcae5a7634ae3f8f',
 
 }

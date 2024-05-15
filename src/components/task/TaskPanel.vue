@@ -20,13 +20,13 @@
       <template #status="{ record }">
         <div>
           <div class="flex-display flex-align-center">
-            <span class="circle-icon" :style="{backgroundColor: formatTaskStatus(record).color}"></span>
+            <span class="circle-icon" :style="{ backgroundColor: formatTaskStatus(record).color }"></span>
             {{ formatTaskStatus(record).text }}
-            <a-tooltip v-if="!!record.code" placement="bottom" arrow-point-at-center >
+            <a-tooltip v-if="!!record.code" placement="bottom" arrow-point-at-center>
               <template #title>
-              <div>{{ getCodeMessage(record.code) }}</div>
+                <div>{{ getCodeMessage(record.code) }}</div>
               </template>
-              <exclamation-circle-outlined class="ml5" :style="{color: commonColor.WARN, fontSize: '16px' }"/>
+              <exclamation-circle-outlined class="ml5" :style="{ color: commonColor.WARN, fontSize: '16px' }" />
             </a-tooltip>
           </div>
           <div v-if="record.status === TaskStatus.Carrying">
@@ -42,20 +42,22 @@
       <template #lostAction="{ record }">
         <div>{{ formatLostAction(record) }}</div>
       </template>
-     <!-- 媒体上传状态 -->
+      <!-- 媒体上传状态 -->
       <template #media_upload="{ record }">
         <div>
           <div class="flex-display flex-align-center">
-            <span class="circle-icon" :style="{backgroundColor: formatMediaTaskStatus(record).color}"></span>
+            <span class="circle-icon" :style="{ backgroundColor: formatMediaTaskStatus(record).color }"></span>
             {{ formatMediaTaskStatus(record).text }}
           </div>
           <div class="pl15">
             {{ formatMediaTaskStatus(record).number }}
-            <a-tooltip v-if="formatMediaTaskStatus(record).status === MediaStatus.ToUpload" placement="bottom" arrow-point-at-center >
+            <a-tooltip v-if="formatMediaTaskStatus(record).status === MediaStatus.ToUpload" placement="bottom"
+              arrow-point-at-center>
               <template #title>
-              <div>Upload now</div>
+                <div>Upload now</div>
               </template>
-              <UploadOutlined class="ml5" :style="{color: commonColor.BLUE, fontSize: '16px' }"  @click="onUploadMediaFileNow(record.job_id)"/>
+              <UploadOutlined class="ml5" :style="{ color: commonColor.BLUE, fontSize: '16px' }"
+                @click="onUploadMediaFileNow(record.job_id)" />
             </a-tooltip>
           </div>
         </div>
@@ -63,31 +65,16 @@
       <!-- 操作 -->
       <template #action="{ record }">
         <div class="action-area">
-          <a-popconfirm
-            v-if="record.status === TaskStatus.Wait"
-            title="Are you sure you want to delete flight task?"
-            ok-text="Yes"
-            cancel-text="No"
-            @confirm="onDeleteTask(record.job_id)"
-          >
+          <a-popconfirm v-if="record.status === TaskStatus.Wait" title="Are you sure you want to delete flight task?"
+            ok-text="Yes" cancel-text="No" @confirm="onDeleteTask(record.job_id)">
             <a-button type="primary" size="small">Delete</a-button>
           </a-popconfirm>
-          <a-popconfirm
-            v-if="record.status === TaskStatus.Carrying"
-            title="Are you sure you want to suspend?"
-            ok-text="Yes"
-            cancel-text="No"
-            @confirm="onSuspendTask(record.job_id)"
-          >
+          <a-popconfirm v-if="record.status === TaskStatus.Carrying" title="Are you sure you want to suspend?"
+            ok-text="Yes" cancel-text="No" @confirm="onSuspendTask(record.job_id)">
             <a-button type="primary" size="small">Suspend</a-button>
           </a-popconfirm>
-          <a-popconfirm
-            v-if="record.status === TaskStatus.Paused"
-            title="Are you sure you want to resume?"
-            ok-text="Yes"
-            cancel-text="No"
-            @confirm="onResumeTask(record.job_id)"
-          >
+          <a-popconfirm v-if="record.status === TaskStatus.Paused" title="Are you sure you want to resume?"
+            ok-text="Yes" cancel-text="No" @confirm="onResumeTask(record.job_id)">
             <a-button type="primary" size="small">Resume</a-button>
           </a-popconfirm>
         </div>
@@ -328,17 +315,17 @@ async function onUploadMediaFileNow (jobId: string) {
 .plan-panel-wrapper {
   width: 100%;
   padding: 16px;
+
   .plan-table {
     background: #fff;
     margin-top: 10px;
   }
+
   .action-area {
 
-    &::v-deep {
-      .ant-btn {
-        margin-right: 10px;
-        margin-bottom: 10px;
-      }
+    :deep(.ant-btn) {
+      margin-right: 10px;
+      margin-bottom: 10px;
     }
   }
 
@@ -352,6 +339,7 @@ async function onUploadMediaFileNow (jobId: string) {
     flex-shrink: 0;
   }
 }
+
 .header {
   width: 100%;
   height: 60px;

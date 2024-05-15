@@ -1,4 +1,5 @@
 import { MapElementEnum } from '/@/constants/map'
+import { GeojsonFeature } from '/@/utils/genjson'
 
 export interface mapLayerStyle {
   background: string
@@ -38,7 +39,7 @@ export interface mapLayer {
   style: mapLayerStyle
   elements: any
 }
-export interface elementGroupsReq{
+export interface elementGroupsReq {
   groupId: string
   isDistributed: boolean
 }
@@ -46,19 +47,9 @@ export interface PostElementsBody {
   id: string
   name: string
   resource: {
-   type: MapElementEnum,
-   user_name?: string,
-   content: {
-    type:string,
-    properties:{
-      color:string,
-      clampToGround:boolean
-    },
-    geometry:{
-      type:string,
-      coordinates:unknown
-    }
-   },
+    type: MapElementEnum,
+    user_name?: string,
+    content: GeojsonFeature,
   }
 }
 

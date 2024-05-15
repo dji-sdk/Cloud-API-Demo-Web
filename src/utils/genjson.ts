@@ -1,58 +1,68 @@
-import {
-  MapGeographicPosition,
-} from '/@/types/map'
+import { MapGeographicPosition } from '/@/types/map'
 
 export type GeojsonCoordinate = [number, number, number?]
 
 export interface GeojsonLine {
- type: 'Feature'
- properties: {
-   color: string
-   directConnected?: boolean
- }
- geometry: {
-   type: 'LineString'
-   coordinates: GeojsonCoordinate[]
- }
+  type: 'Feature'
+  properties: {
+    color: string
+    directConnected?: boolean
+  }
+  geometry: {
+    type: 'LineString'
+    coordinates: GeojsonCoordinate[]
+  }
 }
 
 export interface GeojsonPolygon {
- type: 'Feature'
- properties: {
-   color: string
- }
- geometry: {
-   type: 'Polygon'
-   coordinates: GeojsonCoordinate[][]
- }
+  type: 'Feature'
+  properties: {
+    color: string
+  }
+  geometry: {
+    type: 'Polygon'
+    coordinates: GeojsonCoordinate[][]
+  }
 }
 
 export interface GeojsonPoint {
- type: 'Feature'
- properties: {
-   color: string
-   clampToGround?: boolean
- }
- geometry: {
-   type: 'Point'
-   coordinates: GeojsonCoordinate
- }
+  type: 'Feature'
+  properties: {
+    color: string
+    clampToGround?: boolean
+  }
+  geometry: {
+    type: 'Point'
+    coordinates: GeojsonCoordinate
+  }
 }
 
 export interface GeojsonCircle {
- type: 'Feature'
- properties: {
-   color: string
-   clampToGround?: boolean
- }
- geometry: {
-   type: 'Circle'
-   coordinates: GeojsonCoordinate
-   radius: number
- }
+  type: 'Feature'
+  properties: {
+    color: string
+    clampToGround?: boolean
+  }
+  geometry: {
+    type: 'Circle'
+    coordinates: GeojsonCoordinate
+    radius: number
+  }
 }
 
-export type GeojsonFeature = GeojsonLine | GeojsonPolygon | GeojsonPoint | GeojsonCircle
+export interface contentType {
+  type: string,
+  properties: {
+    color: string,
+    clampToGround: boolean
+  },
+  geometry: {
+    type: string,
+    coordinates: unknown
+  }
+}
+
+export type GeojsonFeature = GeojsonLine | GeojsonPolygon | GeojsonPoint | GeojsonCircle | contentType
 
 export function geographic2Coordinate (position: MapGeographicPosition): GeojsonCoordinate {
   const coordinates: GeojsonCoordinate = [position.longitude, position.latitude]

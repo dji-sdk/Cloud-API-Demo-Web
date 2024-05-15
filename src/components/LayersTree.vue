@@ -1,27 +1,13 @@
 <template>
   <span>
-    <a-tree
-      draggable
-      :defaultExpandAll="true"
-      class="device-map-layers"
-      @drop="onDrop"
-      v-bind="$attrs"
-    >
-      <a-tree-node
-        :title="layer.name"
-        :id="layer.id"
-        v-for="layer in getTreeData"
-        :key="layer.id"
-      >
+    <a-tree draggable :defaultExpandAll="true" class="device-map-layers" @drop="onDrop" v-bind="$attrs">
+      <a-tree-node :title="layer.name" :id="layer.id" v-for="layer in getTreeData" :key="layer.id">
         <!-- <template #title>
                 {{layer.name}}
               </template> -->
         <template v-if="layer.elements">
-          <a-tree-node
-            v-for="resource in layer.elements"
-            :id="getLayerTreeKey('resource', resource.id)"
-            :key="getLayerTreeKey('resource', resource.id)"
-          >
+          <a-tree-node v-for="resource in layer.elements" :id="getLayerTreeKey('resource', resource.id)"
+            :key="getLayerTreeKey('resource', resource.id)">
             <template #title>
               {{ resource.name }}
             </template>
@@ -55,14 +41,14 @@ const shareId = computed(() => {
 const defaultId = computed(() => {
   return store.state.layerBaseInfo.default
 })
-async function onDrop ({ node, dragNode, dropPosition, dropToGap }: DropEvent) {
+async function onDrop({ node, dragNode, dropPosition, dropToGap }: DropEvent) {
   let _treeData = props.layerData || []
   let dragKey = dragNode.eventKey
   dragKey = dragKey.replaceAll('resource__', '')
   const dropPos = node.pos.split('-')
   let dropKey =
     node.eventKey.includes(shareId.value) ||
-    node.eventKey.includes(defaultId.value)
+      node.eventKey.includes(defaultId.value)
       ? node.eventKey
       : node.$parent.eventKey
   if (!dragKey || !dropKey) return
@@ -99,11 +85,11 @@ async function onDrop ({ node, dragNode, dropPosition, dropToGap }: DropEvent) {
 </script>
 <style lang="scss">
 $antPrefix: 'ant';
+
 .device-map-layers.#{$antPrefix}-tree {
   color: #fff;
 
-  .#{$antPrefix}-tree-checkbox:not(.#{$antPrefix}-tree-checkbox-checked)
-    .#{$antPrefix}-tree-checkbox-inner {
+  .#{$antPrefix}-tree-checkbox:not(.#{$antPrefix}-tree-checkbox-checked) .#{$antPrefix}-tree-checkbox-inner {
     background-color: unset;
   }
 
@@ -112,7 +98,7 @@ $antPrefix: 'ant';
   }
 
   // 第一个层级的 li，有左边距 16px
-  > li {
+  >li {
     padding-left: 16px;
     padding-right: 16px;
   }
@@ -128,14 +114,15 @@ $antPrefix: 'ant';
       padding-top: 4px;
     }
 
-    &.#{$antPrefix}-tree-treenode-disabled
-      > .#{$antPrefix}-tree-node-content-wrapper {
+    &.#{$antPrefix}-tree-treenode-disabled>.#{$antPrefix}-tree-node-content-wrapper {
       height: 20px;
+
       span {
         color: #fff;
       }
     }
-    > ul {
+
+    >ul {
       width: 100%;
     }
 
@@ -149,9 +136,9 @@ $antPrefix: 'ant';
     .#{$antPrefix}-tree-checkbox {
       z-index: 1;
     }
+
     .#{$antPrefix}-tree-checkbox:hover::after,
-    .#{$antPrefix}-tree-checkbox-wrapper:hover
-      .#{$antPrefix}-tree-checkbox::after {
+    .#{$antPrefix}-tree-checkbox-wrapper:hover .#{$antPrefix}-tree-checkbox::after {
       visibility: collapse;
     }
 
@@ -177,7 +164,7 @@ $antPrefix: 'ant';
         background-color: transparent;
       }
 
-      > span {
+      >span {
         &::before {
           // position: absolute;
           // right: 0;
@@ -188,7 +175,7 @@ $antPrefix: 'ant';
         }
 
         // 进度条组件需要相对最外层定位，进度条组件的position不能设置为relative
-        > *:not(.progress-wrapper) {
+        >*:not(.progress-wrapper) {
           position: relative;
           z-index: 1;
         }
@@ -197,7 +184,8 @@ $antPrefix: 'ant';
       &.#{$antPrefix}-tree-node-selected {
         background-color: transparent;
         color: #2d8cf0;
-        > span {
+
+        >span {
           &::before {
             background-color: #4f4f4f;
           }
@@ -205,12 +193,12 @@ $antPrefix: 'ant';
       }
     }
   }
-  span.#{$antPrefix}-tree-switcher.#{$antPrefix}-tree-switcher_open
-    .#{$antPrefix}-tree-switcher-icon {
+
+  span.#{$antPrefix}-tree-switcher.#{$antPrefix}-tree-switcher_open .#{$antPrefix}-tree-switcher-icon {
     transform: rotate(0deg) !important;
   }
-  span.#{$antPrefix}-tree-switcher.#{$antPrefix}-tree-switcher_close
-    .#{$antPrefix}-tree-switcher-icon {
+
+  span.#{$antPrefix}-tree-switcher.#{$antPrefix}-tree-switcher_close .#{$antPrefix}-tree-switcher-icon {
     transform: rotate(0deg) !important;
   }
 }

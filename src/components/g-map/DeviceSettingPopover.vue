@@ -1,25 +1,15 @@
 <template>
-  <a-popover :visible="state.sVisible"
-             trigger="click"
-             v-bind="$attrs"
-             :overlay-class-name="overlayClassName"
-             placement="bottom"
-             @visibleChange=";"
-             v-on="$attrs">
+  <a-popover :visible="state.sVisible" trigger="click" v-bind="$attrs" :overlay-class-name="overlayClassName"
+    placement="bottom" @visibleChange=";" v-on="$attrs">
     <template #content>
       <div class="title-content">
       </div>
       <slot name="formContent" />
       <div class="uranus-popconfirm-btns">
-        <a-button size="sm"
-           @click="onCancel">
-           {{ cancelText || '取消'}}
+        <a-button size="sm" @click="onCancel">
+          {{ cancelText || '取消' }}
         </a-button>
-        <a-button size="sm"
-          :loading="loading"
-          type="primary"
-          class="confirm-btn"
-          @click="onConfirm">
+        <a-button size="sm" :loading="loading" type="primary" class="confirm-btn" @click="onConfirm">
           {{ okText || '确定' }}
         </a-button>
       </div>
@@ -34,13 +24,13 @@
 import { defineProps, defineEmits, reactive, watch, computed } from 'vue'
 
 const props = defineProps<{
-    visible?: boolean,
-    loading?: Boolean,
-    disabled?: Boolean,
-    title?: String,
-    okText?: String,
-    cancelText?: String,
-    width?: Number,
+  visible?: boolean,
+  loading?: Boolean,
+  disabled?: Boolean,
+  title?: String,
+  okText?: String,
+  cancelText?: String,
+  width?: Number,
 }>()
 
 const emit = defineEmits(['cancel', 'confirm'])
@@ -84,21 +74,21 @@ function onCancel (e: Event) {
 .device-setting-popconfirm {
   min-width: 300px;
 
-  .uranus-popconfirm-btns{
+  .uranus-popconfirm-btns {
     display: flex;
     padding: 10px 0px;
     justify-content: flex-end;
 
-    .confirm-btn{
+    .confirm-btn {
       margin-left: 10px;
     }
   }
 
-  .form-content{
+  .form-content {
     display: inline-flex;
     align-items: center;
 
-    .form-label{
+    .form-label {
       padding-right: 10px;
     }
   }
