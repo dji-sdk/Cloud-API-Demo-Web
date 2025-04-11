@@ -22,7 +22,7 @@ export enum DOMAIN {
 export enum DRONE_TYPE {
   M30 = 67,
   M300 = 60,
-  Mavic3EnterpriseAdvanced= 77,
+  Mavic3EnterpriseAdvanced = 77,
   M350 = 89,
   M3D = 91,
 }
@@ -184,7 +184,7 @@ export interface OnlineDevice {
 // 固件升级类型
 export enum DeviceFirmwareTypeEnum {
   ToUpgraded = 3, // 普通升级
-  ConsistencyUpgrade =2, // 一致性升级
+  ConsistencyUpgrade = 2, // 一致性升级
 }
 
 // 固件升级状态
@@ -245,7 +245,7 @@ export interface OSDVisible {
   is_dock: boolean,
   gateway_sn: string,
   gateway_callsign: string,
-  payloads: null | PayloadInfo [],
+  payloads: null | PayloadInfo[],
 }
 
 export interface GatewayOsd {
@@ -299,7 +299,11 @@ export interface DeviceOsd {
   height_limit?: number;// 限高设置
   distance_limit_status?: DistanceLimitStatus;// 限远开关
   obstacle_avoidance?: ObstacleAvoidance;// 飞行器避障开关设置
-  cameras?: DeviceOsdCamera[]
+  cameras?: DeviceOsdCamera[],
+  storage: {
+    used: number,
+    total: number
+  }
 }
 
 export enum NetworkStateTypeEnum {
@@ -361,10 +365,6 @@ export interface DockBasicOsd {
     is_calibration: number,
     quality: number,
   },
-  storage?: {
-    total: number,
-    used: number,
-  },
   mode_code: number,
   cover_state: number,
   supplement_light_state: number,
@@ -381,6 +381,10 @@ export interface DockBasicOsd {
     device_model_key?: string,
     device_online_status: number,
     device_paired: number,
+  },
+  storage: {
+    total: number,
+    used: number,
   },
   // live_capacity?: LiveCapacity; // 直播能力
   // live_status?: Array<LiveStatus>; // 直播状态
@@ -402,7 +406,7 @@ export interface DockLinkOsd {
     down_quality: string,
     frequency_band: number,
   },
-  wireless_link?:{ // 图传链路<会包括4G和sdr信息
+  wireless_link?: { // 图传链路<会包括4G和sdr信息
     dongle_number: number, // dongle 数量
     ['4g_link_state']: FourGLinkStateEnum, // 4g_link_state
     sdr_link_state: SdrLinkStateEnum, // sdr链路连接状态
@@ -429,7 +433,7 @@ export interface DockWorkOsd {
   activation_time: number,
   maintain_status?: {
     maintain_status_array: MaintainStatus[]
-  }
+  },
   electric_supply_voltage: number,
   working_voltage: string,
   working_current: string,
@@ -437,17 +441,17 @@ export interface DockWorkOsd {
     voltage: number,
     temperature: number,
     switch: number,
-  }
+  },
   drone_battery_maintenance_info?: { // 飞行器电池保养信息
     maintenance_state: DroneBatteryStateEnum, // 保养状态
     maintenance_time_left: number, // 电池保养剩余时间(小时)
-  }
+  },
 }
 
 export interface DockOsd {
   basic_osd: DockBasicOsd,
   link_osd: DockLinkOsd,
-  work_osd: DockWorkOsd
+  work_osd: DockWorkOsd,
 }
 
 export enum EModeCode {

@@ -1,25 +1,15 @@
 <template>
-  <a-popover :visible="state.sVisible"
-             trigger="click"
-             v-bind="$attrs"
-             :overlay-class-name="overlayClassName"
-             placement="bottom"
-             @visibleChange=";"
-             v-on="$attrs">
+  <a-popover :visible="state.sVisible" trigger="click" v-bind="$attrs" :overlay-class-name="overlayClassName"
+    placement="bottom" @visibleChange=";" v-on="$attrs">
     <template #content>
       <div class="title-content">
       </div>
       <slot name="formContent" />
       <div class="uranus-popconfirm-btns">
-        <a-button size="sm"
-           @click="onCancel">
-           {{ cancelText || 'cancel'}}
+        <a-button size="sm" @click="onCancel">
+          {{ cancelText || 'cancel' }}
         </a-button>
-        <a-button size="sm"
-          :loading="loading"
-          type="primary"
-          class="confirm-btn"
-          @click="onConfirm">
+        <a-button size="sm" :loading="loading" type="primary" class="confirm-btn" @click="onConfirm">
           {{ okText || 'ok' }}
         </a-button>
       </div>
@@ -34,13 +24,13 @@
 import { defineProps, defineEmits, reactive, watch, computed } from 'vue'
 
 const props = defineProps<{
-    visible?: boolean,
-    loading?: Boolean,
-    disabled?: Boolean,
-    title?: String,
-    okText?: String,
-    cancelText?: String,
-    width?: Number,
+  visible?: boolean,
+  loading?: Boolean,
+  disabled?: Boolean,
+  title?: String,
+  okText?: String,
+  cancelText?: String,
+  width?: Number,
 }>()
 
 const emit = defineEmits(['cancel', 'confirm'])
@@ -84,30 +74,27 @@ function onCancel (e: Event) {
 .drone-control-popconfirm {
   min-width: 300px;
 
-  .uranus-popconfirm-btns{
+  .uranus-popconfirm-btns {
     display: flex;
     padding: 10px 0px;
     justify-content: flex-end;
 
-    .confirm-btn{
+    .confirm-btn {
       margin-left: 10px;
     }
   }
 
-  .form-content{
+  .form-content {
     display: flex;
     flex-direction: column;
 
-    > div {
+    >div {
       display: flex;
       margin-bottom: 5px;
 
       .form-label {
         flex: 1 0 60px;
         margin-right: 10px;
-      }
-
-      > div {
       }
     }
   }

@@ -5,6 +5,8 @@ dist-ssr
 *.local
 node_modules/
 
+src/api/http/config
+
 # Log files
 npm-debug.log*
 yarn-debug.log*

@@ -4,145 +4,141 @@
     <div class="drone-control-box">
       <div class="box">
         <div class="row">
-          <div class="drone-control"><Button :ghost="!flightController" size="small"  @click="onClickFightControl">{{ flightController ? 'Exit Remote Control' : 'Enter Remote Control'}}</Button></div>
+          <div class="drone-control"><Button :ghost="!flightController" size="small" @click="onClickFightControl">{{
+            flightController ? 'Exit Remote Control' : 'Enter Remote Control' }}</Button></div>
         </div>
         <div class="row">
           <div class="drone-control-direction">
             <Button size="small" ghost @mousedown="onMouseDown(KeyCode.KEY_Q)" @onmouseup="onMouseUp">
-              <template #icon><UndoOutlined /></template><span class="word">Q</span>
+              <template #icon>
+                <UndoOutlined />
+              </template><span class="word">Q</span>
             </Button>
             <Button size="small" ghost @mousedown="onMouseDown(KeyCode.KEY_W)" @onmouseup="onMouseUp">
-              <template #icon><UpOutlined/></template><span class="word">W</span>
+              <template #icon>
+                <UpOutlined />
+              </template><span class="word">W</span>
             </Button>
             <Button size="small" ghost @mousedown="onMouseDown(KeyCode.KEY_E)" @onmouseup="onMouseUp">
-              <template #icon><RedoOutlined /></template><span class="word">E</span>
+              <template #icon>
+                <RedoOutlined />
+              </template><span class="word">E</span>
             </Button>
             <Button size="small" ghost @mousedown="onMouseDown(KeyCode.ARROW_UP)" @onmouseup="onMouseUp">
-              <template #icon><ArrowUpOutlined /></template>
+              <template #icon>
+                <ArrowUpOutlined />
+              </template>
             </Button>
             <br />
             <Button size="small" ghost @mousedown="onMouseDown(KeyCode.KEY_A)" @onmouseup="onMouseUp">
-              <template #icon><LeftOutlined/></template><span class="word">A</span>
+              <template #icon>
+                <LeftOutlined />
+              </template><span class="word">A</span>
             </Button>
             <Button size="small" ghost @mousedown="onMouseDown(KeyCode.KEY_S)" @onmouseup="onMouseUp">
-              <template #icon><DownOutlined/></template><span class="word">S</span>
+              <template #icon>
+                <DownOutlined />
+              </template><span class="word">S</span>
             </Button>
             <Button size="small" ghost @mousedown="onMouseDown(KeyCode.KEY_D)" @onmouseup="onMouseUp">
-              <template #icon><RightOutlined/></template><span class="word">D</span>
+              <template #icon>
+                <RightOutlined />
+              </template><span class="word">D</span>
             </Button>
             <Button size="small" ghost @mousedown="onMouseDown(KeyCode.ARROW_DOWN)" @onmouseup="onMouseUp">
-              <template #icon><ArrowDownOutlined /></template>
+              <template #icon>
+                <ArrowDownOutlined />
+              </template>
             </Button>
           </div>
-          <Button type="primary" size="small" danger ghost @click="handleEmergencyStop" >
-            <template #icon><PauseCircleOutlined/></template><span>Break</span>
+          <Button type="primary" size="small" danger ghost @click="handleEmergencyStop">
+            <template #icon>
+              <PauseCircleOutlined />
+            </template><span>Break</span>
           </Button>
         </div>
         <div class="row">
-          <DroneControlPopover
-            :visible="flyToPointPopoverData.visible"
-            :loading="flyToPointPopoverData.loading"
-            @confirm="($event) => onFlyToConfirm(true)"
-            @cancel="($event) =>onFlyToConfirm(false)"
-          >
+          <DroneControlPopover :visible="flyToPointPopoverData.visible" :loading="flyToPointPopoverData.loading"
+            @confirm="($event) => onFlyToConfirm(true)" @cancel="($event) => onFlyToConfirm(false)">
             <template #formContent>
               <div class="form-content">
                 <div>
                   <span class="form-label">latitude:</span>
-                  <a-input-number v-model:value="flyToPointPopoverData.latitude"/>
+                  <a-input-number v-model:value="flyToPointPopoverData.latitude" />
                 </div>
                 <div>
                   <span class="form-label">longitude:</span>
-                  <a-input-number v-model:value="flyToPointPopoverData.longitude"/>
+                  <a-input-number v-model:value="flyToPointPopoverData.longitude" />
                 </div>
                 <div>
                   <span class="form-label">height(m):</span>
-                  <a-input-number v-model:value="flyToPointPopoverData.height"/>
+                  <a-input-number v-model:value="flyToPointPopoverData.height" />
                 </div>
               </div>
             </template>
-            <Button size="small" ghost @click="onShowFlyToPopover" >
+            <Button size="small" ghost @click="onShowFlyToPopover">
               <span>Fly to</span>
             </Button>
           </DroneControlPopover>
-          <Button size="small" ghost @click="onStopFlyToPoint" >
+          <Button size="small" ghost @click="onStopFlyToPoint">
             <span>Stop Fly to</span>
           </Button>
-          <DroneControlPopover
-            :visible="takeoffToPointPopoverData.visible"
-            :loading="takeoffToPointPopoverData.loading"
-            @confirm="($event) => onTakeoffToPointConfirm(true)"
-            @cancel="($event) =>onTakeoffToPointConfirm(false)"
-          >
+          <DroneControlPopover :visible="takeoffToPointPopoverData.visible" :loading="takeoffToPointPopoverData.loading"
+            @confirm="($event) => onTakeoffToPointConfirm(true)" @cancel="($event) => onTakeoffToPointConfirm(false)">
             <template #formContent>
               <div class="form-content">
                 <div>
                   <span class="form-label">latitude:</span>
-                  <a-input-number v-model:value="takeoffToPointPopoverData.latitude"/>
+                  <a-input-number v-model:value="takeoffToPointPopoverData.latitude" />
                 </div>
                 <div>
                   <span class="form-label">longitude:</span>
-                  <a-input-number v-model:value="takeoffToPointPopoverData.longitude"/>
+                  <a-input-number v-model:value="takeoffToPointPopoverData.longitude" />
                 </div>
                 <div>
                   <span class="form-label">height(m):</span>
-                  <a-input-number v-model:value="takeoffToPointPopoverData.height"/>
+                  <a-input-number v-model:value="takeoffToPointPopoverData.height" />
                 </div>
                 <div>
                   <span class="form-label">Safe Takeoff Altitude(m):</span>
-                  <a-input-number v-model:value="takeoffToPointPopoverData.securityTakeoffHeight"/>
+                  <a-input-number v-model:value="takeoffToPointPopoverData.securityTakeoffHeight" />
                 </div>
                 <div>
                   <span class="form-label">Return-to-Home Altitude(m):</span>
-                  <a-input-number v-model:value="takeoffToPointPopoverData.rthAltitude"/>
+                  <a-input-number v-model:value="takeoffToPointPopoverData.rthAltitude" />
                 </div>
                 <div>
                   <span class="form-label">Lost Action:</span>
-                  <a-select
-                    v-model:value="takeoffToPointPopoverData.rcLostAction"
-                    style="width: 120px"
-                    :options="LostControlActionInCommandFLightOptions"
-                  ></a-select>
+                  <a-select v-model:value="takeoffToPointPopoverData.rcLostAction" style="width: 120px"
+                    :options="LostControlActionInCommandFLightOptions"></a-select>
                 </div>
                 <div>
                   <span class="form-label">Wayline Lost Action:</span>
-                  <a-select
-                    v-model:value="takeoffToPointPopoverData.exitWaylineWhenRcLost"
-                    style="width: 120px"
-                    :options="WaylineLostControlActionInCommandFlightOptions"
-                  ></a-select>
+                  <a-select v-model:value="takeoffToPointPopoverData.exitWaylineWhenRcLost" style="width: 120px"
+                    :options="WaylineLostControlActionInCommandFlightOptions"></a-select>
                 </div>
                 <div>
                   <span class="form-label">Return-to-Home Mode:</span>
-                  <a-select
-                    v-model:value="takeoffToPointPopoverData.rthMode"
-                    style="width: 120px"
-                    :options="RthModeInCommandFlightOptions"
-                  ></a-select>
+                  <a-select v-model:value="takeoffToPointPopoverData.rthMode" style="width: 120px"
+                    :options="RthModeInCommandFlightOptions"></a-select>
                 </div>
                 <div>
                   <span class="form-label">Commander Mode Lost Action:</span>
-                  <a-select
-                    v-model:value="takeoffToPointPopoverData.commanderModeLostAction"
-                    style="width: 120px"
-                    :options="CommanderModeLostActionInCommandFlightOptions"
-                  ></a-select>
+                  <a-select v-model:value="takeoffToPointPopoverData.commanderModeLostAction" style="width: 120px"
+                    :options="CommanderModeLostActionInCommandFlightOptions"></a-select>
                 </div>
                 <div>
                   <span class="form-label">Commander Flight Mode:</span>
-                  <a-select
-                    v-model:value="takeoffToPointPopoverData.commanderFlightMode"
-                    style="width: 120px"
-                    :options="CommanderFlightModeInCommandFlightOptions"
-                  ></a-select>
+                  <a-select v-model:value="takeoffToPointPopoverData.commanderFlightMode" style="width: 120px"
+                    :options="CommanderFlightModeInCommandFlightOptions"></a-select>
                 </div>
                 <div>
                   <span class="form-label">Commander Flight Height(m):</span>
-                  <a-input-number v-model:value="takeoffToPointPopoverData.commanderFlightHeight"/>
+                  <a-input-number v-model:value="takeoffToPointPopoverData.commanderFlightHeight" />
                 </div>
               </div>
             </template>
-            <Button size="small" ghost @click="onShowTakeoffToPointPopover" >
+            <Button size="small" ghost @click="onShowTakeoffToPointPopover">
               <span>Take off</span>
             </Button>
             <div v-for="(cmdItem) in cmdList" :key="cmdItem.cmdKey" class="control-cmd-item">
@@ -151,115 +147,95 @@
               </Button>
             </div>
             <div>
-              <Button size="small" ghost @click="openLivestreamAgora" >
+              <Button size="small" ghost @click="openLivestreamAgora">
                 <span>Agora Live</span>
               </Button>
-              <Button size="small" ghost @click="openLivestreamOthers" >
+              <Button size="small" ghost @click="openLivestreamOthers">
                 <span>RTMP/GB28181 Live</span>
               </Button>
             </div>
           </DroneControlPopover>
         </div>
-    </div>
-    <div class="box">
-      <div class="row">
-        <Select v-model:value="payloadSelectInfo.value" style="width: 110px; marginRight: 5px" :options="payloadSelectInfo.options" @change="handlePayloadChange"/>
-        <div class="drone-control">
-          <Button type="primary" size="small" @click="onAuthPayload">Payload Control</Button>
+      </div>
+      <div class="box">
+        <div class="row">
+          <Select v-model:value="payloadSelectInfo.value" style="width: 110px; margin-right: 5px"
+            :options="payloadSelectInfo.options" @change="handlePayloadChange" />
+          <div class="drone-control">
+            <Button type="primary" size="small" @click="onAuthPayload">Payload Control</Button>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <DroneControlPopover
-          :visible="gimbalResetPopoverData.visible"
-          :loading="gimbalResetPopoverData.loading"
-          @confirm="($event) => onGimbalResetConfirm(true)"
-          @cancel="($event) =>onGimbalResetConfirm(false)"
-        >
-          <template #formContent>
-            <div class="form-content">
-              <div>
-                <span class="form-label">reset mode:</span>
-                <a-select
-                  v-model:value="gimbalResetPopoverData.resetMode"
-                  style="width: 180px"
-                  :options="GimbalResetModeOptions"
-                ></a-select>
+        <div class="row">
+          <DroneControlPopover :visible="gimbalResetPopoverData.visible" :loading="gimbalResetPopoverData.loading"
+            @confirm="($event) => onGimbalResetConfirm(true)" @cancel="($event) => onGimbalResetConfirm(false)">
+            <template #formContent>
+              <div class="form-content">
+                <div>
+                  <span class="form-label">reset mode:</span>
+                  <a-select v-model:value="gimbalResetPopoverData.resetMode" style="width: 180px"
+                    :options="GimbalResetModeOptions"></a-select>
+                </div>
               </div>
-            </div>
-          </template>
-          <Button size="small" ghost @click="onShowGimbalResetPopover">
-            <span>Gimbal Reset</span>
+            </template>
+            <Button size="small" ghost @click="onShowGimbalResetPopover">
+              <span>Gimbal Reset</span>
+            </Button>
+          </DroneControlPopover>
+          <Button size="small" ghost @click="onSwitchCameraMode">
+            <span>Camera Mode Switch</span>
           </Button>
-        </DroneControlPopover>
-        <Button size="small" ghost @click="onSwitchCameraMode">
-          <span>Camera Mode Switch</span>
-        </Button>
-      </div>
-      <div class="row">
-        <Button size="small" ghost @click="onStartCameraRecording">
-          <span>Start Recording</span>
-        </Button>
-        <Button size="small" ghost @click="onStopCameraRecording">
-          <span>Stop Recording</span>
-        </Button>
-      </div>
-      <div class="row">
-        <Button size="small" ghost  @click="onTakeCameraPhoto">
-          <span>Take Photo</span>
-        </Button>
-        <DroneControlPopover
-          :visible="zoomFactorPopoverData.visible"
-          :loading="zoomFactorPopoverData.loading"
-          @confirm="($event) => onZoomFactorConfirm(true)"
-          @cancel="($event) =>onZoomFactorConfirm(false)"
-        >
-          <template #formContent>
-            <div class="form-content">
-              <div>
-                <span class="form-label">camera type:</span>
-                <a-select
-                  v-model:value="zoomFactorPopoverData.cameraType"
-                  style="width: 120px"
-                  :options="ZoomCameraTypeOptions"
-                ></a-select>
-              </div>
-              <div>
-                <span class="form-label">zoom factor:</span>
-                <a-input-number v-model:value="zoomFactorPopoverData.zoomFactor" :min="2" :max="200" />
-              </div>
-            </div>
-          </template>
-          <Button size="small" ghost @click="($event) => onShowZoomFactorPopover()">
-            <span class="word" @click=";">Zoom</span>
+        </div>
+        <div class="row">
+          <Button size="small" ghost @click="onStartCameraRecording">
+            <span>Start Recording</span>
           </Button>
-        </DroneControlPopover>
-        <DroneControlPopover
-            :visible="cameraAimPopoverData.visible"
-            :loading="cameraAimPopoverData.loading"
-            @confirm="($event) => onCameraAimConfirm(true)"
-            @cancel="($event) =>onCameraAimConfirm(false)"
-          >
+          <Button size="small" ghost @click="onStopCameraRecording">
+            <span>Stop Recording</span>
+          </Button>
+        </div>
+        <div class="row">
+          <Button size="small" ghost @click="onTakeCameraPhoto">
+            <span>Take Photo</span>
+          </Button>
+          <DroneControlPopover :visible="zoomFactorPopoverData.visible" :loading="zoomFactorPopoverData.loading"
+            @confirm="($event) => onZoomFactorConfirm(true)" @cancel="($event) => onZoomFactorConfirm(false)">
             <template #formContent>
               <div class="form-content">
                 <div>
                   <span class="form-label">camera type:</span>
-                  <a-select
-                    v-model:value="cameraAimPopoverData.cameraType"
-                    style="width: 120px"
-                    :options="CameraTypeOptions"
-                  ></a-select>
+                  <a-select v-model:value="zoomFactorPopoverData.cameraType" style="width: 120px"
+                    :options="ZoomCameraTypeOptions"></a-select>
+                </div>
+                <div>
+                  <span class="form-label">zoom factor:</span>
+                  <a-input-number v-model:value="zoomFactorPopoverData.zoomFactor" :min="2" :max="200" />
+                </div>
+              </div>
+            </template>
+            <Button size="small" ghost @click="($event) => onShowZoomFactorPopover()">
+              <span class="word" @click=";">Zoom</span>
+            </Button>
+          </DroneControlPopover>
+          <DroneControlPopover :visible="cameraAimPopoverData.visible" :loading="cameraAimPopoverData.loading"
+            @confirm="($event) => onCameraAimConfirm(true)" @cancel="($event) => onCameraAimConfirm(false)">
+            <template #formContent>
+              <div class="form-content">
+                <div>
+                  <span class="form-label">camera type:</span>
+                  <a-select v-model:value="cameraAimPopoverData.cameraType" style="width: 120px"
+                    :options="CameraTypeOptions"></a-select>
                 </div>
                 <div>
                   <span class="form-label">locked:</span>
-                  <a-switch v-model:checked="cameraAimPopoverData.locked"/>
+                  <a-switch v-model:checked="cameraAimPopoverData.locked" />
                 </div>
                 <div>
                   <span class="form-label">x:</span>
-                  <a-input-number v-model:value="cameraAimPopoverData.x" :min="0" :max="1"/>
+                  <a-input-number v-model:value="cameraAimPopoverData.x" :min="0" :max="1" />
                 </div>
                 <div>
                   <span class="form-label">y:</span>
-                  <a-input-number v-model:value="cameraAimPopoverData.y" :min="0" :max="1"/>
+                  <a-input-number v-model:value="cameraAimPopoverData.y" :min="0" :max="1" />
                 </div>
               </div>
             </template>
@@ -267,8 +243,8 @@
               <span class="word" @click=";">AIM</span>
             </Button>
           </DroneControlPopover>
+        </div>
       </div>
-    </div>
     </div>
     <!-- 信息提示 -->
     <DroneControlInfoPanel :message="drcInfo"></DroneControlInfoPanel>
@@ -420,11 +396,11 @@ function onShowTakeoffToPointPopover () {
 async function onTakeoffToPointConfirm (confirm: boolean) {
   if (confirm) {
     if (!takeoffToPointPopoverData.height ||
-        !takeoffToPointPopoverData.latitude ||
-        !takeoffToPointPopoverData.longitude ||
-        !takeoffToPointPopoverData.securityTakeoffHeight ||
-        !takeoffToPointPopoverData.rthAltitude ||
-        !takeoffToPointPopoverData.commanderFlightHeight) {
+      !takeoffToPointPopoverData.latitude ||
+      !takeoffToPointPopoverData.longitude ||
+      !takeoffToPointPopoverData.securityTakeoffHeight ||
+      !takeoffToPointPopoverData.rthAltitude ||
+      !takeoffToPointPopoverData.commanderFlightHeight) {
       message.error('Input error')
       return
     }
@@ -772,10 +748,10 @@ watch(() => errorInfo, (errorInfo) => {
 </script>
 
 <style lang='scss' scoped>
-.drone-control-wrapper{
+.drone-control-wrapper {
   // border-bottom: 1px solid #515151;
 
-  .drone-control-header{
+  .drone-control-header {
     font-size: 14px;
     font-weight: 600;
     padding: 10px 10px 0px;
@@ -784,39 +760,35 @@ watch(() => errorInfo, (errorInfo) => {
   .drone-control-box {
     display: flex;
     flex-wrap: 1;
+
     .box {
       width: 50%;
       padding: 5px;
-      border: 0.5px solid rgba(255,255,255,0.3);
+      border: 0.5px solid rgba(255, 255, 255, 0.3);
 
       .row {
         display: flex;
         flex-wrap: wrap;
         padding: 2px;
 
-        + .row{
+        +.row {
           margin-bottom: 6px;
         }
 
-        &::v-deep{
-          .ant-btn{
-            font-size: 12px;
-            padding: 0px 4px;
-            margin-right: 5px;
-          }
+        :deep(.ant-btn) {
+          font-size: 12px;
+          padding: 0px 4px;
+          margin-right: 5px;
         }
       }
 
-      .drone-control{
-         &::v-deep{
-
-          .ant-select-single:not(.ant-select-customize-input) .ant-select-selector{
-           padding: 0 2px;
-          }
+      .drone-control {
+        :deep(.ant-select-single:not(.ant-select-customize-input) .ant-select-selector) {
+          padding: 0 2px;
         }
       }
 
-      .drone-control-direction{
+      .drone-control-direction {
         margin-right: 10px;
 
         .ant-btn {
@@ -824,7 +796,7 @@ watch(() => errorInfo, (errorInfo) => {
           margin-right: 0;
         }
 
-        .word{
+        .word {
           width: 12px;
           margin-left: 2px;
           font-size: 12px;

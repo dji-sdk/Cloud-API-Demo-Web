@@ -6,38 +6,19 @@
       <template v-if="livePara.liveState && dronePara.isDockLive">
         <span class="mr10">Lens:</span>
         <a-radio-group v-model:value="dronePara.lensSelected" button-style="solid">
-          <a-radio-button v-for="lens in dronePara.lensList" :key="lens" :value="lens">{{lens}}</a-radio-button>
+          <a-radio-button v-for="lens in dronePara.lensList" :key="lens" :value="lens">{{ lens }}</a-radio-button>
         </a-radio-group>
       </template>
       <template v-else>
-      <a-select
-        style="width:150px"
-        placeholder="Select Drone"
-        v-model:value="dronePara.droneSelected"
-      >
-        <a-select-option
-          v-for="item in dronePara.droneList"
-          :key="item.value"
-          :value="item.value"
-          @click="onDroneSelect(item)"
-          >{{ item.label }}</a-select-option
-        >
-      </a-select>
-      <a-select
-        class="ml10"
-        style="width:150px"
-        placeholder="Select Camera"
-        v-model:value="dronePara.cameraSelected"
-      >
-        <a-select-option
-          v-for="item in dronePara.cameraList"
-          :key="item.value"
-          :value="item.value"
-          @click="onCameraSelect(item)"
-          >{{ item.label }}</a-select-option
-        >
-      </a-select>
-      <!-- <a-select
+        <a-select style="width:150px" placeholder="Select Drone" v-model:value="dronePara.droneSelected">
+          <a-select-option v-for="item in dronePara.droneList" :key="item.value" :value="item.value"
+            @click="onDroneSelect(item)">{{ item.label }}</a-select-option>
+        </a-select>
+        <a-select class="ml10" style="width:150px" placeholder="Select Camera" v-model:value="dronePara.cameraSelected">
+          <a-select-option v-for="item in dronePara.cameraList" :key="item.value" :value="item.value"
+            @click="onCameraSelect(item)">{{ item.label }}</a-select-option>
+        </a-select>
+        <!-- <a-select
         class="ml10"
         style="width:150px"
         placeholder="Select Lens"
@@ -51,18 +32,9 @@
         >
       </a-select> -->
       </template>
-      <a-select
-        class="ml10"
-        style="width:150px"
-        placeholder="Select Clarity"
-        @select="onClaritySelect"
-      >
-        <a-select-option
-          v-for="item in clarityList"
-          :key="item.value"
-          :value="item.value"
-          >{{ item.label }}</a-select-option
-        >
+      <a-select class="ml10" style="width:150px" placeholder="Select Clarity" @select="onClaritySelect">
+        <a-select-option v-for="item in clarityList" :key="item.value" :value="item.value">{{ item.label
+          }}</a-select-option>
       </a-select>
     </div>
     <p class="fz16 mt10">
@@ -72,30 +44,18 @@
       <span class="mr10">AppId:</span>
       <a-input v-model:value="agoraPara.appid" placeholder="APP ID"></a-input>
       <span class="ml10">Token:</span>
-      <a-input
-        class="ml10"
-        v-model:value="agoraPara.token"
-        placeholder="Token"
-      ></a-input>
+      <a-input class="ml10" v-model:value="agoraPara.token" placeholder="Token"></a-input>
       <span class="ml10">Channel:</span>
-      <a-input
-        class="ml10"
-        v-model:value="agoraPara.channel"
-        placeholder="Channel"
-      ></a-input>
+      <a-input class="ml10" v-model:value="agoraPara.channel" placeholder="Channel"></a-input>
     </div>
     <div class="mt20 flex-row flex-justify-center flex-align-center">
-      <a-button v-if="livePara.liveState && dronePara.isDockLive" type="primary" large @click="onSwitch">Switch Lens</a-button>
+      <a-button v-if="livePara.liveState && dronePara.isDockLive" type="primary" large @click="onSwitch">Switch
+        Lens</a-button>
       <a-button v-else type="primary" large @click="onStart">Play</a-button>
-      <a-button class="ml20" type="primary" large @click="onStop"
-        >Stop</a-button
-      >
-      <a-button class="ml20" type="primary" large @click="onUpdateQuality"
-        >Update Clarity</a-button
-      >
-      <a-button v-if="!livePara.liveState || !dronePara.isDockLive" class="ml20" type="primary" large @click="onRefresh"
-        >Refresh Live Capacity</a-button
-      >
+      <a-button class="ml20" type="primary" large @click="onStop">Stop</a-button>
+      <a-button class="ml20" type="primary" large @click="onUpdateQuality">Update Clarity</a-button>
+      <a-button v-if="!livePara.liveState || !dronePara.isDockLive" class="ml20" type="primary" large
+        @click="onRefresh">Refresh Live Capacity</a-button>
     </div>
   </div>
 </template>

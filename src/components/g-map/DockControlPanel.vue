@@ -1,35 +1,37 @@
 <template>
-<div class="dock-control-panel">
-  <!-- title -->
-  <div class="dock-control-panel-header fz16 pl5 pr5 flex-align-center flex-row flex-justify-between">
-    <span>Device Control<span class="fz12 pl15">{{ props.sn}}</span></span>
-    <span @click="closeControlPanel">
-    <CloseOutlined />
-    </span>
-  </div>
-  <!-- setting -->
-  <DeviceSettingBox :sn="props.sn" :deviceInfo="props.deviceInfo"></DeviceSettingBox>
-  <!-- cmd -->
-  <div class="control-cmd-wrapper">
-    <div class="control-cmd-header">
-      Device Remote Debug
-      <a-switch class="debug-btn" checked-children="开" un-checked-children="关" v-model:checked="debugStatus" @change="onDeviceStatusChange"/>
+  <div class="dock-control-panel">
+    <!-- title -->
+    <div class="dock-control-panel-header fz16 pl5 pr5 flex-align-center flex-row flex-justify-between">
+      <span>Device Control<span class="fz12 pl15">{{ props.sn }}</span></span>
+      <span @click="closeControlPanel">
+        <CloseOutlined />
+      </span>
     </div>
-    <div class="control-cmd-box">
-      <div v-for="(cmdItem, index) in cmdList" :key="cmdItem.cmdKey" class="control-cmd-item">
-        <div class="control-cmd-item-left">
+    <!-- setting -->
+    <DeviceSettingBox :sn="props.sn" :deviceInfo="props.deviceInfo"></DeviceSettingBox>
+    <!-- cmd -->
+    <div class="control-cmd-wrapper">
+      <div class="control-cmd-header">
+        Device Remote Debug
+        <a-switch class="debug-btn" checked-children="开" un-checked-children="关" v-model:checked="debugStatus"
+          @change="onDeviceStatusChange" />
+      </div>
+      <div class="control-cmd-box">
+        <div v-for="(cmdItem, index) in cmdList" :key="cmdItem.cmdKey" class="control-cmd-item">
+          <div class="control-cmd-item-left">
             <div class="item-label">{{ cmdItem.label }}</div>
             <div class="item-status">{{ cmdItem.status }}</div>
-        </div>
-        <div class="control-cmd-item-right">
-            <a-button :disabled="!debugStatus || cmdItem.disabled" :loading="cmdItem.loading" size="small" type="primary" @click="sendControlCmd(cmdItem, index)">
-            {{ cmdItem.operateText }}
+          </div>
+          <div class="control-cmd-item-right">
+            <a-button :disabled="!debugStatus || cmdItem.disabled" :loading="cmdItem.loading" size="small"
+              type="primary" @click="sendControlCmd(cmdItem, index)">
+              {{ cmdItem.operateText }}
             </a-button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
 </template>
 
@@ -116,7 +118,7 @@ async function sendControlCmd (cmdItem: DeviceCmdItem, index: number) {
 </script>
 
 <style lang='scss' scoped>
-.dock-control-panel{
+.dock-control-panel {
   position: absolute;
   left: calc(100% + 10px);
   top: 0px;
@@ -126,28 +128,29 @@ async function sendControlCmd (cmdItem: DeviceCmdItem, index: number) {
   color: #fff;
   border-radius: 2px;
 
-  .dock-control-panel-header{
+  .dock-control-panel-header {
     border-bottom: 1px solid #515151;
   }
 
-  .control-cmd-wrapper{
-    .control-cmd-header{
+  .control-cmd-wrapper {
+    .control-cmd-header {
       font-size: 14px;
       font-weight: 600;
       padding: 10px 10px 0px;
 
-      .debug-btn{
+      .debug-btn {
         margin-left: 10px;
-        border:1px solid #585858;
+        border: 1px solid #585858;
       }
     }
 
-    .control-cmd-box{
+    .control-cmd-box {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       padding: 4px 10px;
-      .control-cmd-item{
+
+      .control-cmd-item {
         width: 220px;
         height: 58px;
         display: flex;
@@ -157,11 +160,11 @@ async function sendControlCmd (cmdItem: DeviceCmdItem, index: number) {
         margin: 4px 0;
         padding: 0 8px;
 
-        .control-cmd-item-left{
+        .control-cmd-item-left {
           display: flex;
           flex-direction: column;
 
-          .item-label{
+          .item-label {
             font-weight: 700;
           }
         }
